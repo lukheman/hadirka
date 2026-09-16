@@ -204,17 +204,7 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
     } catch (_) {}
   }
 
-  DateTime? _parseJamString(String? timeStr) {
-    if (timeStr == null || timeStr.isEmpty) return null;
-    final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(timeStr);
-    if (match != null) {
-      final hour = int.parse(match.group(1)!);
-      final minute = int.parse(match.group(2)!);
-      final now = AbsensiConfig.witaNow;
-      return DateTime(now.year, now.month, now.day, hour, minute);
-    }
-    return null;
-  }
+
 
   
   Future<void> muatUlangData() async {

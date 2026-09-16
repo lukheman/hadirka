@@ -18,65 +18,46 @@ class BerandaAttendanceCard extends ConsumerWidget {
 
     
     String statusJudul;
-    String statusSub;
     String statusBadgeLabel;
     Color statusBadgeBg;
     Color statusTextColor;
-    Color statusBorderColor;
-    IconData statusIcon;
 
     if (state.sudahCheckOut) {
       statusJudul = 'Sudah Check-Out';
-      statusSub = 'Presensi hari ini telah selesai (${state.durasiKerjaTeks})';
       statusBadgeLabel = 'SELESAI';
       statusBadgeBg = const Color(0x3310B981); 
       statusTextColor = const Color(0xFF34D399); 
-      statusBorderColor = const Color(0x6610B981);
-      statusIcon = LucideIcons.checkCircle2;
     } else if (state.sudahCheckIn && state.dataCheckIn != null) {
-      final waktuIn = state.dataCheckIn!.waktu;
       final isTerlambat = state.dataCheckIn!.statusKetepatan == 'terlambat';
       statusJudul = 'Sudah Check-In';
-      statusSub = isTerlambat ? 'Terlambat' : 'Tepat Waktu';
       statusBadgeLabel = isTerlambat ? 'TERLAMBAT' : 'TEPAT WAKTU';
       statusBadgeBg = isTerlambat ? const Color(0x33EF4444) : const Color(0x3310B981);
       statusTextColor = isTerlambat ? const Color(0xFFF87171) : const Color(0xFF34D399);
-      statusBorderColor = isTerlambat ? const Color(0x66EF4444) : const Color(0x6610B981);
-      statusIcon = isTerlambat ? LucideIcons.clockAlert : LucideIcons.logIn;
     } else {
       statusJudul = 'Belum Presensi';
       switch (state.statusAbsensiKode) {
         case 'tepat_waktu':
-          statusSub = 'Absensi Tepat Waktu (07.30 - 08.00 WITA)';
           statusBadgeLabel = 'SIAP PRESENSI';
           statusBadgeBg = const Color(0x3310B981);
           statusTextColor = const Color(0xFF34D399);
-          statusBorderColor = const Color(0x6610B981);
           break;
         case 'terlambat':
-          statusSub = 'Absensi Hari Ini (07.30 - 08.00 WITA)';
           statusBadgeLabel = 'TERLAMBAT';
           statusBadgeBg = const Color(0x33EF4444);
           statusTextColor = const Color(0xFFF87171);
-          statusBorderColor = const Color(0x66EF4444);
           break;
         case 'belum_dimulai':
-          statusSub = 'Pintu Absensi Buka Pukul 07.30 WITA';
           statusBadgeLabel = 'BELUM DIBUKA';
           statusBadgeBg = const Color(0x33F59E0B);
           statusTextColor = const Color(0xFFFBBF24);
-          statusBorderColor = const Color(0x66F59E0B);
           break;
         case 'jam_operasional_berakhir':
         default:
-          statusSub = 'Presensi Masuk Hari Ini Ditutup (16:00 WITA)';
           statusBadgeLabel = 'DITUTUP';
           statusBadgeBg = const Color(0x22FFFFFF);
           statusTextColor = const Color(0xFFCBD5E1);
-          statusBorderColor = const Color(0x44FFFFFF);
           break;
       }
-      statusIcon = LucideIcons.clock;
     }
 
     final waktuInText = state.dataCheckIn != null
