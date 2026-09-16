@@ -1,0 +1,56 @@
+import '../../../../core/network/api_client.dart';
+
+class ServicesApiService {
+  final ApiClient _apiClient;
+
+  ServicesApiService(this._apiClient);
+
+  Future<List<dynamic>> getUsers() async {
+    final response = await _apiClient.get('/users');
+    return response as List<dynamic>;
+  }
+
+  Future<List<dynamic>> getLeave() async {
+    final response = await _apiClient.get('/leave');
+    return response as List<dynamic>;
+  }
+
+  Future<List<dynamic>> getLoans() async {
+    final response = await _apiClient.get('/loan');
+    return response as List<dynamic>;
+  }
+
+  Future<List<dynamic>> getPayslips(String username) async {
+    final response = await _apiClient.get(username.isNotEmpty ? '/payslip?username=$username' : '/payslip');
+    return response as List<dynamic>;
+  }
+
+  Future<List<dynamic>> getGeofence() async {
+    final response = await _apiClient.get('/geofence');
+    return response as List<dynamic>;
+  }
+
+  Future<bool> postLeave(Map<String, dynamic> data) async {
+    await _apiClient.post('/leave', data: data);
+    return true;
+  }
+
+  Future<bool> postLoan(Map<String, dynamic> data) async {
+    await _apiClient.post('/loan', data: data);
+    return true;
+  }
+
+  Future<bool> updateProfile(Map<String, dynamic> data) async {
+    await _apiClient.put('/user/profile', data: data);
+    return true;
+  }
+
+  Future<bool> updatePassword(String username, String oldPass, String newPass) async {
+    await _apiClient.put('/user/password', data: {
+      'username': username,
+      'oldPassword': oldPass,
+      'newPassword': newPass,
+    });
+    return true;
+  }
+}
