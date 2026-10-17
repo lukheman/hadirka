@@ -10,8 +10,8 @@ app.use(express.json());
 
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
+  user: process.env.DB_USER || 'tjs_app',
+  password: process.env.DB_PASSWORD || 'tjs_app_2026',
   database: process.env.DB_NAME || 'db_absen_tjs',
   port: process.env.DB_PORT || 3306,
   dateStrings: true,
@@ -20,7 +20,7 @@ const dbConfig = {
 let pool;
 try {
   pool = mysql.createPool(dbConfig);
-  console.log('🔗 Connecting to XAMPP MySQL (db_absen_tjs)...');
+  console.log('🔗 Connecting to MySQL (db_absen_tjs)...');
 } catch (err) {
   console.error('❌ Error creating MySQL Pool:', err.message);
 }
@@ -29,7 +29,7 @@ async function getKaryawanByIdentifier(identifier) {
   if (!identifier) return null;
   const cleanStr = String(identifier).trim();
   const [rows] = await pool.query(
-    'SELECT * FROM tb_karyawan_internal WHERE id_karyawan_internal = ? OR LOWER(nik_karyawan_internal) = ?',
+    'SELECT * FROM tb_karyawan WHERE id_karyawan = ? OR LOWER(nik_karyawan) = ?',
     [isNaN(cleanStr) ? 0 : Number(cleanStr), cleanStr.toLowerCase()]
   );
   return rows.length > 0 ? rows[0] : null;
@@ -57,11 +57,11 @@ app.post('/api/auth/login', async (req, res) => {
       return res.json({
         success: true,
         user: {
-          id: user.id_karyawan_internal,
-          nik: user.nik_karyawan_internal,
-          username: user.nik_karyawan_internal, 
+          id: user.id_karyawan,
+          nik: user.nik_karyawan,
+          username: user.nik_karyawan, 
           nama: user.nama_karyawan,
-          email: `${user.nik_karyawan_internal}@tjs.local`, 
+          email: `${user.nik_karyawan}@tjs.local`, 
           noHp: user.no_hp || '',
           role: 'karyawan',
           jabatan: user.jabatan || '-',
@@ -90,7 +90,7 @@ app.post('/api/auth/register', async (req, res) => {
 
   try {
     const [existCheck] = await pool.query(
-      'SELECT nik_karyawan_internal FROM tb_karyawan_internal WHERE UPPER(nik_karyawan_internal) = ?',
+      'SELECT nik_karyawan FROM tb_karyawan WHERE UPPER(nik_karyawan) = ?',
       [cleanNik]
     );
 
@@ -98,7 +98,7 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ success: false, message: 'NIK sudah terdaftar.' });
     }
 
-    const insertQuery = `INSERT INTO tb_karyawan_internal (nik_karyawan_internal, nama_karyawan, password, no_hp, jabatan, id_site, tgl_masuk, status_karyawan, dibuat_pada) VALUES (?, ?, ?, ?, ?, ?, CURDATE(), 'AKTIF', NOW())`;
+    const insertQuery = `INSERT INTO tb_karyawan (nik_karyawan, nama_karyawan, password, no_hp, jabatan, id_site, tgl_masuk, status_karyawan, dibuat_pada) VALUES (?, ?, ?, ?, ?, ?, CURDATE(), 'AKTIF', NOW())`;
     const [result] = await pool.query(insertQuery, [
       cleanNik,
       nama,
@@ -149,13 +149,13 @@ app.put('/api/user/profile', async (req, res) => {
     }
 
     if (fotoProfil !== undefined) {
-      await pool.query('UPDATE tb_karyawan_internal SET foto_profil = ? WHERE id_karyawan_internal = ?', [fotoProfil, user.id_karyawan_internal]);
+      await pool.query('UPDATE tb_karyawan SET foto_profil = ? WHERE id_karyawan = ?', [fotoProfil, user.id_karyawan]);
     }
 
     if (nama) {
       await pool.query(
-        'UPDATE tb_karyawan_internal SET nama_karyawan = ?, no_hp = ? WHERE id_karyawan_internal = ?',
-        [nama.trim(), noHp || '', user.id_karyawan_internal]
+        'UPDATE tb_karyawan SET nama_karyawan = ?, no_hp = ? WHERE id_karyawan = ?',
+        [nama.trim(), noHp || '', user.id_karyawan]
       );
     }
 
@@ -189,7 +189,7 @@ app.put('/api/user/password', async (req, res) => {
     }
 
     const hashedNewPw = bcrypt.hashSync(newPassword, 10);
-    await pool.query('UPDATE tb_karyawan_internal SET password = ? WHERE id_karyawan_internal = ?', [hashedNewPw, user.id_karyawan_internal]);
+    await pool.query('UPDATE tb_karyawan SET password = ? WHERE id_karyawan = ?', [hashedNewPw, user.id_karyawan]);
 
     return res.json({ success: true, message: 'Password berhasil diubah!' });
   } catch (err) {
@@ -218,16 +218,16 @@ app.get('/api/attendance', async (req, res) => {
         a.is_tepat_waktu,
         a.foto_selfie_path,
         a.dibuat_pada,
-        k.nik_karyawan_internal AS karyawan_nik,
-        k.nik_karyawan_internal AS karyawan_username,
+        k.nik_karyawan AS karyawan_nik,
+        k.nik_karyawan AS karyawan_username,
         k.nama_karyawan AS karyawan_nama
-      FROM tb_absen_internal a
-      JOIN tb_karyawan_internal k ON a.id_karyawan = k.id_karyawan_internal
+      FROM tb_absen a
+      JOIN tb_karyawan k ON a.id_karyawan = k.id_karyawan
     `;
     let params = [];
 
     if (username) {
-      query += ' WHERE LOWER(k.nik_karyawan_internal) = ? OR k.id_karyawan_internal = ?';
+      query += ' WHERE LOWER(k.nik_karyawan) = ? OR k.id_karyawan = ?';
       const cleanUser = username.toLowerCase();
       params.push(cleanUser, isNaN(cleanUser) ? 0 : Number(cleanUser));
     }
@@ -286,7 +286,7 @@ app.post('/api/attendance/submit', async (req, res) => {
     }
 
     
-    const [lokasiRows] = await pool.query('SELECT * FROM tb_site_internal WHERE is_aktif = 1 LIMIT 1');
+    const [lokasiRows] = await pool.query('SELECT * FROM tb_site WHERE is_aktif = 1 LIMIT 1');
     const idLokasi = lokasiRows.length > 0 ? lokasiRows[0].id_site : 1;
     const namaLokasi = lokasiRows.length > 0 ? lokasiRows[0].nama_site : 'Kantor TJS Dawi-Dawi';
 
@@ -299,8 +299,8 @@ app.post('/api/attendance/submit', async (req, res) => {
     const timeStr = `${hours}:${minutes} WITA`;
 
     const [todayLogs] = await pool.query(
-      'SELECT * FROM tb_absen_internal WHERE id_karyawan = ? AND tanggal_absen = ?',
-      [user.id_karyawan_internal, todayStr]
+      'SELECT * FROM tb_absen WHERE id_karyawan = ? AND tanggal_absen = ?',
+      [user.id_karyawan, todayStr]
     );
 
     let idLog = 0;
@@ -333,16 +333,16 @@ app.post('/api/attendance/submit', async (req, res) => {
         }
 
         await pool.query(
-          'UPDATE tb_absen_internal SET waktu_keluar = ?, status_kehadiran = ? WHERE id_absen = ?',
+          'UPDATE tb_absen SET waktu_keluar = ?, status_kehadiran = ? WHERE id_absen = ?',
           [waktuOut, 'Sudah Selesai', idLog]
         );
       } else {
         waktuOut = timeStr;
         waktuIn = '08:00 WITA';
         const [resIns] = await pool.query(
-          `INSERT INTO tb_absen_internal (id_karyawan, id_lokasi, tanggal_absen, waktu_masuk, waktu_keluar, nama_lokasi, latitude, longitude, jarak_meter, status_kehadiran, keterlambatan_menit, is_tepat_waktu, foto_selfie_path, dibuat_pada)
+          `INSERT INTO tb_absen (id_karyawan, id_lokasi, tanggal_absen, waktu_masuk, waktu_keluar, nama_lokasi, latitude, longitude, jarak_meter, status_kehadiran, keterlambatan_menit, is_tepat_waktu, foto_selfie_path, dibuat_pada)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-          [user.id_karyawan_internal, idLokasi, todayStr, waktuIn, waktuOut, namaLokasi, latitude || 0, longitude || 0, 10.0, 'Sudah Selesai', 0, 1, fotoPath || null]
+          [user.id_karyawan, idLokasi, todayStr, waktuIn, waktuOut, namaLokasi, latitude || 0, longitude || 0, 10.0, 'Sudah Selesai', 0, 1, fotoPath || null]
         );
         idLog = resIns.insertId;
       }
@@ -354,9 +354,9 @@ app.post('/api/attendance/submit', async (req, res) => {
         waktuOut = todayLogs[0].waktu_keluar;
       } else {
         const [resIns] = await pool.query(
-          `INSERT INTO tb_absen_internal (id_karyawan, id_lokasi, tanggal_absen, waktu_masuk, waktu_keluar, nama_lokasi, latitude, longitude, jarak_meter, status_kehadiran, keterlambatan_menit, is_tepat_waktu, foto_selfie_path, dibuat_pada)
+          `INSERT INTO tb_absen (id_karyawan, id_lokasi, tanggal_absen, waktu_masuk, waktu_keluar, nama_lokasi, latitude, longitude, jarak_meter, status_kehadiran, keterlambatan_menit, is_tepat_waktu, foto_selfie_path, dibuat_pada)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-          [user.id_karyawan_internal, idLokasi, todayStr, waktuIn, null, namaLokasi, latitude || 0, longitude || 0, 10.0, isTepat ? 'Tepat Waktu' : `Terlambat ${keterlambatanMenit}m`, keterlambatanMenit, isTepat ? 1 : 0, fotoPath || null]
+          [user.id_karyawan, idLokasi, todayStr, waktuIn, null, namaLokasi, latitude || 0, longitude || 0, 10.0, isTepat ? 'Tepat Waktu' : `Terlambat ${keterlambatanMenit}m`, keterlambatanMenit, isTepat ? 1 : 0, fotoPath || null]
         );
         idLog = resIns.insertId;
       }
@@ -393,9 +393,9 @@ app.post('/api/attendance/submit', async (req, res) => {
 app.get('/api/leave', async (req, res) => {
   try {
     const [rows] = await pool.query(`
-      SELECT p.*, k.nik_karyawan_internal AS karyawan_nik, k.nama_karyawan AS karyawan_nama
-      FROM tb_pengajuan_internal p
-      JOIN tb_karyawan_internal k ON p.id_karyawan_internal = k.id_karyawan_internal
+      SELECT p.*, k.nik_karyawan AS karyawan_nik, k.nama_karyawan AS karyawan_nama
+      FROM tb_pengajuan p
+      JOIN tb_karyawan k ON p.id_karyawan = k.id_karyawan
       ORDER BY p.dibuat_pada DESC
     `);
 
@@ -431,8 +431,8 @@ app.post('/api/leave', async (req, res) => {
       return res.status(404).json({ success: false, message: `Karyawan (${identifier}) tidak ditemukan.` });
     }
 
-    const query = `INSERT INTO tb_pengajuan_internal (id_karyawan_internal, jenis_pengajuan, rentang_tanggal, alasan_pengajuan, status_approval, lampiran_path, dibuat_pada) VALUES (?, ?, ?, ?, 'MENUNGGU', ?, NOW())`;
-    await pool.query(query, [user.id_karyawan_internal, jenis || 'Cuti Tahunan', tanggal || '-', alasan || '-', lampiranPath || null]);
+    const query = `INSERT INTO tb_pengajuan (id_karyawan, jenis_pengajuan, rentang_tanggal, alasan_pengajuan, status_approval, lampiran_path, dibuat_pada) VALUES (?, ?, ?, ?, 'MENUNGGU', ?, NOW())`;
+    await pool.query(query, [user.id_karyawan, jenis || 'Cuti Tahunan', tanggal || '-', alasan || '-', lampiranPath || null]);
 
     return res.json({ success: true, message: 'Pengajuan cuti/izin/sakit berhasil disimpan.' });
   } catch (err) {
@@ -444,7 +444,7 @@ app.put('/api/leave/:id/status', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
   try {
-    await pool.query('UPDATE tb_pengajuan_internal SET status_approval = ? WHERE id_pengajuan = ?', [status, id]);
+    await pool.query('UPDATE tb_pengajuan SET status_approval = ? WHERE id_pengajuan = ?', [status, id]);
     return res.json({ success: true, message: `Status pengajuan (ID: ${id}) berhasil diubah menjadi ${status}.` });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
@@ -457,9 +457,9 @@ app.put('/api/leave/:id/status', async (req, res) => {
 app.get('/api/loan', async (req, res) => {
   try {
     const [rows] = await pool.query(`
-      SELECT p.*, k.nik_karyawan_internal AS karyawan_nik, k.nama_karyawan AS karyawan_nama
-      FROM tb_pinjaman_internal p
-      JOIN tb_karyawan_internal k ON p.id_karyawan_internal = k.id_karyawan_internal
+      SELECT p.*, k.nik_karyawan AS karyawan_nik, k.nama_karyawan AS karyawan_nama
+      FROM tb_pinjaman p
+      JOIN tb_karyawan k ON p.id_karyawan = k.id_karyawan
       ORDER BY p.created_at DESC
     `);
 
@@ -502,8 +502,8 @@ app.post('/api/loan', async (req, res) => {
     tglBayar.setMonth(today.getMonth() + (tenor || 1));
     const tglBayarStr = tglBayar.toISOString().split('T')[0];
 
-    const query = `INSERT INTO tb_pinjaman_internal (id_karyawan_internal, tgl_pinjaman, tgl_bayar_pinjaman, nominal_pinjaman, ket_pinjaman, created_at) VALUES (?, ?, ?, ?, ?, NOW())`;
-    await pool.query(query, [user.id_karyawan_internal, tglPinjaman, tglBayarStr, nominal || 0, alasan || '-']);
+    const query = `INSERT INTO tb_pinjaman (id_karyawan, tgl_pinjaman, tgl_bayar_pinjaman, nominal_pinjaman, ket_pinjaman, created_at) VALUES (?, ?, ?, ?, ?, NOW())`;
+    await pool.query(query, [user.id_karyawan, tglPinjaman, tglBayarStr, nominal || 0, alasan || '-']);
 
     return res.json({ success: true, message: 'Pengajuan pinjaman berhasil disimpan.' });
   } catch (err) {
@@ -522,8 +522,8 @@ app.get('/api/geofence', async (req, res) => {
   try {
     const activeOnly = req.query.activeOnly === 'true';
     const query = activeOnly
-      ? 'SELECT * FROM tb_site_internal WHERE is_aktif = 1 ORDER BY id_site ASC'
-      : 'SELECT * FROM tb_site_internal ORDER BY id_site ASC';
+      ? 'SELECT * FROM tb_site WHERE is_aktif = 1 ORDER BY id_site ASC'
+      : 'SELECT * FROM tb_site ORDER BY id_site ASC';
     const [rows] = await pool.query(query);
 
     const mapped = rows.map((r) => ({
@@ -550,7 +550,7 @@ app.put('/api/geofence/:id', async (req, res) => {
   const { nama, latitude, longitude, radius, alamat, deskripsi, isAktif } = req.body;
   try {
     await pool.query(
-      `UPDATE tb_site_internal SET nama_site = ?, latitude = ?, longitude = ?, radius_meter = ?, lokasi = ?, deskripsi_lokasi = ?, is_aktif = ? WHERE id_site = ?`,
+      `UPDATE tb_site SET nama_site = ?, latitude = ?, longitude = ?, radius_meter = ?, lokasi = ?, deskripsi_lokasi = ?, is_aktif = ? WHERE id_site = ?`,
       [nama, latitude, longitude, radius, alamat || '', deskripsi || '', isAktif ? 1 : 0, id]
     );
     return res.json({ success: true, message: `Data lokasi geofence (${nama}) berhasil diperbarui!` });
@@ -566,14 +566,14 @@ app.get('/api/payslip', async (req, res) => {
   try {
     const { username } = req.query;
     let query = `
-      SELECT s.*, k.nik_karyawan_internal AS karyawan_nik, k.nik_karyawan_internal AS karyawan_username, k.nama_karyawan AS karyawan_nama
-      FROM tb_slip_gaji_internal s
-      JOIN tb_karyawan_internal k ON s.id_karyawan = k.id_karyawan_internal
+      SELECT s.*, k.nik_karyawan AS karyawan_nik, k.nik_karyawan AS karyawan_username, k.nama_karyawan AS karyawan_nama
+      FROM tb_slip_gaji s
+      JOIN tb_karyawan k ON s.id_karyawan = k.id_karyawan
     `;
     let params = [];
 
     if (username) {
-      query += ' WHERE LOWER(k.nik_karyawan_internal) = ? OR k.id_karyawan_internal = ?';
+      query += ' WHERE LOWER(k.nik_karyawan) = ? OR k.id_karyawan = ?';
       const cleanUser = username.toLowerCase();
       params.push(cleanUser, isNaN(cleanUser) ? 0 : Number(cleanUser));
     }
@@ -616,8 +616,8 @@ app.post('/api/payslip', async (req, res) => {
     const pTongan = Number(potongan) || 0;
     const total = gPokok + tJangan - pTongan;
 
-    const query = `INSERT INTO tb_slip_gaji_internal (id_karyawan, periode, gaji_pokok, tunjangan, potongan, total_diterima, status_rilis, dibuat_pada) VALUES (?, ?, ?, ?, ?, ?, 'DITERBITKAN', NOW())`;
-    await pool.query(query, [user.id_karyawan_internal, periode || 'Agustus 2026', gPokok, tJangan, pTongan, total]);
+    const query = `INSERT INTO tb_slip_gaji (id_karyawan, periode, gaji_pokok, tunjangan, potongan, total_diterima, status_rilis, dibuat_pada) VALUES (?, ?, ?, ?, ?, ?, 'DITERBITKAN', NOW())`;
+    await pool.query(query, [user.id_karyawan, periode || 'Agustus 2026', gPokok, tJangan, pTongan, total]);
 
     return res.json({ success: true, message: 'Slip gaji karyawan berhasil dirilis oleh HR.' });
   } catch (err) {
@@ -628,7 +628,7 @@ app.post('/api/payslip', async (req, res) => {
 app.delete('/api/payslip/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    await pool.query('DELETE FROM tb_slip_gaji_internal WHERE id_slip_gaji = ?', [id]);
+    await pool.query('DELETE FROM tb_slip_gaji WHERE id_slip_gaji = ?', [id]);
     return res.json({ success: true, message: `Slip gaji (ID: ${id}) berhasil dihapus.` });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
@@ -641,7 +641,7 @@ app.delete('/api/payslip/:id', async (req, res) => {
 app.get('/api/users', async (req, res) => {
   try {
     const [karyawan] = await pool.query(
-      'SELECT id_karyawan_internal AS id, nik_karyawan_internal AS nik, nik_karyawan_internal AS username, nama_karyawan AS nama, CONCAT(nik_karyawan_internal, "@tjs.local") AS email, no_hp AS noHp, "karyawan" AS role, jabatan, "-" AS departemen, dibuat_pada FROM tb_karyawan_internal ORDER BY id_karyawan_internal ASC'
+      'SELECT id_karyawan AS id, nik_karyawan AS nik, nik_karyawan AS username, nama_karyawan AS nama, CONCAT(nik_karyawan, "@tjs.local") AS email, no_hp AS noHp, "karyawan" AS role, jabatan, "-" AS departemen, dibuat_pada FROM tb_karyawan ORDER BY id_karyawan ASC'
     );
     return res.json({ success: true, data: karyawan });
   } catch (err) {
@@ -659,7 +659,7 @@ app.post('/api/users', async (req, res) => {
 
   try {
     const [existCheck] = await pool.query(
-      'SELECT nik_karyawan_internal FROM tb_karyawan_internal WHERE UPPER(nik_karyawan_internal) = ?',
+      'SELECT nik_karyawan FROM tb_karyawan WHERE UPPER(nik_karyawan) = ?',
       [cleanNik]
     );
 
@@ -668,7 +668,7 @@ app.post('/api/users', async (req, res) => {
     }
 
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const query = `INSERT INTO tb_karyawan_internal (nik_karyawan_internal, nama_karyawan, password, no_hp, jabatan, tgl_masuk, status_karyawan, dibuat_pada) VALUES (?, ?, ?, ?, ?, CURDATE(), 'AKTIF', NOW())`;
+    const query = `INSERT INTO tb_karyawan (nik_karyawan, nama_karyawan, password, no_hp, jabatan, tgl_masuk, status_karyawan, dibuat_pada) VALUES (?, ?, ?, ?, ?, CURDATE(), 'AKTIF', NOW())`;
     await pool.query(query, [
       cleanNik,
       nama,
@@ -691,8 +691,8 @@ app.delete('/api/users/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Pengguna tidak ditemukan.' });
     }
 
-    await pool.query('DELETE FROM tb_karyawan_internal WHERE id_karyawan_internal = ?', [user.id_karyawan_internal]);
-    return res.json({ success: true, message: `Akun Karyawan (ID: ${user.id_karyawan_internal}) berhasil dihapus!` });
+    await pool.query('DELETE FROM tb_karyawan WHERE id_karyawan = ?', [user.id_karyawan]);
+    return res.json({ success: true, message: `Akun Karyawan (ID: ${user.id_karyawan}) berhasil dihapus!` });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }
@@ -705,14 +705,14 @@ app.get('/api/notifications', async (req, res) => {
   try {
     const { username } = req.query;
     let query = `
-      SELECT n.*, k.nik_karyawan_internal AS karyawan_nik, k.nik_karyawan_internal AS karyawan_username
+      SELECT n.*, k.nik_karyawan AS karyawan_nik, k.nik_karyawan AS karyawan_username
       FROM tb_notifikasi n
-      JOIN tb_karyawan_internal k ON n.id_karyawan = k.id_karyawan_internal
+      JOIN tb_karyawan k ON n.id_karyawan = k.id_karyawan
     `;
     let params = [];
 
     if (username) {
-      query += ' WHERE LOWER(k.nik_karyawan_internal) = ? OR k.id_karyawan_internal = ?';
+      query += ' WHERE LOWER(k.nik_karyawan) = ? OR k.id_karyawan = ?';
       const cleanUser = username.toLowerCase();
       params.push(cleanUser, isNaN(cleanUser) ? 0 : Number(cleanUser));
     }
@@ -751,7 +751,7 @@ function getLocalIpAddresses() {
   return addresses;
 }
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
   const ipList = getLocalIpAddresses();
   console.log('\n===================================================================');
   console.log('🚀 BACKEND SERVER ABSENSI TJS AKTIF!');

@@ -29,7 +29,7 @@ switch ($action) {
         $identifier = strtolower(trim($input['identifier'] ?? ''));
         $password = $input['password'] ?? '';
 
-        $stmt = $conn->prepare("SELECT * FROM tb_karyawan_internal WHERE LOWER(nik_karyawan_internal) = ?");
+        $stmt = $conn->prepare("SELECT * FROM tb_karyawan WHERE LOWER(nik_karyawan) = ?");
         $stmt->bind_param("s", $identifier);
         $stmt->execute();
         $res = $stmt->get_result();
@@ -42,8 +42,8 @@ switch ($action) {
                 echo json_encode([
                     "success" => true,
                     "user" => [
-                        "id" => (int)$u['id_karyawan_internal'], 
-                        "nik" => $u['nik_karyawan_internal'], 
+                        "id" => (int)$u['id_karyawan'], 
+                        "nik" => $u['nik_karyawan'], 
                         "nama" => $u['nama_karyawan'],
                         "role" => 'karyawan',
                         "jabatan" => $u['jabatan'], 
@@ -61,9 +61,9 @@ switch ($action) {
         break;
 
     case 'attendance_get':
-        $sql = "SELECT a.*, k.nik_karyawan_internal AS karyawan_nik, k.nama_karyawan AS karyawan_nama 
-                FROM tb_absen_internal a 
-                JOIN tb_karyawan_internal k ON a.id_karyawan = k.id_karyawan_internal 
+        $sql = "SELECT a.*, k.nik_karyawan AS karyawan_nik, k.nama_karyawan AS karyawan_nama 
+                FROM tb_absen a 
+                JOIN tb_karyawan k ON a.id_karyawan = k.id_karyawan 
                 ORDER BY a.dibuat_pada DESC";
         $res = $conn->query($sql);
         $data = [];
@@ -91,7 +91,7 @@ switch ($action) {
         break;
 
     case 'leave_get':
-        $sql = "SELECT p.*, k.nik_karyawan_internal AS karyawan_nik, k.nama_karyawan AS karyawan_nama FROM tb_pengajuan_internal p JOIN tb_karyawan_internal k ON p.id_karyawan_internal = k.id_karyawan_internal ORDER BY p.dibuat_pada DESC";
+        $sql = "SELECT p.*, k.nik_karyawan AS karyawan_nik, k.nama_karyawan AS karyawan_nama FROM tb_pengajuan p JOIN tb_karyawan k ON p.id_karyawan = k.id_karyawan ORDER BY p.dibuat_pada DESC";
         $res = $conn->query($sql);
         $data = [];
         if ($res) {
@@ -114,7 +114,7 @@ switch ($action) {
         break;
 
     case 'geofence_get':
-        $res = $conn->query("SELECT * FROM tb_site_internal ORDER BY id_site ASC");
+        $res = $conn->query("SELECT * FROM tb_site ORDER BY id_site ASC");
         $data = [];
         if ($res) {
             while ($r = $res->fetch_assoc()) {
@@ -136,7 +136,7 @@ switch ($action) {
         break;
 
     case 'loan_get':
-        $sql = "SELECT p.*, k.nik_karyawan_internal AS karyawan_nik, k.nama_karyawan AS karyawan_nama FROM tb_pinjaman_internal p JOIN tb_karyawan_internal k ON p.id_karyawan_internal = k.id_karyawan_internal ORDER BY p.created_at DESC";
+        $sql = "SELECT p.*, k.nik_karyawan AS karyawan_nik, k.nama_karyawan AS karyawan_nama FROM tb_pinjaman p JOIN tb_karyawan k ON p.id_karyawan = k.id_karyawan ORDER BY p.created_at DESC";
         $res = $conn->query($sql);
         $data = [];
         if ($res) {
@@ -159,7 +159,7 @@ switch ($action) {
         break;
 
     case 'users_get':
-        $resK = $conn->query("SELECT id_karyawan_internal AS id, nik_karyawan_internal AS nik, nama_karyawan AS nama, jabatan FROM tb_karyawan_internal ORDER BY id_karyawan_internal ASC");
+        $resK = $conn->query("SELECT id_karyawan AS id, nik_karyawan AS nik, nama_karyawan AS nama, jabatan FROM tb_karyawan ORDER BY id_karyawan ASC");
         $data = [];
         if ($resK) {
             while ($r = $resK->fetch_assoc()) { 
