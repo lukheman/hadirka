@@ -1,40 +1,68 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
 class ApiConstants {
   static const String keyCustomUrl = 'custom_server_url';
   static const String keyAuthToken = 'auth_token';
+
   
-  
-  static String get defaultBaseUrl {
-    if (kIsWeb) {
-      return 'http://localhost:3000/api';
-    }
-    try {
-      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-        return 'http://localhost:3000/api';
-      }
-      if (Platform.isAndroid) {
-        
-        return 'http://192.168.1.58:3000/api';
-      }
-    } catch (_) {}
-    return 'http://192.168.1.58:3000/api';
+  static String _env(String key) {
+    if (!dotenv.isInitialized) return '';
+    return dotenv.env[key]?.trim() ?? '';
   }
 
   
-  static const List<String> candidateIps = [
-    'http://192.168.1.58:3000/api',
-    'http://10.0.2.2:3000/api',
-    'http://192.168.1.18:3000/api',
-    'http://192.168.1.12:3000/api',
-    'http://192.168.56.1:3000/api',
-    'http://localhost:3000/api',
-  ];
+  static String get defaultBaseUrl {
+    final fromEnv = _env('API_BASE_URL');
+    if (fromEnv.isNotEmpty) return fromEnv;
+
+    if (kIsWeb) {
+      return 'http://localhost:8000/api';
+    }
+    try {
+      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+        return 'http://localhost:8000/api';
+      }
+      if (Platform.isAndroid) {
+        
+        return 'http://192.168.1.58:8000/api';
+      }
+    } catch (_) {}
+    return 'http://192.168.1.58:8000/api';
+  }
+
   
-  static const Duration timeoutDuration = Duration(seconds: 8);
+  static const List<String> _defaultCandidateIps = [
+    'http://192.168.1.58:8000/api',
+    'http://10.0.2.2:8000/api',
+    'http://192.168.1.18:8000/api',
+    'http://192.168.1.12:8000/api',
+    'http://192.168.56.1:8000/api',
+    'http://localhost:8000/api',
+    'http://192.168.1.58/ipm-hris/api',
+    'http://localhost/ipm-hris/api',
+  ];
+
+  
+  static List<String> get candidateIps {
+    final fromEnv = _env('API_FALLBACK_IPS');
+    if (fromEnv.isEmpty) return _defaultCandidateIps;
+    return fromEnv
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+  }
+  
+  
+  static Duration get timeoutDuration {
+    final seconds = int.tryParse(_env('API_TIMEOUT_SECONDS'));
+    if (seconds == null || seconds <= 0) return const Duration(seconds: 8);
+    return Duration(seconds: seconds);
+  }
 
   static String? _customServerUrl;
 
@@ -60,20 +88,14 @@ class ApiConstants {
       clean = 'http://$clean';
     }
 
-    if (!clean.contains(':3000')) {
-      clean = clean.replaceAll('/api', '');
-      if (clean.endsWith('/')) {
-        clean = clean.substring(0, clean.length - 1);
-      }
-      clean = '$clean:3000';
+    // Rapikan slash di akhir, lalu pastikan berakhiran '/api'.
+    // Server baru = website HRD (contoh: http://192.168.x.x/ipm-hris atau
+    // http://192.168.x.x:8000 saat dev) sehingga port :3000 tidak dipaksa lagi.
+    while (clean.endsWith('/')) {
+      clean = clean.substring(0, clean.length - 1);
     }
-
     if (!clean.endsWith('/api')) {
-      if (clean.endsWith('/')) {
-        clean = '${clean}api';
-      } else {
-        clean = '$clean/api';
-      }
+      clean = '$clean/api';
     }
 
     _customServerUrl = clean;
