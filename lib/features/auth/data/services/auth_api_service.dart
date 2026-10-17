@@ -21,6 +21,13 @@ class AuthApiService {
     return response as Map<String, dynamic>;
   }
 
+  Future<Map<String, dynamic>> checkActivation(String identifier) async {
+    final response = await _apiClient.post('/auth/check', data: {
+      'identifier': identifier.trim(),
+    });
+    return Map<String, dynamic>.from(response as Map);
+  }
+
   Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(ApiConstants.keyAuthToken, token);

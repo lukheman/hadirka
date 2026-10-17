@@ -112,6 +112,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<Map<String, dynamic>?> checkActivation(String identifier) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final result = await _repository.checkActivation(identifier);
+      state = state.copyWith(isLoading: false);
+      return result;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
+      return null;
+    }
+  }
+
   
   void updateUser({
     String? nama,

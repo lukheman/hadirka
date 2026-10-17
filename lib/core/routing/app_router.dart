@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,11 +18,14 @@ import '../../features/profile/presentation/layar_profil.dart';
 
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
+  final routerRefresh = _AuthRouterRefresh(ref.read(authProvider.notifier));
+  ref.onDispose(routerRefresh.dispose);
 
   return GoRouter(
     initialLocation: '/login',
+    refreshListenable: routerRefresh,
     redirect: (BuildContext context, GoRouterState state) {
+      final authState = ref.read(authProvider);
       final isLoggingIn = state.matchedLocation == '/login';
       final isRegistering = state.matchedLocation == '/register';
 
@@ -107,3 +111,24 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
+
+/// Refresh redirect tanpa membuat ulang GoRouter.
+///
+/// Membuat GoRouter baru setiap perubahan AuthState akan mengembalikan route
+/// ke initialLocation. Ini membuat halaman aktivasi kembali ke /login ketika
+/// status isLoading berubah saat cek NIK atau menyimpan password.
+class _AuthRouterRefresh extends ChangeNotifier {
+  late final StreamSubscription<AuthState> _subscription;
+
+  _AuthRouterRefresh(AuthNotifier authNotifier) {
+    _subscription = authNotifier.stream.listen((_) {
+      notifyListeners();
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}

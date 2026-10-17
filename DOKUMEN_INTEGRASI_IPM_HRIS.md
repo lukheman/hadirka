@@ -73,7 +73,7 @@ Daftar rute hanya ada di file itu; helper & handler dipisah per domain agar rapi
 
 * Produksi (Apache/XAMPP): aturan di `.htaccess` root repo
   (`RewriteRule ^api(/.*)?$ app/api/index.php [L,QSA]`) — pastikan `mod_rewrite` aktif.
-* Dev: `php -S localhost:8000 router.php` (router khusus menangani `/api`).
+* Dev: `php -S 0.0.0.0:8000 router.php` (router khusus menangani `/api`; tanpa `router.php`, PHP built-in server mengabaikan `.htaccess` dan URL `/api/*` dapat redirect ke `login.php`).
 * Debug manual: `app/api/index.php?__route=auth/login`.
 
 **Format respons** (sama dengan backend lama):
@@ -89,6 +89,7 @@ Daftar rute hanya ada di file itu; helper & handler dipisah per domain agar rapi
 | Method | Path | Keterangan |
 |---|---|---|
 | POST | `/auth/login` | `{identifier, password}` → user + token |
+| POST | `/auth/check` | `{identifier}` → cek NIK/ID terdaftar dan belum diaktivasi |
 | POST | `/auth/register` | Aktivasi akun: `{nik, nama, password, noHp}` — NIK harus ada di `tb_karyawan` |
 | PUT | `/user/profile` | `{username, nama, noHp, fotoProfil(base64)}` |
 | PUT | `/user/password` | `{username, oldPassword, newPassword}` |
@@ -154,7 +155,7 @@ Pengajuan pinjaman memakai controller yang sudah ada
 2. Pastikan folder upload writable:
    `app/uploads/{absensi,profil}` (sisanya sudah ada dari instalasi awal).
 3. Apache: aktifkan `mod_rewrite` (aturan `/api` sudah di `.htaccess`).
-   Dev: `php -S localhost:8000 router.php`.
+   Dev: `php -S 0.0.0.0:8000 router.php`.
 4. Jalankan migration bila server baru (lihat `db/migrations/`).
 5. **Isi koordinat semua site aktif di Master Data → Data Site** — wajib agar aplikasi
    bisa check-in (site tanpa titik tidak akan muncul di aplikasi).

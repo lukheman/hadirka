@@ -15,85 +15,76 @@ class LayarDaftar extends ConsumerStatefulWidget {
 
 class _LayarDaftarState extends ConsumerState<LayarDaftar> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
-  final _namaController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _noHpController = TextEditingController();
-  final _jabatanController = TextEditingController(text: 'Staff Lapangan');
-  final _departemenController = TextEditingController(text: 'Operasional');
+  final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _konfirmasiPassController = TextEditingController();
-  bool _sembunyikanPass = true;
-  bool _sembunyikanKonfirmasi = true;
+  final _confirmationController = TextEditingController();
+
+  bool _passwordHidden = true;
+  bool _confirmationHidden = true;
+  bool _identifierVerified = false;
+  String? _verifiedIdentifier;
+  String _verifiedName = '';
+  String _verifiedPhone = '';
 
   @override
   void dispose() {
-    _usernameController.dispose();
-    _namaController.dispose();
-    _emailController.dispose();
-    _noHpController.dispose();
-    _jabatanController.dispose();
-    _departemenController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
-    _konfirmasiPassController.dispose();
+    _confirmationController.dispose();
     super.dispose();
   }
 
-  Future<void> _prosesDaftar() async {
-    if (_formKey.currentState!.validate()) {
-      final confirm = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Text('Konfirmasi Pendaftaran',
-              style: TextStyle(fontWeight: FontWeight.w800)),
-          content: const Text(
-              'Apakah Anda yakin data yang dimasukkan sudah benar dan ingin mendaftar?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Batal',
-                  style: TextStyle(color: AppColors.secondary)),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-              ),
-              child: const Text('Ya, Daftar'),
-            ),
-          ],
-        ),
-      );
+  Future<void> _checkIdentifier() async {
+    FocusScope.of(context).unfocus();
+    if (_identifierController.text.trim().isEmpty) {
+      _showError('NIK / ID karyawan wajib diisi.');
+      return;
+    }
 
-      if (confirm != true) return;
+    final result = await ref
+        .read(authProvider.notifier)
+        .checkActivation(_identifierController.text.trim());
+    if (!mounted || result == null) return;
 
-      final success = await ref.read(authProvider.notifier).register(
-            username: _usernameController.text.trim(),
-            nama: _namaController.text.trim(),
-            email: _emailController.text.trim(),
-            noHp: _noHpController.text.trim(),
-            jabatan: _jabatanController.text.trim(),
-            departemen: _departemenController.text.trim(),
-            password: _passwordController.text.trim(),
-          );
+    final data = result['data'] is Map
+        ? Map<String, dynamic>.from(result['data'] as Map)
+        : result;
+    setState(() {
+      _identifierVerified = true;
+      _verifiedIdentifier = (data['nik'] ?? _identifierController.text)
+          .toString()
+          .toUpperCase();
+      _verifiedName = (data['nama'] ?? '').toString();
+      _verifiedPhone = (data['noHp'] ?? '').toString();
+    });
+  }
 
-      if (success && mounted) {
+  Future<void> _activateAccount() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (!_identifierVerified || _verifiedIdentifier == null) return;
 
-        ref.read(authProvider.notifier).logout();
-
-        AppNotification.showSuccess(
-          context,
-          'Pendaftaran berhasil! Silakan masuk menggunakan akun tersebut.',
+    final success = await ref.read(authProvider.notifier).register(
+          username: _verifiedIdentifier!,
+          nama: _verifiedName,
+          email: '${_verifiedIdentifier!.toLowerCase()}@ipm.local',
+          noHp: _verifiedPhone,
+          jabatan: '-',
+          departemen: '-',
+          password: _passwordController.text,
         );
 
-        context.go('/login');
-      }
-    }
+    if (!mounted || !success) return;
+    await ref.read(authProvider.notifier).logout();
+    if (!mounted) return;
+    AppNotification.showSuccess(
+      context,
+      'Aktivasi berhasil. Silakan login dengan password baru.',
+    );
+    context.go('/login');
+  }
+
+  void _showError(String message) {
+    AppNotification.showError(context, message);
   }
 
   @override
@@ -112,337 +103,194 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Text(
-                  'Pendaftaran',
+                  'Aktivasi Akun',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
                     color: AppColors.onSurface,
                   ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Buat akun karyawan untuk mengakses sistem presensi & layanan TJS.',
+                  'Masukkan NIK atau ID karyawan yang sudah didaftarkan HRD.',
                   style: TextStyle(
                     fontSize: 14,
                     color: AppColors.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 28),
-
-                
                 if (authState.errorMessage != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AppColors.errorBg,
-                      borderRadius: BorderRadius.circular(12),
-                      border:
-                          Border.all(color: AppColors.error.withOpacity(0.3)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(LucideIcons.alertCircle,
-                            color: AppColors.error, size: 20),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            authState.errorMessage!,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.error,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  _MessageBox(
+                    message: authState.errorMessage!,
+                    color: AppColors.error,
+                    background: AppColors.errorBg,
+                    icon: LucideIcons.alertCircle,
                   ),
                   const SizedBox(height: 20),
                 ],
-
-                
-                const Text('NIK Karyawan',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.secondary)),
+                const Text(
+                  'NIK / ID Karyawan',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.secondary,
+                  ),
+                ),
                 const SizedBox(height: 6),
                 TextFormField(
-                  controller: _usernameController,
+                  controller: _identifierController,
+                  enabled: !_identifierVerified && !authState.isLoading,
+                  textCapitalization: TextCapitalization.characters,
                   decoration: _inputDecoration(
-                    hint: 'Masukkan NIK Karyawan',
+                    hint: 'Contoh: IPM-00001 atau 123',
                     icon: LucideIcons.user,
                   ),
-                  validator: (val) => val == null || val.isEmpty
-                      ? 'NIK wajib diisi'
+                  validator: (value) => value == null || value.trim().isEmpty
+                      ? 'NIK / ID karyawan wajib diisi'
                       : null,
                 ),
-                const SizedBox(height: 16),
-
-                
-                const Text('Nama Lengkap',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.secondary)),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _namaController,
-                  decoration: _inputDecoration(
-                    hint: 'Masukkan nama lengkap',
-                    icon: LucideIcons.user,
-                  ),
-                  validator: (val) => val == null || val.isEmpty
-                      ? 'Nama lengkap wajib diisi'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-
-                
-                const Text('Alamat Email',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.secondary)),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: _inputDecoration(
-                    hint: 'nama@tjs.co.id',
-                    icon: LucideIcons.mail,
-                  ),
-                  validator: (val) => val == null || !val.contains('@')
-                      ? 'Alamat email tidak valid'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-
-                const Text('Nomor WhatsApp / HP',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.secondary)),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _noHpController,
-                  keyboardType: TextInputType.phone,
-                  decoration: _inputDecoration(
-                    hint: '0812-3456-7890',
-                    icon: LucideIcons.phone,
-                  ),
-                  validator: (val) => val == null || val.isEmpty
-                      ? 'Nomor HP wajib diisi'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Jabatan',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.secondary)),
-                          const SizedBox(height: 6),
-                          DropdownButtonFormField<String>(
-                            value: _jabatanController.text,
-                            decoration: _inputDecoration(
-                              hint: 'Jabatan',
-                              icon: LucideIcons.briefcase,
+                const SizedBox(height: 12),
+                if (!_identifierVerified)
+                  ElevatedButton.icon(
+                    onPressed: authState.isLoading ? null : _checkIdentifier,
+                    icon: authState.isLoading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
                             ),
-                            icon: const Icon(LucideIcons.chevronDown,
-                                size: 18, color: AppColors.secondary),
-                            style: const TextStyle(
-                                fontSize: 14, color: AppColors.onSurface),
-                            items: [
-                              'Staff Lapangan',
-                              'Staff Kantor',
-                              'Supervisor',
-                              'Manager',
-                              'Direktur'
-                            ].map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value,
-                                    overflow: TextOverflow.ellipsis),
-                              );
-                            }).toList(),
-                            isExpanded: true,
-                            onChanged: (String? newValue) {
-                              if (newValue != null) {
-                                _jabatanController.text = newValue;
-                              }
-                            },
-                          ),
-                        ],
-                      ),
+                          )
+                        : const Icon(LucideIcons.search, size: 18),
+                    label: const Text(
+                      'CEK DATA KARYAWAN',
+                      style: TextStyle(fontWeight: FontWeight.w800),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Departemen',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.secondary)),
-                          const SizedBox(height: 6),
-                          DropdownButtonFormField<String>(
-                            value: _departemenController.text,
-                            decoration: _inputDecoration(
-                              hint: 'Departemen',
-                              icon: LucideIcons.building,
-                            ),
-                            icon: const Icon(LucideIcons.chevronDown,
-                                size: 18, color: AppColors.secondary),
-                            style: const TextStyle(
-                                fontSize: 14, color: AppColors.onSurface),
-                            items: [
-                              'Operasional',
-                              'HRD',
-                              'Keuangan',
-                              'IT',
-                              'Marketing',
-                              'Produksi'
-                            ].map((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value,
-                                    overflow: TextOverflow.ellipsis),
-                              );
-                            }).toList(),
-                            isExpanded: true,
-                            onChanged: (String? newValue) {
-                              if (newValue != null) {
-                                _departemenController.text = newValue;
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                
-                const Text('Kata Kunci (Password)',
+                    style: _buttonStyle(),
+                  ),
+                if (_identifierVerified) ...[
+                  _MessageBox(
+                    message: 'Data ditemukan: $_verifiedName\n'
+                        'NIK: $_verifiedIdentifier\n\n'
+                        'Buat password untuk mengaktifkan akun.',
+                    color: AppColors.success,
+                    background: AppColors.successBg,
+                    icon: LucideIcons.checkCircle2,
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Password Baru',
                     style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.secondary)),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: _sembunyikanPass,
-                  decoration: _inputDecoration(
-                    hint: 'Minimal 6 karakter',
-                    icon: LucideIcons.lock,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _sembunyikanPass ? LucideIcons.eyeOff : LucideIcons.eye,
-                        size: 18,
-                        color: AppColors.secondary,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _sembunyikanPass = !_sembunyikanPass;
-                        });
-                      },
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.secondary,
                     ),
                   ),
-                  validator: (val) => val == null || val.length < 6
-                      ? 'Password minimal 6 karakter'
-                      : null,
-                ),
-                const SizedBox(height: 16),
-
-                
-                const Text('Konfirmasi Kata Kunci',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.secondary)),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _konfirmasiPassController,
-                  obscureText: _sembunyikanKonfirmasi,
-                  decoration: _inputDecoration(
-                    hint: 'Ulangi password',
-                    icon: LucideIcons.lock,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _sembunyikanKonfirmasi
-                            ? LucideIcons.eyeOff
-                            : LucideIcons.eye,
-                        size: 18,
-                        color: AppColors.secondary,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _sembunyikanKonfirmasi = !_sembunyikanKonfirmasi;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: (val) {
-                    if (val != _passwordController.text) {
-                      return 'Konfirmasi password tidak cocok';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 28),
-
-                
-                ElevatedButton(
-                  onPressed: authState.isLoading ? null : _prosesDaftar,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: authState.isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2.5,
-                          ),
-                        )
-                      : const Text(
-                          'DAFTAR SEKARANG',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w800, letterSpacing: 1.0),
+                  const SizedBox(height: 6),
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: _passwordHidden,
+                    decoration: _inputDecoration(
+                      hint: 'Minimal 6 karakter',
+                      icon: LucideIcons.lock,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _passwordHidden
+                              ? LucideIcons.eyeOff
+                              : LucideIcons.eye,
+                          size: 18,
+                          color: AppColors.secondary,
                         ),
-                ),
-                const SizedBox(height: 20),
-
-                
+                        onPressed: () => setState(
+                            () => _passwordHidden = !_passwordHidden),
+                      ),
+                    ),
+                    validator: (value) => value == null || value.length < 6
+                        ? 'Password minimal 6 karakter'
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Konfirmasi Password',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.secondary,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  TextFormField(
+                    controller: _confirmationController,
+                    obscureText: _confirmationHidden,
+                    decoration: _inputDecoration(
+                      hint: 'Ulangi password',
+                      icon: LucideIcons.lock,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _confirmationHidden
+                              ? LucideIcons.eyeOff
+                              : LucideIcons.eye,
+                          size: 18,
+                          color: AppColors.secondary,
+                        ),
+                        onPressed: () => setState(() =>
+                            _confirmationHidden = !_confirmationHidden),
+                      ),
+                    ),
+                    validator: (value) => value != _passwordController.text
+                        ? 'Konfirmasi password tidak cocok'
+                        : null,
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: authState.isLoading ? null : _activateAccount,
+                    style: _buttonStyle(),
+                    child: authState.isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : const Text(
+                            'AKTIFKAN AKUN',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    onPressed: authState.isLoading
+                        ? null
+                        : () => setState(() {
+                              _identifierVerified = false;
+                              _verifiedIdentifier = null;
+                              _passwordController.clear();
+                              _confirmationController.clear();
+                            }),
+                    child: const Text('GANTI NIK / ID'),
+                  ),
+                ],
+                const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Sudah memiliki akun? ',
-                        style: TextStyle(color: AppColors.onSurfaceVariant)),
+                    const Text(
+                      'Sudah punya akun? ',
+                      style: TextStyle(color: AppColors.onSurfaceVariant),
+                    ),
                     GestureDetector(
                       onTap: () => context.go('/login'),
                       child: const Text(
@@ -455,7 +303,6 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 32),
               ],
             ),
           ),
@@ -463,6 +310,13 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
       ),
     );
   }
+
+  ButtonStyle _buttonStyle() => ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      );
 
   InputDecoration _inputDecoration({
     required String hint,
@@ -487,6 +341,50 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: AppColors.primary, width: 2),
+      ),
+    );
+  }
+}
+
+class _MessageBox extends StatelessWidget {
+  final String message;
+  final Color color;
+  final Color background;
+  final IconData icon;
+
+  const _MessageBox({
+    required this.message,
+    required this.color,
+    required this.background,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                fontSize: 13,
+                color: color,
+                fontWeight: FontWeight.w600,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

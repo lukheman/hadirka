@@ -27,6 +27,10 @@ class AuthRepository {
     return UserAccount.fromJson(userJson);
   }
 
+  Future<Map<String, dynamic>> checkActivation(String identifier) {
+    return _apiService.checkActivation(identifier);
+  }
+
   Future<void> logout() async {
     await _apiService.deleteToken();
   }
