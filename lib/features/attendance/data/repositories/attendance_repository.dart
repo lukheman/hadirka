@@ -12,6 +12,7 @@ class AttendanceRepository {
     required double longitude,
     required String tipe,
     String? fotoPath,
+    String? fotoBase64,
   }) async {
     final result = await _apiService.submitAttendance(
       username: username,
@@ -19,6 +20,7 @@ class AttendanceRepository {
       longitude: longitude,
       tipe: tipe,
       fotoPath: fotoPath,
+      fotoBase64: fotoBase64,
     );
     
     return DataAbsensi.fromJson(result['data'] ?? result);

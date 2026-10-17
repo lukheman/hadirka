@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -523,6 +524,20 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
     state = state.copyWith(clearFoto: true);
   }
 
+  /// Baca file selfie dan kembalikan sebagai base64 agar tersimpan di server
+  /// website (app/uploads/absensi). Mengembalikan null bila gagal/terlalu besar.
+  Future<String?> _fotoSelfieBase64() async {
+    try {
+      final file = state.fotoSelfie;
+      if (file == null) return null;
+      final bytes = await file.readAsBytes();
+      if (bytes.isEmpty || bytes.length > 2 * 1024 * 1024) return null;
+      return base64Encode(bytes);
+    } catch (_) {
+      return null;
+    }
+  }
+
   
   Future<bool> lakukanAbsensi(String tipe) async {
     _updateStatusJam();
@@ -577,12 +592,15 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
     state = state.copyWith(sedangMemproses: true, clearError: true);
 
     try {
+      final fotoB64 = await _fotoSelfieBase64();
+
       final dataAbsensi = await _attendanceRepo.submitAttendance(
         username: _user?.username ?? 'UNKNOWN',
         latitude: state.posisiSaatIni!.latitude,
         longitude: state.posisiSaatIni!.longitude,
         tipe: tipe,
         fotoPath: state.fotoSelfie?.path,
+        fotoBase64: fotoB64,
       );
 
       if (tipe == 'check_in') {

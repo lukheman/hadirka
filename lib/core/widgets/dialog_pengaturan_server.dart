@@ -127,7 +127,7 @@ class _DialogPengaturanServerState extends State<DialogPengaturanServer> {
               ),
               const SizedBox(height: 16),
               const Text(
-                'Masukkan IP Wi-Fi Laptop yang menjalankan Backend Node.js / XAMPP agar HP dapat terhubung.',
+                'Masukkan alamat server website HRD (XAMPP/Laragon atau server dev) agar HP dapat terhubung. Contoh: http://192.168.x.x/ipm-hris atau http://192.168.x.x:8000',
                 style: TextStyle(
                   fontSize: 13,
                   color: AppColors.onSurfaceVariant,
@@ -141,7 +141,7 @@ class _DialogPengaturanServerState extends State<DialogPengaturanServer> {
                 controller: _ipController,
                 decoration: InputDecoration(
                   labelText: 'Alamat URL Server API',
-                  hintText: 'http://192.168.x.x:3000/api',
+                  hintText: 'http://192.168.x.x/ipm-hris/api',
                   prefixIcon: const Icon(LucideIcons.globe, size: 18, color: AppColors.secondary),
                   suffixIcon: IconButton(
                     icon: const Icon(LucideIcons.rotateCcw, size: 18, color: AppColors.onSurfaceVariant),

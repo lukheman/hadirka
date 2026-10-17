@@ -13,6 +13,7 @@ class AttendanceApiService {
     required double longitude,
     required String tipe, 
     String? fotoPath,
+    String? fotoBase64,
   }) async {
     final payload = {
       'username': username,
@@ -20,6 +21,7 @@ class AttendanceApiService {
       'longitude': longitude,
       'tipe': tipe,
       'fotoPath': fotoPath,
+      'fotoBase64': fotoBase64,
     };
     
     
