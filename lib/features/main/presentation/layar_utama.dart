@@ -77,7 +77,7 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Image.asset(
-                      'assets/images/logo.png',
+                      'assets/images/logo-ipm.png',
                       width: 32,
                       height: 32,
                       fit: BoxFit.contain,

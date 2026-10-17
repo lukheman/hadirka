@@ -71,7 +71,7 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'assets/images/logo.png',
+                      'assets/images/logo-ipm.png',
                       height: 120,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
