@@ -51,21 +51,31 @@ class NotificationService {
       requestSoundPermission: true,
     );
 
+    const LinuxInitializationSettings initializationSettingsLinux = LinuxInitializationSettings(
+      defaultActionName: 'Buka Notifikasi',
+    );
+
     const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
+      macOS: initializationSettingsIOS,
+      linux: initializationSettingsLinux,
     );
 
-    await _flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) async {
-        final payload = response.payload;
-        if (payload != null && payload.isNotEmpty) {
-          await bukaPdfAman(payload);
-        }
-      },
-      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
-    );
+    try {
+      await _flutterLocalNotificationsPlugin.initialize(
+        initializationSettings,
+        onDidReceiveNotificationResponse: (NotificationResponse response) async {
+          final payload = response.payload;
+          if (payload != null && payload.isNotEmpty) {
+            await bukaPdfAman(payload);
+          }
+        },
+        onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+      );
+    } catch (e) {
+      debugPrint('Error initializing notifications: $e');
+    }
 
     try {
       final launchDetails = await _flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
@@ -85,6 +95,13 @@ class NotificationService {
   }
 
   Future<void> scheduleDailyReminders() async {
+    
+    final isMobileOrMacOS = !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.macOS);
+    if (!isMobileOrMacOS) return;
+
     await cancelAllNotifications();
 
     const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/network/api_config.dart';
 import 'core/theme/app_theme.dart';
@@ -7,12 +8,21 @@ import 'core/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   
+  try {
+    await dotenv.load(isOptional: true);
+  } catch (e) {
+    debugPrint('Gagal memuat .env, memakai nilai default: $e');
+  }
+
   await ApiConfig.loadCustomUrl();
   final notificationService = NotificationService();
   await notificationService.init();
   await notificationService.requestPermissions();
   await notificationService.scheduleDailyReminders();
+
+  debugPrint('🌐 Server API aktif: ${ApiConfig.baseUrl}');
 
   runApp(
     const ProviderScope(
