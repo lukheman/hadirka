@@ -17,6 +17,31 @@ Catatan:
 - File `.env` **sengaja ikut ter-commit** (berisi nilai non-rahasia dan wajib ada saat build). Template-nya di `.env.example`.
 - URL server juga bisa diganti saat runtime dari dalam aplikasi (tersimpan di SharedPreferences, key `custom_server_url`) tanpa perlu rebuild.
 
+## Google Maps Flutter
+
+Peta absensi memakai `google_maps_flutter`. Buat API key pada Google Cloud,
+aktifkan **Maps SDK for Android** dan **Maps SDK for iOS**, lalu isi key pada
+konfigurasi native. Batasi key berdasarkan package ID, SHA-1 Android, dan
+bundle ID iOS.
+
+Android: tambahkan pada `android/local.properties` (file tidak di-commit):
+
+```properties
+MAPS_API_KEY=YOUR_GOOGLE_MAPS_API_KEY
+```
+
+Untuk iOS, isi `GOOGLE_MAPS_API_KEY` pada Build Settings/Xcode atau pada
+`ios/Flutter/Debug.xcconfig` dan `ios/Flutter/Release.xcconfig`, lalu jalankan:
+
+```bash
+flutter pub get
+cd ios && pod install && cd ..
+flutter run
+```
+
+Tanpa API key valid, widget map tetap dibuat tetapi tile Google Maps tidak
+ditampilkan.
+
 ## Setup Backend & Database
 
 ```bash

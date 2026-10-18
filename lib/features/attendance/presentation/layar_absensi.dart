@@ -21,25 +21,12 @@ class LayarAbsensi extends ConsumerStatefulWidget {
   ConsumerState<LayarAbsensi> createState() => _LayarAbsensiState();
 }
 
-class _LayarAbsensiState extends ConsumerState<LayarAbsensi>
-    with TickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
+class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
 
   @override
   void initState() {
     super.initState();
 
-    _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    )..repeat(reverse: true);
-
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-
-    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(absensiProvider.notifier).mulaiPantauLokasi();
     });
@@ -47,7 +34,6 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi>
 
   @override
   void dispose() {
-    _pulseController.dispose();
     ref.read(absensiProvider.notifier).hentikanPantauLokasi();
     super.dispose();
   }
@@ -193,7 +179,6 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi>
                 const SizedBox(height: 16),
                 MapCard(
                   state: state,
-                  pulseAnimation: _pulseAnimation,
                 ),
                 const SizedBox(height: 16),
                 StatusJarakCard(state: state),
