@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_notification.dart';
 import '../providers/absensi_provider.dart';
+import 'layar_kamera_selfie.dart';
 import 'widgets/foto_selfie_card.dart';
 import 'widgets/info_check_in_card.dart';
 import 'widgets/jam_absensi_card.dart';
@@ -46,6 +49,14 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
         tipe == 'check_in' ? 'Check-in berhasil!' : 'Check-out berhasil!',
       );
     }
+  }
+
+  Future<void> _ambilFotoSelfie() async {
+    final foto = await Navigator.of(context).push<File>(
+      MaterialPageRoute(builder: (_) => const LayarKameraSelfie()),
+    );
+    if (!mounted || foto == null) return;
+    await ref.read(absensiProvider.notifier).simpanFotoSelfie(foto);
   }
 
   @override
@@ -124,7 +135,7 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
                 FotoSelfieCard(
                   state: state,
                   onAmbilFoto: () {
-                    ref.read(absensiProvider.notifier).ambilFotoSelfie();
+                    _ambilFotoSelfie();
                   },
                   onHapusFoto: () {
                     ref.read(absensiProvider.notifier).hapusFoto();
