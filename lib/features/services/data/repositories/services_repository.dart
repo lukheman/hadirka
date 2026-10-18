@@ -25,8 +25,8 @@ class ServicesRepository {
     return List<Map<String, dynamic>>.from(data);
   }
 
-  Future<List<Map<String, dynamic>>> getGeofence() async {
-    final data = await _apiService.getGeofence();
+  Future<List<Map<String, dynamic>>> getGeofence([String username = '']) async {
+    final data = await _apiService.getGeofence(username);
     return List<Map<String, dynamic>>.from(data);
   }
 

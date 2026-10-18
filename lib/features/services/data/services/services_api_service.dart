@@ -25,8 +25,11 @@ class ServicesApiService {
     return response as List<dynamic>;
   }
 
-  Future<List<dynamic>> getGeofence() async {
-    final response = await _apiClient.get('/geofence');
+  Future<List<dynamic>> getGeofence([String username = '']) async {
+    final response = await _apiClient.get(
+      '/geofence',
+      queryParameters: username.isNotEmpty ? {'username': username} : null,
+    );
     return response as List<dynamic>;
   }
 

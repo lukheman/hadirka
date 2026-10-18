@@ -13,8 +13,9 @@ class StatusJarakCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dalamJangkauan = state.dalamJangkauan;
-    final radius = state.lokasiTerdekat?.radius ?? 80;
-    final lokasiNama = state.lokasiDipilih?.nama ?? state.lokasiTerdekat?.nama ?? '-';
+    final targetLokasi = state.lokasiDipilih ?? state.lokasiTerdekat;
+    final radius = targetLokasi?.radius ?? 0;
+    final lokasiNama = targetLokasi?.nama ?? '-';
     final jarakTeks = state.jarakTerdekat != null
         ? '${state.jarakTerdekat!.toStringAsFixed(1)} meter'
         : '-';
@@ -23,7 +24,7 @@ class StatusJarakCard extends ConsumerWidget {
         : '-';
     final koordinatTeks = state.posisiSaatIni != null
         ? '${state.posisiSaatIni!.latitude.toStringAsFixed(6)}, ${state.posisiSaatIni!.longitude.toStringAsFixed(6)}'
-        : 'Mencari sinyal GPS...';
+        : 'Menunggu sinyal GPS...';
 
     return Container(
       decoration: BoxDecoration(

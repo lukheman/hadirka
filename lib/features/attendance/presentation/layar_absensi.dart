@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_notification.dart';
-import '../data/lokasi_provider.dart';
 import '../providers/absensi_provider.dart';
 import 'widgets/foto_selfie_card.dart';
 import 'widgets/info_check_in_card.dart';
@@ -68,7 +67,6 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(absensiProvider);
-    final daftarLokasi = ref.watch(lokasiAbsensiProvider);
 
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -112,7 +110,7 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi>
               
               if (state.lokasiDipilih == null) ...[
                 PilihanLokasiCard(
-                  daftarLokasi: daftarLokasi,
+                  daftarLokasi: state.daftarLokasi,
                   lokasiDipilih: state.lokasiDipilih,
                   onPilihLokasi: (lokasi) {
                     ref.read(absensiProvider.notifier).pilihLokasi(lokasi);

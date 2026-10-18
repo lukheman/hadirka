@@ -10,13 +10,13 @@ import '../data/repositories/attendance_repository.dart';
 import '../../services/data/repositories/services_repository.dart';
 import '../data/model_lokasi_absensi.dart';
 import '../data/model_data_absensi.dart';
-import '../data/lokasi_provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../auth/data/model_user.dart';
 import '../../../core/services/notification_service.dart';
 
 
 class AbsensiState {
+  final List<LokasiAbsensi> daftarLokasi;
   final Position? posisiSaatIni;
   final LokasiAbsensi? lokasiDipilih;
   final LokasiAbsensi? lokasiTerdekat;
@@ -44,6 +44,7 @@ class AbsensiState {
   final String durasiKerjaTeks;
 
   const AbsensiState({
+    this.daftarLokasi = const [],
     this.posisiSaatIni,
     this.lokasiDipilih,
     this.lokasiTerdekat,
@@ -72,6 +73,7 @@ class AbsensiState {
   });
 
   AbsensiState copyWith({
+    List<LokasiAbsensi>? daftarLokasi,
     Position? posisiSaatIni,
     LokasiAbsensi? lokasiDipilih,
     bool clearLokasiDipilih = false,
@@ -102,6 +104,7 @@ class AbsensiState {
     String? durasiKerjaTeks,
   }) {
     return AbsensiState(
+      daftarLokasi: daftarLokasi ?? this.daftarLokasi,
       posisiSaatIni: posisiSaatIni ?? this.posisiSaatIni,
       lokasiDipilih: clearLokasiDipilih ? null : (lokasiDipilih ?? this.lokasiDipilih),
       lokasiTerdekat: lokasiTerdekat ?? this.lokasiTerdekat,
@@ -134,14 +137,18 @@ class AbsensiState {
 
 final absensiProvider =
     StateNotifierProvider<AbsensiNotifier, AbsensiState>((ref) {
-  final lokasiList = ref.watch(lokasiAbsensiProvider);
   final user = ref.watch(authProvider).user;
   final attendanceRepo = ref.watch(attendanceRepositoryProvider);
   final hrRepo = ref.watch(servicesRepositoryProvider);
-  return AbsensiNotifier(ref, lokasiList, user, attendanceRepo, hrRepo);
+  return AbsensiNotifier(ref, const [], user, attendanceRepo, hrRepo);
 });
 
 class AbsensiNotifier extends StateNotifier<AbsensiState> {
+  // Posisi kasar tetap ditampilkan agar pengguna tahu GPS sedang bekerja.
+  // Validasi absensi tetap memakai batas lebih ketat di bawah.
+  static const double _maxUsableAccuracyMeters = 10000.0;
+  static const double _maxAttendanceAccuracyMeters = 50.0;
+
   final Ref _ref;
   List<LokasiAbsensi> _daftarLokasi;
   final UserAccount? _user;
@@ -154,7 +161,9 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
 
   bool _notifikasiCheckOutTerkirim = false;
 
-  AbsensiNotifier(this._ref, this._daftarLokasi, this._user, this._attendanceRepo, this._hrRepo) : super(const AbsensiState()) {
+  AbsensiNotifier(this._ref, this._daftarLokasi, this._user, this._attendanceRepo, this._hrRepo)
+      : super(const AbsensiState()) {
+    state = state.copyWith(daftarLokasi: _daftarLokasi);
     _initDataHariIni();
     _updateStatusJam();
     _waktuTimer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -326,21 +335,28 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
   
   Future<void> mulaiPantauLokasi() async {
     _updateStatusJam();
+    _posisiStream?.cancel();
+    _posisiStream = null;
+    _retryTimer?.cancel();
+    _retryTimer = null;
     
     
     try {
-      final dataGeofence = await _hrRepo.getGeofence();
+      final dataGeofence = await _hrRepo.getGeofence(_user?.username ?? '');
       if (dataGeofence.isNotEmpty) {
-        _daftarLokasi = dataGeofence.map((json) => LokasiAbsensi(
-          id: json['id'],
-          nama: json['nama'],
-          alamat: json['alamat'] ?? '',
-          latitude: json['latitude'],
-          longitude: json['longitude'],
-          radius: (json['radius'] as num).toDouble(),
-          tipe: 'kantor',
-          deskripsi: json['deskripsi'] ?? '',
-        )).toList();
+        _daftarLokasi = dataGeofence
+            .map(LokasiAbsensi.fromJson)
+            .where((lokasi) => lokasi.latitude != 0 && lokasi.longitude != 0)
+            .toList();
+
+        if (_daftarLokasi.isNotEmpty && mounted) {
+          state = state.copyWith(daftarLokasi: _daftarLokasi);
+        }
+      }
+      if (_daftarLokasi.isEmpty && mounted) {
+        state = state.copyWith(
+          pesanError: 'Site penempatan Anda belum memiliki koordinat GPS. Hubungi HRD untuk melengkapi data lokasi.',
+        );
       }
     } catch (_) {}
 
@@ -373,60 +389,152 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
       return;
     }
 
-    state = state.copyWith(lokasiAktif: true, clearError: true);
-
+    bool lokasiReduced = false;
     try {
-      final lastPos = await Geolocator.getLastKnownPosition();
-      if (lastPos != null) {
-        _updatePosisi(lastPos);
-      }
-    } catch (_) {}
+      lokasiReduced = await Geolocator.getLocationAccuracy() ==
+          LocationAccuracyStatus.reduced;
+    } catch (_) {
+      // Beberapa versi Android tidak menyediakan status precise/reduced.
+      // Tetap lanjutkan GPS; akurasi aktual akan divalidasi dari Position.
+    }
 
-    try {
-      final posisi = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.bestForNavigation,
-        timeLimit: const Duration(seconds: 8),
+    state = state.copyWith(
+      lokasiAktif: true,
+      clearError: _daftarLokasi.isNotEmpty && !lokasiReduced,
+    );
+    if (lokasiReduced && mounted) {
+      state = state.copyWith(
+        pesanError: 'Lokasi masih mode perkiraan. Posisi tetap ditampilkan, tetapi aktifkan Precise/Akurat agar absensi dapat dilakukan.',
       );
+    }
+
+    final posisiAkurat = Completer<Position>();
+    Position? posisiTerbaik;
+
+    void terimaPosisi(Position posisi) {
+      if (!_posisiValid(posisi)) return;
+      if (posisiTerbaik == null || posisi.accuracy < posisiTerbaik!.accuracy) {
+        posisiTerbaik = posisi;
+      }
       _updatePosisi(posisi);
-    } catch (e) {
-      try {
-        final posisiFallback = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.best,
-          timeLimit: const Duration(seconds: 6),
-        );
-        _updatePosisi(posisiFallback);
-      } catch (err) {
-        if (state.posisiSaatIni == null) {
-          state = state.copyWith(
-            pesanError: 'GPS belum mendapat sinyal presisi tinggi. Pastikan Anda berada di area terbuka atau tap "Muat Ulang GPS".',
-          );
-        }
+      if (!posisiAkurat.isCompleted && posisi.accuracy <= _maxAttendanceAccuracyMeters) {
+        posisiAkurat.complete(posisi);
       }
     }
 
-    _posisiStream?.cancel();
+    // Tampilkan posisi cache lebih dulu agar layar tidak kosong saat GPS
+    // membutuhkan waktu mencari fix baru. Posisi cache tidak otomatis membuat
+    // absensi valid; validasi akurasi tetap berjalan di bawah.
+    try {
+      final posisiTerakhir = await Geolocator.getLastKnownPosition();
+      if (posisiTerakhir != null) {
+        terimaPosisi(posisiTerakhir);
+      }
+    } catch (_) {}
+
     _posisiStream = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.bestForNavigation,
-        distanceFilter: 0,
-      ),
+      locationSettings: _locationSettings(),
     ).listen(
-      (posisi) {
-        _updatePosisi(posisi);
-      },
+      terimaPosisi,
       onError: (error) {
-        _retryTimer?.cancel();
-        _retryTimer = Timer.periodic(const Duration(seconds: 3), (_) async {
-          try {
-            final posisi = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.best,
-              timeLimit: const Duration(seconds: 5),
-            );
-            _updatePosisi(posisi);
-          } catch (_) {}
-        });
+        if (!posisiAkurat.isCompleted) {
+          posisiAkurat.completeError(error);
+        }
       },
     );
+
+    var currentPositionError = false;
+    try {
+      final posisi = await Geolocator.getCurrentPosition(
+        locationSettings: _locationSettings(timeLimit: const Duration(seconds: 12)),
+      );
+      terimaPosisi(posisi);
+    } catch (_) {}
+
+    // Sebagian perangkat Samsung gagal memberi fix lewat Fused Provider saat
+    // pertama kali meminta lokasi. Coba Android LocationManager langsung.
+    if (Platform.isAndroid && posisiTerbaik == null) {
+      try {
+        final posisi = await Geolocator.getCurrentPosition(
+          locationSettings: AndroidSettings(
+            accuracy: LocationAccuracy.best,
+            forceLocationManager: true,
+            distanceFilter: 0,
+            timeLimit: const Duration(seconds: 12),
+          ),
+        );
+        terimaPosisi(posisi);
+      } catch (_) {
+        currentPositionError = true;
+      }
+    }
+
+    // Fallback terakhir untuk perangkat yang belum mengunci satelit GPS.
+    // Posisi medium hanya untuk menampilkan lokasi; absensi tetap mensyaratkan
+    // akurasi maksimal 50 meter.
+    if (posisiTerbaik == null) {
+      try {
+        final posisi = await Geolocator.getCurrentPosition(
+          locationSettings: LocationSettings(
+            accuracy: LocationAccuracy.medium,
+            distanceFilter: 0,
+            timeLimit: const Duration(seconds: 8),
+          ),
+        );
+        terimaPosisi(posisi);
+      } catch (_) {
+        currentPositionError = true;
+      }
+    }
+
+    try {
+      await Future.any<Position?>([
+        posisiAkurat.future,
+        Future<Position?>.delayed(const Duration(seconds: 15), () => null),
+      ]);
+    } catch (_) {}
+
+    if (mounted && (posisiTerbaik == null || posisiTerbaik!.accuracy > _maxAttendanceAccuracyMeters)) {
+      state = state.copyWith(
+        pesanError: posisiTerbaik == null && currentPositionError
+            ? 'GPS tidak mengirim posisi. Aktifkan Lokasi, izinkan akses saat aplikasi digunakan, matikan penghemat baterai, lalu coba di area terbuka.'
+            : 'Akurasi GPS belum cukup (perlu maksimal ±${_maxAttendanceAccuracyMeters.toStringAsFixed(0)}m). Aktifkan Lokasi Akurat/Precise, matikan penghemat baterai, lalu coba di area terbuka.',
+      );
+    }
+  }
+
+  LocationSettings _locationSettings({Duration? timeLimit}) {
+    if (Platform.isAndroid) {
+      return AndroidSettings(
+        accuracy: LocationAccuracy.best,
+        distanceFilter: 0,
+        intervalDuration: const Duration(seconds: 2),
+        timeLimit: timeLimit,
+      );
+    }
+    if (Platform.isIOS) {
+      return AppleSettings(
+        accuracy: LocationAccuracy.best,
+        distanceFilter: 0,
+        pauseLocationUpdatesAutomatically: false,
+        timeLimit: timeLimit,
+      );
+    }
+    return LocationSettings(
+      accuracy: LocationAccuracy.best,
+      distanceFilter: 0,
+      timeLimit: timeLimit,
+    );
+  }
+
+  bool _posisiValid(Position posisi) {
+    return posisi.latitude.isFinite &&
+        posisi.longitude.isFinite &&
+        posisi.accuracy.isFinite &&
+        posisi.accuracy >= 0 &&
+        posisi.accuracy <= _maxUsableAccuracyMeters &&
+        posisi.latitude.abs() <= 90 &&
+        posisi.longitude.abs() <= 180;
   }
 
   
@@ -444,6 +552,19 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
 
   void _updatePosisi(Position posisi) {
     if (!mounted) return;
+    if (!_posisiValid(posisi)) return;
+
+    final akurasiLama = state.akurasiGps;
+    if (akurasiLama != null &&
+        akurasiLama <= _maxAttendanceAccuracyMeters &&
+        posisi.accuracy > _maxAttendanceAccuracyMeters) {
+      return;
+    }
+    if (akurasiLama != null &&
+        posisi.accuracy > akurasiLama + 20 &&
+        state.posisiSaatIni != null) {
+      return;
+    }
 
     
     LokasiAbsensi? targetLokasi = state.lokasiDipilih;
@@ -471,7 +592,7 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
       }
     }
 
-    final bool gpsAkurat = posisi.accuracy <= 150.0; 
+    final bool gpsAkurat = posisi.accuracy <= _maxAttendanceAccuracyMeters;
     final bool dalamRadius = targetLokasi != null &&
         jarakTarget != null &&
         jarakTarget <= targetLokasi.radius &&
@@ -581,6 +702,15 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
       return false;
     }
 
+    if (state.posisiSaatIni == null ||
+        state.akurasiGps == null ||
+        state.akurasiGps! > _maxAttendanceAccuracyMeters) {
+      state = state.copyWith(
+        pesanError: 'Akurasi GPS belum cukup. Tunggu sampai akurasi maksimal ±${_maxAttendanceAccuracyMeters.toStringAsFixed(0)}m, lalu coba lagi.',
+      );
+      return false;
+    }
+
     
     
     if (!state.dalamJangkauan) {
@@ -598,6 +728,7 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
         username: _user?.username ?? 'UNKNOWN',
         latitude: state.posisiSaatIni!.latitude,
         longitude: state.posisiSaatIni!.longitude,
+        accuracy: state.akurasiGps!,
         tipe: tipe,
         fotoPath: state.fotoSelfie?.path,
         fotoBase64: fotoB64,
@@ -662,4 +793,3 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
     super.dispose();
   }
 }
-

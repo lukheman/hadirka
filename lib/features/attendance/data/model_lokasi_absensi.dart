@@ -18,4 +18,17 @@ class LokasiAbsensi {
     this.tipe = 'kantor',
     this.deskripsi,
   });
+
+  factory LokasiAbsensi.fromJson(Map<String, dynamic> json) {
+    return LokasiAbsensi(
+      id: json['id']?.toString() ?? json['kode']?.toString() ?? 'unknown',
+      nama: json['nama']?.toString() ?? 'Lokasi Absensi',
+      alamat: json['alamat']?.toString() ?? '',
+      latitude: (json['latitude'] as num?)?.toDouble() ?? 0,
+      longitude: (json['longitude'] as num?)?.toDouble() ?? 0,
+      radius: (json['radius'] as num?)?.toDouble() ?? 80,
+      tipe: json['tipe']?.toString() ?? 'kantor',
+      deskripsi: json['deskripsi']?.toString(),
+    );
+  }
 }
