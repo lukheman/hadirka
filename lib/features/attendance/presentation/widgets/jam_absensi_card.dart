@@ -4,7 +4,6 @@ import '../../../../core/constants/absensi_config.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../providers/absensi_provider.dart';
 
-
 class JamAbsensiCard extends StatelessWidget {
   final AbsensiState state;
 
@@ -71,7 +70,6 @@ class JamAbsensiCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          
           Row(
             children: [
               Container(
@@ -126,8 +124,7 @@ class JamAbsensiCard extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 decoration: BoxDecoration(
                   color: statusBg,
                   borderRadius: BorderRadius.circular(20),
@@ -144,12 +141,9 @@ class JamAbsensiCard extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 14),
           const Divider(color: AppColors.border, height: 1),
           const SizedBox(height: 12),
-
-          
           Row(
             children: [
               Flexible(
@@ -176,8 +170,7 @@ class JamAbsensiCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(8),
@@ -194,10 +187,6 @@ class JamAbsensiCard extends StatelessWidget {
               ),
             ],
           ),
-
-
-          
-          
           if (state.keterlambatanMenit > 0 || state.sudahCheckOut) ...[
             const SizedBox(height: 10),
             Row(
@@ -225,39 +214,37 @@ class JamAbsensiCard extends StatelessWidget {
               ],
             ),
           ],
-
-          const SizedBox(height: 10),
-
-          
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: statusBg.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                Icon(LucideIcons.info, size: 16, color: statusColor),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    state.keteranganJamAbsensi,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: statusColor,
+          if (state.keteranganJamAbsensi.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: statusBg.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  Icon(LucideIcons.info, size: 16, color: statusColor),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      state.keteranganJamAbsensi,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: statusColor,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
   }
-
 
   Widget _buildMiniStat(
       String label, String value, IconData icon, Color color) {

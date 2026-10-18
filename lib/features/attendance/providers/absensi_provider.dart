@@ -286,8 +286,7 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
           );
         }
       } else {
-        ket =
-            'Anda telah melakukan absensi masuk. Durasi jam kerja akan dihitung dan ditampilkan saat Anda melakukan Absen Keluar.';
+        ket = '';
       }
     } else {
       switch (statusWaktu) {
