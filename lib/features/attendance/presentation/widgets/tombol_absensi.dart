@@ -157,7 +157,9 @@ class TombolAbsensi extends StatelessWidget {
             state.lokasiAktif) ...[
           const SizedBox(height: 12),
           _buildHelperMessage(
-            'Dekatkan posisi Anda ke lokasi absensi (maks ${state.lokasiTerdekat?.radius.toStringAsFixed(0) ?? "80"} meter)',
+            state.akurasiGps != null && !state.akurasiGpsValid
+                ? 'Akurasi GPS belum cukup (±${state.akurasiGps!.toStringAsFixed(0)}m). Aktifkan Precise/Lokasi Akurat dan pindah ke area terbuka.'
+                : 'Dekatkan posisi Anda ke lokasi absensi (maks ${(state.lokasiDipilih ?? state.lokasiTerdekat)?.radius.toStringAsFixed(0) ?? "-"} meter)',
             LucideIcons.mapPin,
             AppColors.warning,
           ),
