@@ -27,9 +27,9 @@ class MapCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dalamJangkauan = state.dalamJangkauan;
-    final jarak = state.jarakTerdekat;
-    final kantorLat = state.lokasiTerdekat?.latitude ?? -4.178249;
-    final kantorLng = state.lokasiTerdekat?.longitude ?? 121.610741;
+    final targetLokasi = state.lokasiDipilih ?? state.lokasiTerdekat;
+    final targetLat = targetLokasi?.latitude ?? 0;
+    final targetLng = targetLokasi?.longitude ?? 0;
     final userLat = state.posisiSaatIni?.latitude;
     final userLng = state.posisiSaatIni?.longitude;
 
@@ -61,12 +61,13 @@ class MapCard extends StatelessWidget {
               child: CustomPaint(
                 painter: MapCanvasPainter(
                   dalamJangkauan: dalamJangkauan,
-                  kantorLat: kantorLat,
-                  kantorLng: kantorLng,
+                  kantorLat: targetLat,
+                  kantorLng: targetLng,
                   userLat: userLat,
                   userLng: userLng,
-                  jarak: jarak,
-                  radius: state.lokasiTerdekat?.radius ?? 80.0,
+                  jarak: state.jarakTerdekat,
+                  radius: targetLokasi?.radius ?? 80.0,
+                  targetName: targetLokasi?.nama ?? 'Lokasi Absensi',
                   pulseVal: pulseAnimation.value,
                 ),
               ),
@@ -126,9 +127,9 @@ class MapCard extends StatelessWidget {
                 
                 GestureDetector(
                   onTap: () {
-                    final lat = userLat ?? kantorLat;
-                    final lng = userLng ?? kantorLng;
-                    _bukaGoogleMaps(lat, lng);
+                    if (targetLokasi != null) {
+                      _bukaGoogleMaps(targetLat, targetLng);
+                    }
                   },
                   child: Container(
                     padding:
@@ -150,7 +151,7 @@ class MapCard extends StatelessWidget {
                         Icon(LucideIcons.map, size: 14, color: Colors.white),
                         SizedBox(width: 6),
                         Text(
-                          'Google Maps',
+                          'Buka Google Maps',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12,
@@ -209,8 +210,7 @@ class MapCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              state.lokasiTerdekat?.nama ??
-                                  'Kantor TJS Dawi-Dawi',
+                              targetLokasi?.nama ?? 'Lokasi belum dipilih',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 13,
@@ -218,19 +218,6 @@ class MapCard extends StatelessWidget {
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              jarak != null
-                                  ? 'Jarak Anda: ${jarak.toStringAsFixed(1)}m (Radius: ${state.lokasiTerdekat?.radius.toStringAsFixed(0) ?? "80"}m)'
-                                  : 'Mendapatkan posisi GPS...',
-                              style: TextStyle(
-                                color: dalamJangkauan
-                                    ? const Color(0xFF34D399)
-                                    : const Color(0xFFFCA5A5),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
                             ),
                           ],
                         ),
