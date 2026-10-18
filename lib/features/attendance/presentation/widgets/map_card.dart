@@ -111,7 +111,8 @@ class _MapCardState extends State<MapCard> {
         Marker(
           markerId: const MarkerId('site_absensi'),
           position: target,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
           infoWindow: InfoWindow(title: lokasi.nama),
         ),
       );
@@ -121,7 +122,8 @@ class _MapCardState extends State<MapCard> {
         Marker(
           markerId: const MarkerId('posisi_pengguna'),
           position: user,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
           infoWindow: InfoWindow(
             title: 'Posisi Anda',
             snippet: state.akurasiGps == null
@@ -221,83 +223,39 @@ class _MapCardState extends State<MapCard> {
           ),
           Positioned(
             top: 16,
-            left: 16,
             right: 16,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xCC0F172A),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.2)),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: dalamJangkauan
-                                ? const Color(0xFF10B981)
-                                : const Color(0xFFF59E0B),
-                            shape: BoxShape.circle,
-                          ),
+            child: Align(
+              alignment: Alignment.topRight,
+              child: GestureDetector(
+                onTap: target == null
+                    ? null
+                    : () => _bukaGoogleMaps(target.latitude, target.longitude),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: target == null
+                        ? const Color(0xFF64748B)
+                        : const Color(0xFF2563EB),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(LucideIcons.map, size: 14, color: Colors.white),
+                      SizedBox(width: 4),
+                      Text(
+                        'Maps',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
                         ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            state.posisiSaatIni != null
-                                ? 'GPS Aktif (±${state.akurasiGps?.toStringAsFixed(0) ?? "-"}m)'
-                                : 'Mencari GPS...',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: target == null
-                      ? null
-                      : () => _bukaGoogleMaps(target.latitude, target.longitude),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: target == null
-                          ? const Color(0xFF64748B)
-                          : const Color(0xFF2563EB),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(LucideIcons.map, size: 14, color: Colors.white),
-                        SizedBox(width: 4),
-                        Text(
-                          'Maps',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ],
