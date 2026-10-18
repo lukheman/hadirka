@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_notification.dart';
 import '../providers/absensi_provider.dart';
@@ -59,6 +60,34 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
     await ref.read(absensiProvider.notifier).simpanFotoSelfie(foto);
   }
 
+  Future<void> _bukaPengaturanLokasi() async {
+    final bukaPengaturan = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Aktifkan lokasi presisi'),
+        content: const Text(
+          'Absensi membutuhkan lokasi presisi agar titik GPS dan jarak ke site dapat divalidasi.\n\n'
+          'Pada dialog izin pertama, pilih “Precise”. Jika sebelumnya memilih “Approximate”, aktifkan “Use precise location” di pengaturan aplikasi.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Nanti'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Buka Pengaturan'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted || bukaPengaturan != true) return;
+    await openAppSettings();
+    if (!mounted) return;
+    await ref.read(absensiProvider.notifier).mulaiPantauLokasi();
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(absensiProvider);
@@ -103,6 +132,7 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
                   onMuatUlangGps: () {
                     ref.read(absensiProvider.notifier).mulaiPantauLokasi();
                   },
+                  onBukaPengaturanLokasi: _bukaPengaturanLokasi,
                 ),
                 const SizedBox(height: 16),
               ],

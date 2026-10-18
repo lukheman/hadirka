@@ -606,8 +606,9 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
       }
     }
 
-    final bool gpsAkurat =
-        isLive && posisi.accuracy <= _maxAttendanceAccuracyMeters;
+    final bool gpsAkurat = isLive &&
+        _lokasiPresisiAktif &&
+        posisi.accuracy <= _maxAttendanceAccuracyMeters;
     final bool dalamRadius = targetLokasi != null &&
         jarakTarget != null &&
         jarakTarget <= targetLokasi.radius &&
@@ -630,7 +631,7 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
       akurasiGpsValid: gpsAkurat,
       dalamJangkauan: dalamRadius,
       pesanError: pesanAkurasi,
-      clearError: gpsAkurat,
+      clearError: gpsAkurat && _lokasiPresisiAktif,
     );
   }
 
@@ -727,6 +728,14 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
 
     if (state.fotoSelfie == null) {
       state = state.copyWith(pesanError: 'Ambil foto selfie terlebih dahulu.');
+      return false;
+    }
+
+    if (!_lokasiPresisiAktif) {
+      state = state.copyWith(
+        pesanError:
+            'Absensi membutuhkan lokasi presisi. Pilih “Precise” saat diminta atau aktifkan “Use precise location” di pengaturan aplikasi.',
+      );
       return false;
     }
 

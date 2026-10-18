@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:permission_handler/permission_handler.dart';
 import '../../../../core/theme/app_colors.dart';
-
 
 class PesanErrorCard extends StatelessWidget {
   final String pesan;
   final VoidCallback onMuatUlangGps;
+  final VoidCallback onBukaPengaturanLokasi;
 
   const PesanErrorCard({
     super.key,
     required this.pesan,
     required this.onMuatUlangGps,
+    required this.onBukaPengaturanLokasi,
   });
 
   @override
@@ -19,7 +19,8 @@ class PesanErrorCard extends StatelessWidget {
     final perluPengaturanLokasi = pesan.toLowerCase().contains('precise') ||
         pesan.toLowerCase().contains('approximate') ||
         pesan.toLowerCase().contains('akurasi') ||
-        pesan.toLowerCase().contains('perkiraan');
+        pesan.toLowerCase().contains('perkiraan') ||
+        pesan.toLowerCase().contains('ditolak permanen');
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -65,7 +66,7 @@ class PesanErrorCard extends StatelessWidget {
           if (perluPengaturanLokasi) ...[
             const SizedBox(height: 8),
             OutlinedButton.icon(
-              onPressed: () => openAppSettings(),
+              onPressed: onBukaPengaturanLokasi,
               icon: const Icon(LucideIcons.settings, size: 16),
               label: const Text('Buka Pengaturan Lokasi'),
               style: OutlinedButton.styleFrom(
