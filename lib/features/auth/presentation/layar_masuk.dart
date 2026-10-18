@@ -331,8 +331,10 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                 const SizedBox(height: 24),
                 
                 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  runSpacing: 4,
                   children: [
                     const Text(
                       'Belum punya akun?',
