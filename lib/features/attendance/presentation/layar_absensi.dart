@@ -148,8 +148,6 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
               ] else ...[
                 _buildSelectedLocation(state),
                 const SizedBox(height: 16),
-                _buildNextActionCard(state),
-                const SizedBox(height: 16),
                 if (state.sudahCheckIn && state.dataCheckIn != null) ...[
                   InfoCheckInCard(state: state),
                   const SizedBox(height: 16),
@@ -332,85 +330,6 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
                 ),
               ),
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNextActionCard(AbsensiState state) {
-    IconData icon;
-    String judul;
-    String pesan;
-    Color warna;
-
-    if (!state.lokasiAktif || state.posisiSaatIni == null) {
-      icon = LucideIcons.locateFixed;
-      judul = 'Mencari lokasi Anda';
-      pesan = 'Pastikan GPS aktif. Tunggu sampai posisi ditemukan.';
-      warna = AppColors.warning;
-    } else if (!state.akurasiGpsValid) {
-      icon = LucideIcons.scanSearch;
-      judul = 'Tingkatkan akurasi GPS';
-      pesan =
-          'Aktifkan Precise/Lokasi Akurat dan tunggu akurasi maksimal 50 meter.';
-      warna = AppColors.warning;
-    } else if (!state.dalamJangkauan) {
-      icon = LucideIcons.navigation;
-      judul = 'Mendekat ke lokasi absensi';
-      pesan = 'Posisi Anda belum berada dalam radius site yang dipilih.';
-      warna = AppColors.error;
-    } else if (state.fotoSelfie == null) {
-      icon = LucideIcons.camera;
-      judul = 'Ambil foto selfie';
-      pesan = 'Foto diperlukan sebelum absensi dapat disimpan.';
-      warna = AppColors.primary;
-    } else if (state.sedangMemproses) {
-      icon = LucideIcons.loaderCircle;
-      judul = 'Menyimpan absensi';
-      pesan = 'Jangan tutup aplikasi sampai proses selesai.';
-      warna = AppColors.primary;
-    } else {
-      icon = state.bisaCheckOut ? LucideIcons.logOut : LucideIcons.logIn;
-      judul = state.bisaCheckOut ? 'Siap check-out' : 'Siap check-in';
-      pesan = 'Semua persyaratan terpenuhi. Tekan tombol absensi di bawah.';
-      warna = AppColors.success;
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: warna.withValues(alpha: 0.09),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: warna.withValues(alpha: 0.25)),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: warna, size: 21),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  judul,
-                  style: TextStyle(
-                    color: warna,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  pesan,
-                  style: const TextStyle(
-                    color: AppColors.onSurfaceVariant,
-                    fontSize: 12,
-                    height: 1.3,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
