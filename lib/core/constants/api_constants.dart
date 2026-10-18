@@ -28,21 +28,21 @@ class ApiConstants {
       }
       if (Platform.isAndroid) {
         
-        return 'http://192.168.1.58:8000/api';
+        return 'http://10.174.154.8:8000/api';
       }
     } catch (_) {}
-    return 'http://192.168.1.58:8000/api';
+    return 'http://10.174.154.8:8000/api';
   }
 
   
   static const List<String> _defaultCandidateIps = [
-    'http://192.168.1.58:8000/api',
+    'http://10.174.154.8:8000/api',
     'http://10.0.2.2:8000/api',
     'http://192.168.1.18:8000/api',
     'http://192.168.1.12:8000/api',
     'http://192.168.56.1:8000/api',
     'http://localhost:8000/api',
-    'http://192.168.1.58/ipm-hris/api',
+    'http://10.174.154.8/ipm-hris/api',
     'http://localhost/ipm-hris/api',
   ];
 

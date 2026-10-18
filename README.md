@@ -8,7 +8,7 @@ Konfigurasi environment aplikasi ada di file **`.env`** di root project (templat
 
 | Key | Default | Keterangan |
 | --- | --- | --- |
-| `API_BASE_URL` | kosong = otomatis per platform (desktop/web: `localhost:3000`, Android: `192.168.1.58:3000`) | URL server API |
+| `API_BASE_URL` | kosong = otomatis per platform (desktop/web: `localhost:3000`, Android: `10.174.154.8:3000`) | URL server API |
 | `API_FALLBACK_IPS` | daftar IP lokal | Kandidat URL untuk deteksi otomatis server di jaringan lokal (dipisah koma) |
 | `API_TIMEOUT_SECONDS` | `8` | Timeout request API (detik) |
 
