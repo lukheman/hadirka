@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -172,7 +170,6 @@ class _MapCardState extends State<MapCard> {
   @override
   Widget build(BuildContext context) {
     final dalamJangkauan = state.dalamJangkauan;
-    final targetLokasi = state.lokasiDipilih ?? state.lokasiTerdekat;
     final target = _targetLatLng;
     final user = _userLatLng;
     final initialTarget = target ?? user ?? const LatLng(0, 0);
@@ -295,61 +292,6 @@ class _MapCardState extends State<MapCard> {
                   ),
                 ),
               ],
-            ),
-          ),
-          Positioned(
-            bottom: 16,
-            left: 16,
-            right: 16,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.65),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: dalamJangkauan
-                              ? const Color(0xFF10B981).withValues(alpha: 0.2)
-                              : const Color(0xFFEF4444).withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          dalamJangkauan
-                              ? LucideIcons.mapPinCheck
-                              : LucideIcons.mapPinOff,
-                          size: 18,
-                          color: dalamJangkauan
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFFEF4444),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          targetLokasi?.nama ?? 'Lokasi belum dipilih',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ),
           ),
         ],
