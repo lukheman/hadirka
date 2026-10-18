@@ -224,50 +224,56 @@ class _MapCardState extends State<MapCard> {
             left: 16,
             right: 16,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xCC0F172A),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: dalamJangkauan
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFFF59E0B),
-                          shape: BoxShape.circle,
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xCC0F172A),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: dalamJangkauan
+                                ? const Color(0xFF10B981)
+                                : const Color(0xFFF59E0B),
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        state.posisiSaatIni != null
-                            ? 'GPS Aktif (±${state.akurasiGps?.toStringAsFixed(0) ?? "-"}m)'
-                            : 'Mencari GPS...',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            state.posisiSaatIni != null
+                                ? 'GPS Aktif (±${state.akurasiGps?.toStringAsFixed(0) ?? "-"}m)'
+                                : 'Mencari GPS...',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 GestureDetector(
                   onTap: target == null
                       ? null
                       : () => _bukaGoogleMaps(target.latitude, target.longitude),
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: target == null
                           ? const Color(0xFF64748B)
@@ -278,9 +284,9 @@ class _MapCardState extends State<MapCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(LucideIcons.map, size: 14, color: Colors.white),
-                        SizedBox(width: 6),
+                        SizedBox(width: 4),
                         Text(
-                          'Buka Google Maps',
+                          'Maps',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 12,

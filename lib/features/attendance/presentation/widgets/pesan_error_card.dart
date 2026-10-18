@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../../../core/theme/app_colors.dart';
 
 
@@ -15,6 +16,11 @@ class PesanErrorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final perluPengaturanLokasi = pesan.toLowerCase().contains('precise') ||
+        pesan.toLowerCase().contains('approximate') ||
+        pesan.toLowerCase().contains('akurasi') ||
+        pesan.toLowerCase().contains('perkiraan');
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -56,6 +62,22 @@ class PesanErrorCard extends StatelessWidget {
               ),
             ),
           ),
+          if (perluPengaturanLokasi) ...[
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: () => openAppSettings(),
+              icon: const Icon(LucideIcons.settings, size: 16),
+              label: const Text('Buka Pengaturan Lokasi'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.error,
+                side: BorderSide(color: AppColors.error.withOpacity(0.5)),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

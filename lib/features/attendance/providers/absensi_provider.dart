@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -160,6 +161,7 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
   Timer? _waktuTimer;
 
   bool _notifikasiCheckOutTerkirim = false;
+  bool _lokasiPresisiAktif = true;
 
   AbsensiNotifier(this._ref, this._daftarLokasi, this._user, this._attendanceRepo, this._hrRepo)
       : super(const AbsensiState()) {
@@ -335,6 +337,9 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
   
   Future<void> mulaiPantauLokasi() async {
     _updateStatusJam();
+    if (kDebugMode) {
+      debugPrint('GPS service enabled: ${await Geolocator.isLocationServiceEnabled()}');
+    }
     _posisiStream?.cancel();
     _posisiStream = null;
     _retryTimer?.cancel();
@@ -389,116 +394,106 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
       return;
     }
 
+    if (kDebugMode) {
+      debugPrint('GPS permission: $permission');
+    }
+
     bool lokasiReduced = false;
     try {
       lokasiReduced = await Geolocator.getLocationAccuracy() ==
           LocationAccuracyStatus.reduced;
+
+      if (lokasiReduced && Platform.isIOS) {
+        try {
+          final status = await Geolocator.requestTemporaryFullAccuracy(
+            purposeKey: 'AbsensiPresisi',
+          );
+          lokasiReduced = status == LocationAccuracyStatus.reduced;
+        } catch (_) {
+          // User can still enable Precise manually from system settings.
+        }
+      }
     } catch (_) {
       // Beberapa versi Android tidak menyediakan status precise/reduced.
-      // Tetap lanjutkan GPS; akurasi aktual akan divalidasi dari Position.
+      // Akurasi aktual tetap divalidasi dari Position.
+    }
+
+    if (kDebugMode) {
+      debugPrint('GPS precise: ${!lokasiReduced}');
     }
 
     state = state.copyWith(
       lokasiAktif: true,
       clearError: _daftarLokasi.isNotEmpty && !lokasiReduced,
     );
+    _lokasiPresisiAktif = !lokasiReduced;
     if (lokasiReduced && mounted) {
       state = state.copyWith(
         pesanError: 'Lokasi masih mode perkiraan. Posisi tetap ditampilkan, tetapi aktifkan Precise/Akurat agar absensi dapat dilakukan.',
       );
     }
 
-    final posisiAkurat = Completer<Position>();
+    final posisiAkurat = Completer<void>();
     Position? posisiTerbaik;
+    var streamError = false;
 
-    void terimaPosisi(Position posisi) {
+    void terimaPosisi(Position posisi, {bool isLive = true}) {
+      if (posisi.isMocked) {
+        if (mounted) {
+          state = state.copyWith(
+            akurasiGps: _maxUsableAccuracyMeters + 1,
+            akurasiGpsValid: false,
+            dalamJangkauan: false,
+            pesanError: 'Lokasi tiruan terdeteksi. Matikan Mock location sebelum absensi.',
+          );
+        }
+        return;
+      }
       if (!_posisiValid(posisi)) return;
-      if (posisiTerbaik == null || posisi.accuracy < posisiTerbaik!.accuracy) {
+      if (isLive &&
+          (posisiTerbaik == null || posisi.accuracy < posisiTerbaik!.accuracy)) {
         posisiTerbaik = posisi;
       }
-      _updatePosisi(posisi);
-      if (!posisiAkurat.isCompleted && posisi.accuracy <= _maxAttendanceAccuracyMeters) {
-        posisiAkurat.complete(posisi);
+      _updatePosisi(posisi, isLive: isLive);
+      if (isLive &&
+          !posisiAkurat.isCompleted &&
+          posisi.accuracy <= _maxAttendanceAccuracyMeters) {
+        posisiAkurat.complete();
       }
     }
-
-    // Tampilkan posisi cache lebih dulu agar layar tidak kosong saat GPS
-    // membutuhkan waktu mencari fix baru. Posisi cache tidak otomatis membuat
-    // absensi valid; validasi akurasi tetap berjalan di bawah.
-    try {
-      final posisiTerakhir = await Geolocator.getLastKnownPosition();
-      if (posisiTerakhir != null) {
-        terimaPosisi(posisiTerakhir);
-      }
-    } catch (_) {}
 
     _posisiStream = Geolocator.getPositionStream(
       locationSettings: _locationSettings(),
     ).listen(
-      terimaPosisi,
+      (posisi) {
+        if (kDebugMode) {
+          debugPrint(
+            'GPS live: lat=${posisi.latitude}, lng=${posisi.longitude}, '
+            'accuracy=${posisi.accuracy}m, mocked=${posisi.isMocked}',
+          );
+        }
+        terimaPosisi(posisi);
+      },
       onError: (error) {
         if (!posisiAkurat.isCompleted) {
-          posisiAkurat.completeError(error);
+          streamError = true;
+          if (kDebugMode) debugPrint('GPS stream error: $error');
         }
       },
     );
 
-    var currentPositionError = false;
     try {
-      final posisi = await Geolocator.getCurrentPosition(
-        locationSettings: _locationSettings(timeLimit: const Duration(seconds: 12)),
-      );
-      terimaPosisi(posisi);
-    } catch (_) {}
-
-    // Sebagian perangkat Samsung gagal memberi fix lewat Fused Provider saat
-    // pertama kali meminta lokasi. Coba Android LocationManager langsung.
-    if (Platform.isAndroid && posisiTerbaik == null) {
-      try {
-        final posisi = await Geolocator.getCurrentPosition(
-          locationSettings: AndroidSettings(
-            accuracy: LocationAccuracy.best,
-            forceLocationManager: true,
-            distanceFilter: 0,
-            timeLimit: const Duration(seconds: 12),
-          ),
-        );
-        terimaPosisi(posisi);
-      } catch (_) {
-        currentPositionError = true;
-      }
-    }
-
-    // Fallback terakhir untuk perangkat yang belum mengunci satelit GPS.
-    // Posisi medium hanya untuk menampilkan lokasi; absensi tetap mensyaratkan
-    // akurasi maksimal 50 meter.
-    if (posisiTerbaik == null) {
-      try {
-        final posisi = await Geolocator.getCurrentPosition(
-          locationSettings: LocationSettings(
-            accuracy: LocationAccuracy.medium,
-            distanceFilter: 0,
-            timeLimit: const Duration(seconds: 8),
-          ),
-        );
-        terimaPosisi(posisi);
-      } catch (_) {
-        currentPositionError = true;
-      }
-    }
-
-    try {
-      await Future.any<Position?>([
+      await Future.any<void>([
         posisiAkurat.future,
-        Future<Position?>.delayed(const Duration(seconds: 15), () => null),
+        Future<void>.delayed(const Duration(seconds: 30)),
       ]);
     } catch (_) {}
 
     if (mounted && (posisiTerbaik == null || posisiTerbaik!.accuracy > _maxAttendanceAccuracyMeters)) {
       state = state.copyWith(
-        pesanError: posisiTerbaik == null && currentPositionError
-            ? 'GPS tidak mengirim posisi. Aktifkan Lokasi, izinkan akses saat aplikasi digunakan, matikan penghemat baterai, lalu coba di area terbuka.'
-            : 'Akurasi GPS belum cukup (perlu maksimal ±${_maxAttendanceAccuracyMeters.toStringAsFixed(0)}m). Aktifkan Lokasi Akurat/Precise, matikan penghemat baterai, lalu coba di area terbuka.',
+        pesanError: streamError || posisiTerbaik == null
+            ? 'GPS belum mengirim posisi presisi. Aktifkan Precise/Lokasi Akurat, matikan penghemat baterai, lalu coba di area terbuka.'
+            : 'Akurasi GPS belum cukup setelah 30 detik (±${posisiTerbaik!.accuracy.toStringAsFixed(0)}m). Pindah ke area terbuka lalu muat ulang GPS.',
       );
     }
   }
@@ -507,6 +502,7 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
     if (Platform.isAndroid) {
       return AndroidSettings(
         accuracy: LocationAccuracy.best,
+        forceLocationManager: true,
         distanceFilter: 0,
         intervalDuration: const Duration(seconds: 2),
         timeLimit: timeLimit,
@@ -531,6 +527,7 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
     return posisi.latitude.isFinite &&
         posisi.longitude.isFinite &&
         posisi.accuracy.isFinite &&
+        !posisi.isMocked &&
         posisi.accuracy >= 0 &&
         posisi.accuracy <= _maxUsableAccuracyMeters &&
         posisi.latitude.abs() <= 90 &&
@@ -541,7 +538,10 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
   void pilihLokasi(LokasiAbsensi lokasi) {
     state = state.copyWith(lokasiDipilih: lokasi);
     if (state.posisiSaatIni != null) {
-      _updatePosisi(state.posisiSaatIni!);
+      _updatePosisi(
+        state.posisiSaatIni!,
+        isLive: state.akurasiGpsValid,
+      );
     }
   }
 
@@ -550,7 +550,7 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
     state = state.copyWith(clearLokasiDipilih: true);
   }
 
-  void _updatePosisi(Position posisi) {
+  void _updatePosisi(Position posisi, {bool isLive = true}) {
     if (!mounted) return;
     if (!_posisiValid(posisi)) return;
 
@@ -592,16 +592,20 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
       }
     }
 
-    final bool gpsAkurat = posisi.accuracy <= _maxAttendanceAccuracyMeters;
+    final bool gpsAkurat =
+        isLive && posisi.accuracy <= _maxAttendanceAccuracyMeters;
     final bool dalamRadius = targetLokasi != null &&
         jarakTarget != null &&
         jarakTarget <= targetLokasi.radius &&
         gpsAkurat;
 
     String? pesanAkurasi;
-    if (!gpsAkurat) {
+    if (!_lokasiPresisiAktif) {
       pesanAkurasi =
-          'Akurasi GPS Anda terlalu rendah (Â±${posisi.accuracy.toStringAsFixed(0)}m). Silakan aktifkan lokasi dengan akurasi tinggi.';
+          'Lokasi masih Approximate/Perkiraan (±${posisi.accuracy.toStringAsFixed(0)}m). Buka Pengaturan Lokasi, aktifkan "Gunakan lokasi akurat/Precise", lalu muat ulang GPS.';
+    } else if (!gpsAkurat) {
+      pesanAkurasi =
+          'Akurasi GPS Anda terlalu rendah (±${posisi.accuracy.toStringAsFixed(0)}m). Aktifkan Precise/Lokasi Akurat dan coba di area terbuka.';
     }
 
     state = state.copyWith(
