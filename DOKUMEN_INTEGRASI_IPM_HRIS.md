@@ -1,4 +1,4 @@
-# Integrasi Aplikasi Absen Mobile ke Website IPM HRIS
+# Integrasi Aplikasi Absen Mobile Indoteknik Prima Mekongga ke Website IPM HRIS
 
 Dokumen ini menjelaskan integrasi **aplikasi absen mobile (Flutter, repo `ipm-hris-karyawan`)**
 ke dalam **website IPM HRIS** menjadi satu sistem penuh: satu database, satu server (PHP),
@@ -9,7 +9,7 @@ aplikasi hanya sebagai klien.
 **Sebelum**
 
 ```
-Aplikasi Flutter ──► Node.js backend (port 3000) ──► MySQL db_absen_tjs (terpisah)
+Aplikasi Flutter ──► API lama (port 3000) ──► MySQL database lama (terpisah)
 Website HRIS      ──► PHP + MySQL                    (database website)
 ```
 
@@ -20,8 +20,8 @@ Aplikasi Flutter ──► Website IPM HRIS ──► MySQL (database website, s
                      /api/*  →  app/api/index.php  (satu route / satu front controller)
 ```
 
-* Backend Node.js (`ipm-hris-karyawan/backend_server`) dan database `db_absen_tjs` **tidak
-  dipakai lagi** (simpan sebagai cadangan sampai aplikasi versi baru terbukti stabil).
+* Backend lama dan database lama **dihapus dari repo** dan tidak
+  dipakai lagi. Diagram sebelum integrasi di atas hanya dokumentasi historis.
 * Semua data (karyawan, absensi, pengajuan, slip, notifikasi, geofence) tersimpan di
   database website sehingga rekap HRD dan aplikasi selalu sinkron.
 
@@ -163,7 +163,7 @@ Pengajuan pinjaman memakai controller yang sudah ada
    buka/tutup).
 7. Di aplikasi: set alamat server, lalu uji login, geofence, check-in/out, pengajuan,
    notifikasi, slip.
-8. Nonaktifkan service Node.js lama (dan simpan backup `db_absen_tjs`).
+8. Pastikan service Node.js lama tidak dijalankan; API aktif hanya berasal dari website IPM HRIS.
 
 ## 7. Keputusan Desain & Catatan
 
@@ -187,7 +187,7 @@ Pengajuan pinjaman memakai controller yang sudah ada
 
 ## 8. Rollback
 
-* Aplikasi: ubah alamat server kembali ke `http://IP:3000/api` (dialog pengaturan).
+* Aplikasi: gunakan alamat API website IPM HRIS pada dialog *Pengaturan Server*.
 * Website: halaman baru tidak mengganggu halaman lama; migration bersifat *additive*
   (kolom `tb_site` & `tb_pengajuan_pinjaman` hanya ditambah/dilonggarkan).
 * Data yang dibuat aplikasi tersimpan di tabel website; backup rutin tetapkan seperti biasa.
