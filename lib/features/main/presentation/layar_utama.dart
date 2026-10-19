@@ -7,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_notification.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../core/services/update_service.dart';
 import '../../attendance/providers/absensi_provider.dart';
 import '../../notifications/providers/notifications_provider.dart';
 
@@ -24,6 +25,17 @@ class LayarUtama extends ConsumerStatefulWidget {
 
 class _LayarUtamaState extends ConsumerState<LayarUtama> {
   DateTime? _lastPressedAt;
+  bool _updateCheckStarted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _updateCheckStarted) return;
+      _updateCheckStarted = true;
+      UpdateService.check(context);
+    });
+  }
 
   void _goBranch(int index) {
     widget.navigationShell.goBranch(
@@ -37,7 +49,6 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
     final isMobile = Responsive.isMobile(context);
     final isDesktop = Responsive.isDesktop(context);
 
-    
     int unreadHomeCount = 0;
     bool needsCheckIn = false;
     bool hasLayananNotif = false;
@@ -53,7 +64,9 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
 
     try {
       final allNotifs = ref.watch(notificationsProvider);
-      hasLayananNotif = allNotifs.any((n) => !n.isRead && (n.type == 'leave' || n.type == 'loan' || n.type == 'payslip'));
+      hasLayananNotif = allNotifs.any((n) =>
+          !n.isRead &&
+          (n.type == 'leave' || n.type == 'loan' || n.type == 'payslip'));
     } catch (_) {}
 
     Widget content;
@@ -90,7 +103,7 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
                     if (isDesktop) ...[
                       const SizedBox(width: 10),
                       const Text(
-                        'Absen TJS',
+                        'Absen Indoteknik Prima Mekongga',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -101,8 +114,10 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
                   ],
                 ),
               ),
-              selectedIconTheme: const IconThemeData(color: AppColors.primary, size: 24),
-              unselectedIconTheme: const IconThemeData(color: AppColors.onSurfaceVariant, size: 22),
+              selectedIconTheme:
+                  const IconThemeData(color: AppColors.primary, size: 24),
+              unselectedIconTheme: const IconThemeData(
+                  color: AppColors.onSurfaceVariant, size: 22),
               selectedLabelTextStyle: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
@@ -115,28 +130,43 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
               ),
               destinations: [
                 NavigationRailDestination(
-                  icon: _buildBadgeIcon(LucideIcons.layoutDashboard, badgeCount: unreadHomeCount, badgeColor: AppColors.error),
-                  selectedIcon: _buildBadgeIcon(LucideIcons.layoutDashboard, isSelected: true, badgeCount: unreadHomeCount, badgeColor: AppColors.error),
+                  icon: _buildBadgeIcon(LucideIcons.layoutDashboard,
+                      badgeCount: unreadHomeCount, badgeColor: AppColors.error),
+                  selectedIcon: _buildBadgeIcon(LucideIcons.layoutDashboard,
+                      isSelected: true,
+                      badgeCount: unreadHomeCount,
+                      badgeColor: AppColors.error),
                   label: const Text('Home'),
                 ),
                 NavigationRailDestination(
-                  icon: _buildBadgeIcon(LucideIcons.scanFace, showDot: needsCheckIn, badgeColor: AppColors.warning),
-                  selectedIcon: _buildBadgeIcon(LucideIcons.scanFace, isSelected: true, showDot: needsCheckIn, badgeColor: AppColors.warning),
+                  icon: _buildBadgeIcon(LucideIcons.scanFace,
+                      showDot: needsCheckIn, badgeColor: AppColors.warning),
+                  selectedIcon: _buildBadgeIcon(LucideIcons.scanFace,
+                      isSelected: true,
+                      showDot: needsCheckIn,
+                      badgeColor: AppColors.warning),
                   label: const Text('Absensi'),
                 ),
                 NavigationRailDestination(
-                  icon: _buildBadgeIcon(LucideIcons.layoutGrid, showDot: hasLayananNotif, badgeColor: AppColors.hrAccentPurple),
-                  selectedIcon: _buildBadgeIcon(LucideIcons.layoutGrid, isSelected: true, showDot: hasLayananNotif, badgeColor: AppColors.hrAccentPurple),
+                  icon: _buildBadgeIcon(LucideIcons.layoutGrid,
+                      showDot: hasLayananNotif,
+                      badgeColor: AppColors.hrAccentPurple),
+                  selectedIcon: _buildBadgeIcon(LucideIcons.layoutGrid,
+                      isSelected: true,
+                      showDot: hasLayananNotif,
+                      badgeColor: AppColors.hrAccentPurple),
                   label: const Text('Layanan'),
                 ),
                 NavigationRailDestination(
                   icon: const Icon(LucideIcons.user),
-                  selectedIcon: const Icon(LucideIcons.user, color: AppColors.primary),
+                  selectedIcon:
+                      const Icon(LucideIcons.user, color: AppColors.primary),
                   label: const Text('Profil'),
                 ),
               ],
             ),
-            const VerticalDivider(thickness: 1, width: 1, color: AppColors.border),
+            const VerticalDivider(
+                thickness: 1, width: 1, color: AppColors.border),
             Expanded(child: widget.navigationShell),
           ],
         ),
@@ -166,9 +196,11 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
         }
 
         final now = DateTime.now();
-        if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+        if (_lastPressedAt == null ||
+            now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
           _lastPressedAt = now;
-          AppNotification.showInfo(context, 'Tekan sekali lagi untuk keluar dari aplikasi');
+          AppNotification.showInfo(
+              context, 'Tekan sekali lagi untuk keluar dari aplikasi');
         } else {
           SystemNavigator.pop();
         }
@@ -177,7 +209,11 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
     );
   }
 
-  Widget _buildBadgeIcon(IconData iconData, {bool isSelected = false, int badgeCount = 0, bool showDot = false, Color badgeColor = AppColors.primary}) {
+  Widget _buildBadgeIcon(IconData iconData,
+      {bool isSelected = false,
+      int badgeCount = 0,
+      bool showDot = false,
+      Color badgeColor = AppColors.primary}) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -197,7 +233,10 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
               ),
               child: Text(
                 badgeCount > 9 ? '9+' : '$badgeCount',
-                style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold),
               ),
             ),
           )
@@ -218,6 +257,7 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
     );
   }
 }
+
 class CustomFloatingNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -243,7 +283,7 @@ class CustomFloatingNavBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1E3A8A).withOpacity(0.12),
+            color: AppColors.ipmOrange.withOpacity(0.16),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -346,14 +386,17 @@ class CustomFloatingNavBar extends StatelessWidget {
                 Icon(
                   isSelected ? activeIcon : icon,
                   size: 22,
-                  color: isSelected ? AppColors.primary : AppColors.onSurfaceVariant,
+                  color: isSelected
+                      ? AppColors.primary
+                      : AppColors.onSurfaceVariant,
                 ),
                 if (badgeCount > 0)
                   Positioned(
                     top: -5,
                     right: -7,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 1.5),
                       decoration: BoxDecoration(
                         color: badgeColor,
                         borderRadius: BorderRadius.circular(10),
