@@ -16,6 +16,10 @@ class AppTheme {
         onSurface: AppColors.onSurface,
         secondary: AppColors.secondary,
         onSecondary: AppColors.onSecondary,
+        primaryContainer: AppColors.primaryContainer,
+        onPrimaryContainer: AppColors.onPrimaryContainer,
+        secondaryContainer: AppColors.ipmBlueSoft,
+        onSecondaryContainer: AppColors.ipmBlueDark,
       ),
       textTheme: GoogleFonts.plusJakartaSansTextTheme().copyWith(
         displayLarge: AppTextStyles.h1,
@@ -37,20 +41,39 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.onPrimary,
-          elevation: 2,
-          shadowColor: AppColors.primary.withOpacity(0.3),
+          elevation: 0,
+          shadowColor: AppColors.primary.withOpacity(0.24),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           textStyle: AppTextStyles.button,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24), 
+            borderRadius: BorderRadius.circular(24),
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.ipmOrangeDark,
+          textStyle: AppTextStyles.button,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.ipmOrangeDark,
+          side: const BorderSide(color: AppColors.ipmOrangeLight),
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 24),
+          textStyle: AppTextStyles.button,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
           ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surfaceContainerLowest, 
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-        hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
+        fillColor: AppColors.surfaceContainerLowest,
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        hintStyle:
+            AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.borderLight),
@@ -63,18 +86,22 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
+        ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppColors.error),
         ),
       ),
       cardTheme: CardThemeData(
-        color: AppColors.surfaceContainer, 
-        elevation: 8,
-        shadowColor: Colors.black.withOpacity(0.08), 
+        color: AppColors.surfaceContainer,
+        elevation: 1,
+        shadowColor: Colors.black.withOpacity(0.08),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20), 
-          side: BorderSide.none, 
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide.none,
         ),
         margin: EdgeInsets.zero,
       ),
@@ -83,10 +110,16 @@ class AppTheme {
         elevation: 12,
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textTertiary,
-        selectedLabelStyle: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w600, color: AppColors.primary),
+        selectedLabelStyle: AppTextStyles.bodySmall
+            .copyWith(fontWeight: FontWeight.w600, color: AppColors.primary),
         unselectedLabelStyle: AppTextStyles.bodySmall,
         type: BottomNavigationBarType.fixed,
       ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: AppColors.primary,
+        linearTrackColor: AppColors.primaryContainer,
+      ),
+      dividerTheme: const DividerThemeData(color: AppColors.border),
     );
   }
 }

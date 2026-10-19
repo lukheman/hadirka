@@ -67,7 +67,7 @@ class _MainAppState extends ConsumerState<MainApp> {
 
     if (izinAwalSelesai == null) {
       return MaterialApp(
-        title: 'Absensi TJS',
+        title: 'Absensi Indoteknik Prima Mekongga',
         theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
         home: const _HalamanMemuatIzin(),
@@ -76,7 +76,7 @@ class _MainAppState extends ConsumerState<MainApp> {
 
     if (!izinAwalSelesai) {
       return MaterialApp(
-        title: 'Absensi TJS',
+        title: 'Absensi Indoteknik Prima Mekongga',
         theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
         home: HalamanIzinAwal(onSelesai: _selesaikanIzinAwal),
@@ -86,7 +86,7 @@ class _MainAppState extends ConsumerState<MainApp> {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'Absensi TJS',
+      title: 'Absensi Indoteknik Prima Mekongga',
       theme: AppTheme.lightTheme,
       routerConfig: router,
       debugShowCheckedModeBanner: false,

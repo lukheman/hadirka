@@ -10,7 +10,6 @@ import '../providers/absensi_provider.dart';
 import 'layar_kamera_selfie.dart';
 import 'widgets/foto_selfie_card.dart';
 import 'widgets/info_check_in_card.dart';
-import 'widgets/jam_absensi_card.dart';
 import 'widgets/map_card.dart';
 import 'widgets/pesan_error_card.dart';
 import 'widgets/pilihan_lokasi_card.dart';
@@ -152,8 +151,6 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
                   InfoCheckInCard(state: state),
                   const SizedBox(height: 16),
                 ],
-                JamAbsensiCard(state: state),
-                const SizedBox(height: 16),
                 MapCard(
                   state: state,
                 ),

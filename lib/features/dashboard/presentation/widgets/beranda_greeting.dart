@@ -28,39 +28,20 @@ class BerandaGreeting extends ConsumerWidget {
     final nama = (profil.nama.isNotEmpty && profil.nama != 'Karyawan')
         ? profil.nama
         : (authState.user?.nama ?? 'Karyawan');
-    final jabatan = (profil.jabatan.isNotEmpty && profil.jabatan != '-')
-        ? profil.jabatan
-        : (authState.user?.jabatan ?? 'Staf');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _getGreeting(),
+          '${_getGreeting()} $nama',
           style: const TextStyle(
-            fontSize: 14,
-            color: AppColors.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          nama,
-          style: const TextStyle(
-            fontSize: 24,
+            fontSize: 22,
             fontWeight: FontWeight.w700,
             color: AppColors.onSurface,
-            letterSpacing: -0.01,
+            letterSpacing: -0.3,
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          jabatan,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: AppColors.secondary,
-            letterSpacing: 0.05,
-          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

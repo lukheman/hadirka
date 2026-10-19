@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,7 +11,6 @@ import '../../auth/providers/auth_provider.dart';
 import 'widgets/bidang_tanggal.dart';
 import 'widgets/dropdown_jenis_pengajuan.dart';
 import 'widgets/unggah_berkas.dart';
-
 
 class LayarPengajuanKetidakhadiran extends ConsumerStatefulWidget {
   const LayarPengajuanKetidakhadiran({super.key});
@@ -33,7 +32,6 @@ class _StateLayarPengajuanKetidakhadiran
   File? _lampiran;
   bool _sedangMengirim = false;
   bool _errorAlasan = false;
-  bool _errorLampiran = false;
 
   DateTime _tglMulai = DateTime.now();
   DateTime _tglSelesai = DateTime.now().add(const Duration(days: 2));
@@ -77,7 +75,8 @@ class _StateLayarPengajuanKetidakhadiran
   }
 
   Future<void> _pilihTanggalSelesai() async {
-    final initialDate = _tglSelesai.isBefore(_tglMulai) ? _tglMulai : _tglSelesai;
+    final initialDate =
+        _tglSelesai.isBefore(_tglMulai) ? _tglMulai : _tglSelesai;
     final picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -98,23 +97,20 @@ class _StateLayarPengajuanKetidakhadiran
   Future<void> _konfirmasiKirim() async {
     final alasan = _alasanController.text.trim();
     final isAlasanKosong = alasan.isEmpty;
-    final isLampiranKosong = _lampiran == null;
 
-    if (isAlasanKosong || isLampiranKosong) {
+    if (isAlasanKosong) {
       setState(() {
         _errorAlasan = isAlasanKosong;
-        _errorLampiran = isLampiranKosong;
       });
 
       AppNotification.showWarning(
         context,
-        'Kolom Alasan dan Dokumen Lampiran wajib diisi terlebih dahulu!',
+        'Kolom Alasan wajib diisi terlebih dahulu!',
       );
       return;
     } else {
       setState(() {
         _errorAlasan = false;
-        _errorLampiran = false;
       });
     }
 
@@ -134,25 +130,30 @@ class _StateLayarPengajuanKetidakhadiran
         ),
         content: Text(
           'Apakah Anda yakin ingin mengirim pengajuan $_jenisTerpilih ini ke Manajemen HR?',
-          style: const TextStyle(fontSize: 13.5, color: AppColors.onSurfaceVariant),
+          style: const TextStyle(
+              fontSize: 13.5, color: AppColors.onSurfaceVariant),
         ),
-        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        actionsPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             style: TextButton.styleFrom(
               foregroundColor: AppColors.onSurfaceVariant,
             ),
-            child: const Text('Tidak / Batal', style: TextStyle(fontWeight: FontWeight.w700)),
+            child: const Text('Tidak / Batal',
+                style: TextStyle(fontWeight: FontWeight.w700)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Ya, Kirim', style: TextStyle(fontWeight: FontWeight.w800)),
+            child: const Text('Ya, Kirim',
+                style: TextStyle(fontWeight: FontWeight.w800)),
           ),
         ],
       ),
@@ -166,7 +167,8 @@ class _StateLayarPengajuanKetidakhadiran
   Future<void> _kirimPengajuan() async {
     final user = ref.read(authProvider).user;
     final idStr = 'CUTI-${DateTime.now().millisecondsSinceEpoch}';
-    final rangeTgl = '${_formatTanggal(_tglMulai)} - ${_formatTanggal(_tglSelesai)}';
+    final rangeTgl =
+        '${_formatTanggal(_tglMulai)} - ${_formatTanggal(_tglSelesai)}';
     final alasanText = _alasanController.text.trim().isNotEmpty
         ? _alasanController.text.trim()
         : 'Keperluan $_jenisTerpilih';
@@ -177,7 +179,7 @@ class _StateLayarPengajuanKetidakhadiran
 
     final leavePayload = {
       'id': idStr,
-      'username': user?.username ?? 'TJS-2024-089',
+      'username': user?.username ?? 'IPM-00002',
       'nama': user?.nama ?? 'Musmaulana',
       'jenis': _jenisTerpilih,
       'tanggal': rangeTgl,
@@ -188,10 +190,12 @@ class _StateLayarPengajuanKetidakhadiran
     };
 
     try {
-      final success = await ref.read(servicesRepositoryProvider).postLeave(leavePayload);
+      final success =
+          await ref.read(servicesRepositoryProvider).postLeave(leavePayload);
       if (!success) {
         if (mounted) {
-          AppNotification.showError(context, 'Gagal mengirim pengajuan cuti ke server.');
+          AppNotification.showError(
+              context, 'Gagal mengirim pengajuan cuti ke server.');
         }
         return;
       }
@@ -204,8 +208,9 @@ class _StateLayarPengajuanKetidakhadiran
           'Pengajuan $_jenisTerpilih Terkirim',
           'Pengajuan $_jenisTerpilih Anda berhasil dikirim ke Manajemen HR.',
         );
-        AppNotification.showSuccess(context, 'Pengajuan cuti/izin berhasil dikirim ke HR!');
-        
+        AppNotification.showSuccess(
+            context, 'Pengajuan cuti/izin berhasil dikirim ke HR!');
+
         if (Navigator.of(context).canPop()) {
           Navigator.of(context).pop();
         }
@@ -213,7 +218,8 @@ class _StateLayarPengajuanKetidakhadiran
       }
     } catch (e) {
       if (mounted) {
-        AppNotification.showError(context, 'Gagal: ${e.toString().replaceAll('Exception: ', '')}');
+        AppNotification.showError(
+            context, 'Gagal: ${e.toString().replaceAll('Exception: ', '')}');
       }
     } finally {
       if (mounted) {
@@ -242,7 +248,6 @@ class _StateLayarPengajuanKetidakhadiran
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
@@ -268,7 +273,8 @@ class _StateLayarPengajuanKetidakhadiran
                       color: Colors.white.withOpacity(0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(LucideIcons.fileSpreadsheet, color: Colors.white, size: 24),
+                    child: const Icon(LucideIcons.fileSpreadsheet,
+                        color: Colors.white, size: 24),
                   ),
                   const SizedBox(width: 14),
                   const Expanded(
@@ -299,8 +305,6 @@ class _StateLayarPengajuanKetidakhadiran
               ),
             ),
             const SizedBox(height: 20),
-
-            
             _buildSectionCard(
               title: 'JENIS & WAKTU KETIDAKHADIRAN',
               icon: LucideIcons.calendarCheck2,
@@ -309,7 +313,10 @@ class _StateLayarPengajuanKetidakhadiran
                 children: [
                   const Text(
                     'Pilih Jenis Pengajuan',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.secondary),
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.secondary),
                   ),
                   const SizedBox(height: 8),
                   DropdownJenisPengajuan(
@@ -326,7 +333,10 @@ class _StateLayarPengajuanKetidakhadiran
                           children: [
                             const Text(
                               'Tanggal Mulai',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.secondary),
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.secondary),
                             ),
                             const SizedBox(height: 6),
                             BidangTanggal(
@@ -343,7 +353,10 @@ class _StateLayarPengajuanKetidakhadiran
                           children: [
                             const Text(
                               'Tanggal Selesai',
-                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.secondary),
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.secondary),
                             ),
                             const SizedBox(height: 6),
                             BidangTanggal(
@@ -358,7 +371,8 @@ class _StateLayarPengajuanKetidakhadiran
                   const SizedBox(height: 14),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
                       color: AppColors.primaryFixed,
                       borderRadius: BorderRadius.circular(12),
@@ -366,7 +380,8 @@ class _StateLayarPengajuanKetidakhadiran
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(LucideIcons.clock, size: 16, color: AppColors.primary),
+                        const Icon(LucideIcons.clock,
+                            size: 16, color: AppColors.primary),
                         const SizedBox(width: 8),
                         Text(
                           'Total Pengajuan: $_jumlahHari Hari',
@@ -383,8 +398,6 @@ class _StateLayarPengajuanKetidakhadiran
               ),
             ),
             const SizedBox(height: 18),
-
-            
             _buildSectionCard(
               title: 'ALASAN KETIDAKHADIRAN',
               icon: LucideIcons.messageSquareText,
@@ -403,28 +416,35 @@ class _StateLayarPengajuanKetidakhadiran
                       }
                     },
                     decoration: InputDecoration(
-                      hintText: 'Tuliskan alasan pengajuan secara jelas dan singkat...',
+                      hintText:
+                          'Tuliskan alasan pengajuan secara jelas dan singkat...',
                       filled: true,
-                      fillColor: _errorAlasan ? AppColors.errorBg.withOpacity(0.5) : AppColors.surfaceContainerLowest,
+                      fillColor: _errorAlasan
+                          ? AppColors.errorBg.withOpacity(0.5)
+                          : AppColors.surfaceContainerLowest,
                       contentPadding: const EdgeInsets.all(16),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide(
-                          color: _errorAlasan ? AppColors.error : AppColors.border,
+                          color:
+                              _errorAlasan ? AppColors.error : AppColors.border,
                           width: _errorAlasan ? 1.5 : 1.0,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide(
-                          color: _errorAlasan ? AppColors.error : AppColors.border,
+                          color:
+                              _errorAlasan ? AppColors.error : AppColors.border,
                           width: _errorAlasan ? 1.5 : 1.0,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide(
-                          color: _errorAlasan ? AppColors.error : AppColors.primary,
+                          color: _errorAlasan
+                              ? AppColors.error
+                              : AppColors.primary,
                           width: 2,
                         ),
                       ),
@@ -434,7 +454,8 @@ class _StateLayarPengajuanKetidakhadiran
                     const SizedBox(height: 8),
                     const Row(
                       children: [
-                        Icon(LucideIcons.alertCircle, size: 14, color: AppColors.error),
+                        Icon(LucideIcons.alertCircle,
+                            size: 14, color: AppColors.error),
                         SizedBox(width: 6),
                         Text(
                           'Alasan wajib diisi terlebih dahulu',
@@ -451,12 +472,10 @@ class _StateLayarPengajuanKetidakhadiran
               ),
             ),
             const SizedBox(height: 18),
-
-            
             _buildSectionCard(
-              title: 'LAMPIRAN DOKUMEN PENDUKUNG',
+              title: 'LAMPIRAN DOKUMEN PENDUKUNG (OPSIONAL)',
               icon: LucideIcons.paperclip,
-              hasError: _errorLampiran,
+              hasError: false,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -464,45 +483,13 @@ class _StateLayarPengajuanKetidakhadiran
                     onFileSelected: (file) {
                       setState(() {
                         _lampiran = file;
-                        if (file != null) {
-                          _errorLampiran = false;
-                        }
                       });
                     },
                   ),
-                  if (_errorLampiran) ...[
-                    const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.errorBg,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.error.withOpacity(0.4)),
-                      ),
-                      child: const Row(
-                        children: [
-                          Icon(LucideIcons.alertCircle, size: 14, color: AppColors.error),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Lampiran dokumen wajib diunggah terlebih dahulu',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.error,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
             const SizedBox(height: 28),
-
-            
             ElevatedButton.icon(
               onPressed: _sedangMengirim ? null : _konfirmasiKirim,
               icon: _sedangMengirim
@@ -512,7 +499,8 @@ class _StateLayarPengajuanKetidakhadiran
                   ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2.5),
                     )
                   : const Text(
                       'KIRIM PENGAJUAN KE HR',
@@ -528,7 +516,8 @@ class _StateLayarPengajuanKetidakhadiran
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 elevation: 6,
                 shadowColor: AppColors.primary.withOpacity(0.4),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
               ),
             ),
             const SizedBox(height: 24),
@@ -547,7 +536,9 @@ class _StateLayarPengajuanKetidakhadiran
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: hasError ? AppColors.errorBg.withOpacity(0.2) : AppColors.surfaceContainerLowest,
+        color: hasError
+            ? AppColors.errorBg.withOpacity(0.2)
+            : AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: hasError ? AppColors.error : AppColors.border,
@@ -568,7 +559,9 @@ class _StateLayarPengajuanKetidakhadiran
         children: [
           Row(
             children: [
-              Icon(icon, size: 16, color: hasError ? AppColors.error : AppColors.primary),
+              Icon(icon,
+                  size: 16,
+                  color: hasError ? AppColors.error : AppColors.primary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -583,7 +576,8 @@ class _StateLayarPengajuanKetidakhadiran
               ),
               if (hasError)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: AppColors.error,
                     borderRadius: BorderRadius.circular(6),
@@ -606,4 +600,3 @@ class _StateLayarPengajuanKetidakhadiran
     );
   }
 }
-

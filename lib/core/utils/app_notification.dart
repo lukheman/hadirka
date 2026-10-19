@@ -1,52 +1,51 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
-
 class AppNotification {
-  
-  static void showSuccess(BuildContext context, String message, {Duration duration = const Duration(seconds: 3)}) {
+  static void showSuccess(BuildContext context, String message,
+      {Duration duration = const Duration(seconds: 3)}) {
     _showCustomSnackBar(
       context,
       message: message,
-      backgroundColor: const Color(0xFF1E293B), 
+      backgroundColor: AppColors.ipmBlueDark,
       borderColor: AppColors.success,
-      textColor: const Color(0xFF34D399), 
+      textColor: AppColors.success,
       duration: duration,
     );
   }
 
-  
-  static void showError(BuildContext context, String message, {Duration duration = const Duration(seconds: 4)}) {
+  static void showError(BuildContext context, String message,
+      {Duration duration = const Duration(seconds: 4)}) {
     _showCustomSnackBar(
       context,
       message: message,
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: AppColors.ipmBlueDark,
       borderColor: AppColors.error,
-      textColor: const Color(0xFFF87171), 
+      textColor: AppColors.error,
       duration: duration,
     );
   }
 
-  
-  static void showInfo(BuildContext context, String message, {Duration duration = const Duration(seconds: 3)}) {
+  static void showInfo(BuildContext context, String message,
+      {Duration duration = const Duration(seconds: 3)}) {
     _showCustomSnackBar(
       context,
       message: message,
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: AppColors.ipmBlueDark,
       borderColor: AppColors.primary,
-      textColor: const Color(0xFF60A5FA), 
+      textColor: AppColors.info,
       duration: duration,
     );
   }
 
-  
-  static void showWarning(BuildContext context, String message, {Duration duration = const Duration(seconds: 4)}) {
+  static void showWarning(BuildContext context, String message,
+      {Duration duration = const Duration(seconds: 4)}) {
     _showCustomSnackBar(
       context,
       message: message,
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: AppColors.ipmBlueDark,
       borderColor: AppColors.warning,
-      textColor: const Color(0xFFFBBF24), 
+      textColor: AppColors.statusWarning,
       duration: duration,
     );
   }
@@ -59,12 +58,16 @@ class AppNotification {
     required Color textColor,
     required Duration duration,
   }) {
-    
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
     String cleanMessage = message;
     try {
-      cleanMessage = message.replaceAll(RegExp(r'[\u{1F300}-\u{1F9FF}✅❌ℹ️⚠️🔒🗑️🎉🌅🌇🏢👤]', unicode: true), '').trim();
+      cleanMessage = message
+          .replaceAll(
+              RegExp(r'[\u{1F300}-\u{1F9FF}✅❌ℹ️⚠️🔒🗑️🎉🌅🌇🏢👤]',
+                  unicode: true),
+              '')
+          .trim();
     } catch (_) {
       cleanMessage = message.trim();
     }
@@ -93,7 +96,6 @@ class AppNotification {
           ),
           child: Row(
             children: [
-              
               Container(
                 width: 4,
                 height: 20,

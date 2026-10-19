@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,7 +15,6 @@ class BerandaAttendanceCard extends ConsumerWidget {
     final wita = state.waktuWitaSaatIni ?? AbsensiConfig.witaNow;
     final jamDigital = '${AbsensiConfig.formatJamMenit(wita)} WITA';
 
-    
     String statusJudul;
     String statusBadgeLabel;
     Color statusBadgeBg;
@@ -25,14 +23,13 @@ class BerandaAttendanceCard extends ConsumerWidget {
     if (state.sudahCheckOut) {
       statusJudul = 'Sudah Check-Out';
       statusBadgeLabel = 'SELESAI';
-      statusBadgeBg = const Color(0x3310B981); 
-      statusTextColor = const Color(0xFF34D399); 
+      statusBadgeBg = const Color(0x3310B981);
+      statusTextColor = const Color(0xFF34D399);
     } else if (state.sudahCheckIn && state.dataCheckIn != null) {
-      final isTerlambat = state.dataCheckIn!.statusKetepatan == 'terlambat';
       statusJudul = 'Sudah Check-In';
-      statusBadgeLabel = isTerlambat ? 'TERLAMBAT' : 'TEPAT WAKTU';
-      statusBadgeBg = isTerlambat ? const Color(0x33EF4444) : const Color(0x3310B981);
-      statusTextColor = isTerlambat ? const Color(0xFFF87171) : const Color(0xFF34D399);
+      statusBadgeLabel = 'HADIR';
+      statusBadgeBg = const Color(0x3310B981);
+      statusTextColor = const Color(0xFF34D399);
     } else {
       statusJudul = 'Belum Presensi';
       switch (state.statusAbsensiKode) {
@@ -41,21 +38,10 @@ class BerandaAttendanceCard extends ConsumerWidget {
           statusBadgeBg = const Color(0x3310B981);
           statusTextColor = const Color(0xFF34D399);
           break;
-        case 'terlambat':
-          statusBadgeLabel = 'TERLAMBAT';
-          statusBadgeBg = const Color(0x33EF4444);
-          statusTextColor = const Color(0xFFF87171);
-          break;
-        case 'belum_dimulai':
-          statusBadgeLabel = 'BELUM DIBUKA';
-          statusBadgeBg = const Color(0x33F59E0B);
-          statusTextColor = const Color(0xFFFBBF24);
-          break;
-        case 'jam_operasional_berakhir':
         default:
-          statusBadgeLabel = 'DITUTUP';
-          statusBadgeBg = const Color(0x22FFFFFF);
-          statusTextColor = const Color(0xFFCBD5E1);
+          statusBadgeLabel = 'SIAP ABSEN';
+          statusBadgeBg = const Color(0x3310B981);
+          statusTextColor = const Color(0xFF34D399);
           break;
       }
     }
@@ -69,9 +55,9 @@ class BerandaAttendanceCard extends ConsumerWidget {
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
-            Color(0xFF0F172A), 
-            Color(0xFF1E1B4B), 
-            Color(0xFF1E40AF), 
+            Color(0xFF0F172A),
+            Color(0xFF1E1B4B),
+            Color(0xFF1E40AF),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -88,12 +74,9 @@ class BerandaAttendanceCard extends ConsumerWidget {
       child: Stack(
         clipBehavior: Clip.hardEdge,
         children: [
-          
           Positioned.fill(
             child: CustomPaint(painter: _GridPainter()),
           ),
-          
-          
           Positioned(
             right: -10,
             top: -10,
@@ -118,13 +101,11 @@ class BerandaAttendanceCard extends ConsumerWidget {
               ),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.all(22.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,7 +139,8 @@ class BerandaAttendanceCard extends ConsumerWidget {
                                 ),
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
                                   color: statusBadgeBg,
                                   borderRadius: BorderRadius.circular(20),
@@ -179,14 +161,14 @@ class BerandaAttendanceCard extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-
-                    
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white.withOpacity(0.2)),
+                        border:
+                            Border.all(color: Colors.white.withOpacity(0.2)),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.1),
@@ -200,7 +182,8 @@ class BerandaAttendanceCard extends ConsumerWidget {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(LucideIcons.clock, size: 11, color: Colors.white70),
+                              const Icon(LucideIcons.clock,
+                                  size: 11, color: Colors.white70),
                               const SizedBox(width: 4),
                               Text(
                                 '07:30 - 16:00',
@@ -226,37 +209,34 @@ class BerandaAttendanceCard extends ConsumerWidget {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 20),
-
-                
                 Row(
                   children: [
                     Expanded(
-                      child: _buildInfoGlassTile('Jam Masuk', waktuInText, LucideIcons.logIn),
+                      child: _buildInfoGlassTile(
+                          'Jam Masuk', waktuInText, LucideIcons.logIn),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: _buildInfoGlassTile(
-                        'Terlambat',
-                        state.keterlambatanMenit > 0 ? state.keterlambatanTeks : '0 Menit',
-                        LucideIcons.timerReset,
+                         'Status',
+                         state.sudahCheckIn ? 'Hadir' : 'Belum Absen',
+                         LucideIcons.badgeCheck,
                       ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: _buildInfoGlassTile(
                         state.sudahCheckOut ? 'Total Kerja' : 'Durasi',
-                        (state.sudahCheckIn || state.sudahCheckOut) ? state.durasiKerjaTeks : '--:--',
+                        (state.sudahCheckIn || state.sudahCheckOut)
+                            ? state.durasiKerjaTeks
+                            : '--:--',
                         LucideIcons.hourglass,
                       ),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 20),
-
-                
                 SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -267,19 +247,24 @@ class BerandaAttendanceCard extends ConsumerWidget {
                       foregroundColor: AppColors.primary,
                       elevation: 4,
                       shadowColor: Colors.black.withOpacity(0.25),
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                     icon: Icon(
-                      state.sudahCheckIn ? LucideIcons.arrowRight : LucideIcons.mapPin,
+                      state.sudahCheckIn
+                          ? LucideIcons.arrowRight
+                          : LucideIcons.mapPin,
                       size: 18,
                       color: AppColors.primary,
                     ),
                     label: Text(
                       state.sudahCheckIn
-                          ? (state.sudahCheckOut ? 'LIHAT DETAIL PRESENSI' : 'CHECK OUT SEKARANG')
+                          ? (state.sudahCheckOut
+                              ? 'LIHAT DETAIL PRESENSI'
+                              : 'CHECK OUT SEKARANG')
                           : 'PRESENSI SEKARANG',
                       style: const TextStyle(
                         fontSize: 13,
@@ -302,7 +287,7 @@ class BerandaAttendanceCard extends ConsumerWidget {
   Widget _buildInfoGlassTile(String label, String value, IconData icon) {
     return Container(
       height: 78,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.12),
         borderRadius: BorderRadius.circular(16),
@@ -310,20 +295,21 @@ class BerandaAttendanceCard extends ConsumerWidget {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 13, color: Colors.white.withOpacity(0.9)),
-              const SizedBox(width: 4),
+              Icon(icon, size: 12, color: Colors.white.withOpacity(0.9)),
+              const SizedBox(width: 3),
               Flexible(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
                     label,
                     style: TextStyle(
-                      fontSize: 10.5,
+                      fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: Colors.white.withOpacity(0.85),
                       letterSpacing: 0.2,
@@ -333,14 +319,14 @@ class BerandaAttendanceCard extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 3),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.center,
             child: Text(
               value,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: FontWeight.w900,
                 color: Colors.white,
                 letterSpacing: -0.2,

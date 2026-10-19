@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -7,12 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_notification.dart';
 import '../../../core/services/notification_service.dart';
 import '../../auth/providers/auth_provider.dart';
-import 'widgets/kartu_estimasi_angsuran.dart';
-import 'widgets/kartu_informasi_plafon.dart';
 import 'widgets/label_input.dart';
-import 'widgets/opsi_tenor.dart';
-import 'widgets/slider_pinjaman.dart';
-
 
 class LayarPengajuanPinjaman extends ConsumerStatefulWidget {
   const LayarPengajuanPinjaman({super.key});
@@ -24,8 +19,7 @@ class LayarPengajuanPinjaman extends ConsumerStatefulWidget {
 
 class _StateLayarPengajuanPinjaman
     extends ConsumerState<LayarPengajuanPinjaman> {
-  double _jumlahPinjaman = 3000000;
-  int _pilihanTenor = 6;
+  double _jumlahPinjaman = 0;
   late TextEditingController _nominalController;
   final TextEditingController _alasanController = TextEditingController();
   bool _sedangMengirim = false;
@@ -34,9 +28,7 @@ class _StateLayarPengajuanPinjaman
   @override
   void initState() {
     super.initState();
-    _nominalController = TextEditingController(
-      text: _formatNumber(_jumlahPinjaman.toInt()),
-    );
+    _nominalController = TextEditingController();
   }
 
   @override
@@ -61,12 +53,12 @@ class _StateLayarPengajuanPinjaman
     final cleanStr = input.replaceAll(RegExp(r'[^0-9]'), '');
     if (cleanStr.isEmpty) {
       setState(() {
-        _jumlahPinjaman = 1000000;
+        _jumlahPinjaman = 0;
       });
       return;
     }
 
-    final parsed = double.tryParse(cleanStr) ?? 1000000;
+    final parsed = double.tryParse(cleanStr) ?? 0;
     final formatted = _formatNumber(parsed.toInt());
 
     _nominalController.value = TextEditingValue(
@@ -75,34 +67,23 @@ class _StateLayarPengajuanPinjaman
     );
 
     setState(() {
-      if (parsed < 1000000) {
-        _jumlahPinjaman = 1000000;
-      } else if (parsed > 15000000) {
-        _jumlahPinjaman = 15000000;
-      } else {
-        _jumlahPinjaman = parsed;
-      }
+      _jumlahPinjaman = parsed < 1000000 ? 1000000 : parsed;
     });
   }
 
   void _tambahNominalPreset(double tambahan) {
-    double nilaiBaru = _jumlahPinjaman + tambahan;
-    if (nilaiBaru > 15000000) nilaiBaru = 15000000;
-    _perbaruiJumlahDariSlider(nilaiBaru);
-  }
-
-  void _setNominalMaksimal() {
-    _perbaruiJumlahDariSlider(15000000);
-  }
-
-  void _perbaruiTenor(int tenorBaru) {
-    setState(() {
-      _pilihanTenor = tenorBaru;
-    });
+    _perbaruiJumlahDariSlider(_jumlahPinjaman + tambahan);
   }
 
   Future<void> _konfirmasiKirim() async {
     final alasan = _alasanController.text.trim();
+    if (_jumlahPinjaman <= 0) {
+      AppNotification.showWarning(
+        context,
+        'Nominal pinjaman wajib diisi terlebih dahulu!',
+      );
+      return;
+    }
     if (alasan.isEmpty) {
       setState(() {
         _errorAlasan = true;
@@ -133,26 +114,31 @@ class _StateLayarPengajuanPinjaman
           ],
         ),
         content: Text(
-          'Apakah Anda yakin ingin mengajukan pinjaman sebesar Rp ${_formatNumber(_jumlahPinjaman.toInt())} dengan tenor $_pilihanTenor bulan ke HR?',
-          style: const TextStyle(fontSize: 13.5, color: AppColors.onSurfaceVariant),
+          'Apakah Anda yakin ingin mengajukan pinjaman sebesar Rp ${_formatNumber(_jumlahPinjaman.toInt())} ke HR?',
+          style: const TextStyle(
+              fontSize: 13.5, color: AppColors.onSurfaceVariant),
         ),
-        actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        actionsPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             style: TextButton.styleFrom(
               foregroundColor: AppColors.onSurfaceVariant,
             ),
-            child: const Text('Tidak / Batal', style: TextStyle(fontWeight: FontWeight.w700)),
+            child: const Text('Tidak / Batal',
+                style: TextStyle(fontWeight: FontWeight.w700)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Ya, Kirim', style: TextStyle(fontWeight: FontWeight.w800)),
+            child: const Text('Ya, Kirim',
+                style: TextStyle(fontWeight: FontWeight.w800)),
           ),
         ],
       ),
@@ -166,7 +152,6 @@ class _StateLayarPengajuanPinjaman
   Future<void> _kirimPengajuan() async {
     final user = ref.read(authProvider).user;
     final idStr = 'LOAN-${DateTime.now().millisecondsSinceEpoch}';
-    final angsuran = _jumlahPinjaman / _pilihanTenor;
     final alasanText = _alasanController.text.trim().isNotEmpty
         ? _alasanController.text.trim()
         : 'Kebutuhan mendesak';
@@ -177,17 +162,16 @@ class _StateLayarPengajuanPinjaman
 
     final loanPayload = {
       'id': idStr,
-      'username': user?.username ?? 'TJS-2024-089',
+      'username': user?.username ?? 'IPM-00002',
       'nama': user?.nama ?? 'Musmaulana',
       'nominal': _jumlahPinjaman,
-      'tenor': _pilihanTenor,
-      'angsuran': angsuran,
       'alasan': alasanText,
       'status': 'MENUNGGU',
     };
 
     try {
-      final success = await ref.read(servicesRepositoryProvider).postLoan(loanPayload);
+      final success =
+          await ref.read(servicesRepositoryProvider).postLoan(loanPayload);
       if (!success) {
         if (mounted) {
           AppNotification.showError(
@@ -204,9 +188,9 @@ class _StateLayarPengajuanPinjaman
           'Pengajuan Pinjaman Terkirim',
           'Pengajuan pinjaman sebesar Rp ${_formatNumber(_jumlahPinjaman.toInt())} berhasil dikirim ke HR.',
         );
-        AppNotification.showSuccess(
-            context, 'Pengajuan pinjaman sebesar Rp ${_formatNumber(_jumlahPinjaman.toInt())} berhasil dikirim ke HR!');
-        
+        AppNotification.showSuccess(context,
+            'Pengajuan pinjaman sebesar Rp ${_formatNumber(_jumlahPinjaman.toInt())} berhasil dikirim ke HR!');
+
         if (Navigator.of(context).canPop()) {
           Navigator.of(context).pop();
         }
@@ -244,10 +228,6 @@ class _StateLayarPengajuanPinjaman
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const KartuInformasiPlafon(),
-            const SizedBox(height: 24),
-
-            
             const LabelInput(teks: 'Nominal Pinjaman (Rp)'),
             const SizedBox(height: 8),
             TextFormField(
@@ -265,7 +245,8 @@ class _StateLayarPengajuanPinjaman
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(LucideIcons.banknote, color: AppColors.primary, size: 22),
+                      Icon(LucideIcons.banknote,
+                          color: AppColors.primary, size: 22),
                       SizedBox(width: 8),
                       Text(
                         'Rp',
@@ -278,79 +259,47 @@ class _StateLayarPengajuanPinjaman
                     ],
                   ),
                 ),
-                prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+                prefixIconConstraints:
+                    const BoxConstraints(minWidth: 0, minHeight: 0),
                 hintText: '0',
                 filled: true,
                 fillColor: AppColors.surfaceContainerLowest,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: const BorderSide(color: AppColors.border),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.border, width: 1.5),
+                  borderSide:
+                      const BorderSide(color: AppColors.border, width: 1.5),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                  borderSide:
+                      const BorderSide(color: AppColors.primary, width: 2),
                 ),
               ),
               onChanged: _perbaruiJumlahDariInput,
             ),
             const SizedBox(height: 12),
-
-            
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  _buildNominalChip('+ 1 Juta', () => _tambahNominalPreset(1000000)),
+                  _buildNominalChip(
+                      '+ 1 Juta', () => _tambahNominalPreset(1000000)),
                   const SizedBox(width: 8),
-                  _buildNominalChip('+ 2.5 Juta', () => _tambahNominalPreset(2500000)),
+                  _buildNominalChip(
+                      '+ 2.5 Juta', () => _tambahNominalPreset(2500000)),
                   const SizedBox(width: 8),
-                  _buildNominalChip('+ 5 Juta', () => _tambahNominalPreset(5000000)),
-                  const SizedBox(width: 8),
-                  _buildNominalChip('Maksimal (15 Juta)', _setNominalMaksimal, isMax: true),
+                  _buildNominalChip(
+                      '+ 5 Juta', () => _tambahNominalPreset(5000000)),
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-
-            
-            SliderPinjaman(
-              jumlah: _jumlahPinjaman,
-              onChanged: _perbaruiJumlahDariSlider,
-            ),
             const SizedBox(height: 24),
-
-            
-            const LabelInput(teks: 'Tenor (Bulan)'),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                OpsiTenor(
-                  bulan: 3,
-                  tenorTerpilih: _pilihanTenor,
-                  onTap: _perbaruiTenor,
-                ),
-                const SizedBox(width: 12),
-                OpsiTenor(
-                  bulan: 6,
-                  tenorTerpilih: _pilihanTenor,
-                  onTap: _perbaruiTenor,
-                ),
-                const SizedBox(width: 12),
-                OpsiTenor(
-                  bulan: 12,
-                  tenorTerpilih: _pilihanTenor,
-                  onTap: _perbaruiTenor,
-                ),
-              ],
-            ),
-            const SizedBox(height: 28),
-
-            
             const LabelInput(teks: 'Keperluan Pinjaman'),
             const SizedBox(height: 8),
             TextFormField(
@@ -364,9 +313,12 @@ class _StateLayarPengajuanPinjaman
                 }
               },
               decoration: InputDecoration(
-                hintText: 'Jelaskan alasan pengajuan pinjaman secara singkat...',
+                hintText:
+                    'Jelaskan alasan pengajuan pinjaman secara singkat...',
                 filled: true,
-                fillColor: _errorAlasan ? AppColors.errorBg.withOpacity(0.5) : AppColors.surfaceContainerLowest,
+                fillColor: _errorAlasan
+                    ? AppColors.errorBg.withOpacity(0.5)
+                    : AppColors.surfaceContainerLowest,
                 contentPadding: const EdgeInsets.all(16),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -395,7 +347,8 @@ class _StateLayarPengajuanPinjaman
               const SizedBox(height: 8),
               const Row(
                 children: [
-                  Icon(LucideIcons.alertCircle, size: 14, color: AppColors.error),
+                  Icon(LucideIcons.alertCircle,
+                      size: 14, color: AppColors.error),
                   SizedBox(width: 6),
                   Text(
                     'Keperluan / alasan wajib diisi terlebih dahulu',
@@ -408,16 +361,7 @@ class _StateLayarPengajuanPinjaman
                 ],
               ),
             ],
-            const SizedBox(height: 28),
-
-            
-            KartuEstimasiAngsuran(
-              jumlahPinjaman: _jumlahPinjaman,
-              tenor: _pilihanTenor,
-            ),
             const SizedBox(height: 36),
-
-            
             ElevatedButton(
               onPressed: _sedangMengirim ? null : _konfirmasiKirim,
               style: ElevatedButton.styleFrom(
@@ -434,7 +378,8 @@ class _StateLayarPengajuanPinjaman
                   ? const SizedBox(
                       width: 22,
                       height: 22,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                      child: CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2.5),
                     )
                   : const Text(
                       'AJUKAN PINJAMAN',
@@ -452,14 +397,16 @@ class _StateLayarPengajuanPinjaman
     );
   }
 
-  Widget _buildNominalChip(String label, VoidCallback onTap, {bool isMax = false}) {
+  Widget _buildNominalChip(String label, VoidCallback onTap,
+      {bool isMax = false}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isMax ? AppColors.primaryFixed : AppColors.surfaceContainerLowest,
+          color:
+              isMax ? AppColors.primaryFixed : AppColors.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isMax ? AppColors.primary : AppColors.border,
@@ -478,4 +425,3 @@ class _StateLayarPengajuanPinjaman
     );
   }
 }
-

@@ -18,7 +18,6 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  bool _rememberMe = false;
   bool _sembunyikanPass = true;
 
   @override
@@ -66,7 +65,6 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 24),
-                
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -95,7 +93,7 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                         end: Alignment.bottomRight,
                       ).createShader(bounds),
                       child: const Text(
-                        'PT TRIPUTRA JAYA SULTRA',
+                        'INDOTEKNIK PRIMA MEKONGGA',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 22,
@@ -103,17 +101,6 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                           color: Colors.white,
                           letterSpacing: 1.0,
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'SISTEM ABSENSI KARYAWAN PT TRI PUTRA JAYA SULTRA',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.onSurfaceVariant,
-                        letterSpacing: 0.2,
                       ),
                     ),
                   ],
@@ -138,8 +125,6 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                   ),
                 ),
                 const SizedBox(height: 32),
-
-                
                 if (authState.errorMessage != null) ...[
                   Container(
                     padding: const EdgeInsets.all(14),
@@ -169,8 +154,6 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                   ),
                   const SizedBox(height: 20),
                 ],
-
-                
                 const Text(
                   'ID Karyawan',
                   style: TextStyle(
@@ -188,16 +171,18 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                     prefixIcon: const Icon(LucideIcons.user,
                         size: 18, color: AppColors.secondary),
                     filled: true,
-                    fillColor: AppColors.surfaceContainerLowest,
+                    fillColor: AppColors.loginCard,
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 16),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide:
+                          const BorderSide(color: AppColors.ipmOrangeLight),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide:
+                          const BorderSide(color: AppColors.ipmOrangeLight),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -205,12 +190,11 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                           const BorderSide(color: AppColors.primary, width: 2),
                     ),
                   ),
-                  validator: (val) =>
-                      val == null || val.isEmpty ? 'Masukkan ID Karyawan' : null,
+                  validator: (val) => val == null || val.isEmpty
+                      ? 'Masukkan ID Karyawan'
+                      : null,
                 ),
                 const SizedBox(height: 16),
-
-                
                 const Text(
                   'Password',
                   style: TextStyle(
@@ -241,16 +225,18 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                       },
                     ),
                     filled: true,
-                    fillColor: AppColors.surfaceContainerLowest,
+                    fillColor: AppColors.loginCard,
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 16),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide:
+                          const BorderSide(color: AppColors.ipmOrangeLight),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide:
+                          const BorderSide(color: AppColors.ipmOrangeLight),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -261,44 +247,7 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                   validator: (val) =>
                       val == null || val.isEmpty ? 'Masukkan Password' : null,
                 ),
-                const SizedBox(height: 20),
-
-
-
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: Checkbox(
-                        value: _rememberMe,
-                        onChanged: (value) {
-                          setState(() {
-                            _rememberMe = value ?? false;
-                          });
-                        },
-                        activeColor: AppColors.primary,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(6)),
-                        side: const BorderSide(
-                            color: AppColors.border, width: 1.5),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    const Text(
-                      'Ingat saya',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                    ),
-
-                  ],
-                ),
                 const SizedBox(height: 32),
-
-                
                 ElevatedButton(
                   onPressed: authState.isLoading ? null : () => _prosesLogin(),
                   style: ElevatedButton.styleFrom(
@@ -329,8 +278,6 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                         ),
                 ),
                 const SizedBox(height: 24),
-                
-                
                 Wrap(
                   alignment: WrapAlignment.center,
                   crossAxisAlignment: WrapCrossAlignment.center,
@@ -392,7 +339,6 @@ class _TypewriterTextState extends State<_TypewriterText> {
 
   void _animateText() async {
     while (mounted) {
-      
       for (int i = 0; i < widget.text.length; i++) {
         if (!mounted) return;
         await Future.delayed(const Duration(milliseconds: 100));
@@ -403,10 +349,8 @@ class _TypewriterTextState extends State<_TypewriterText> {
         });
       }
 
-      
       await Future.delayed(const Duration(seconds: 2));
 
-      
       for (int i = widget.text.length; i > 0; i--) {
         if (!mounted) return;
         await Future.delayed(const Duration(milliseconds: 50));
@@ -417,7 +361,6 @@ class _TypewriterTextState extends State<_TypewriterText> {
         });
       }
 
-      
       await Future.delayed(const Duration(milliseconds: 500));
     }
   }

@@ -15,6 +15,7 @@ class AttendanceApiService {
     required String tipe, 
     String? fotoPath,
     String? fotoBase64,
+    String? metodeCheckout,
   }) async {
     final payload = {
       'username': username,
@@ -24,6 +25,7 @@ class AttendanceApiService {
       'tipe': tipe,
       'fotoPath': fotoPath,
       'fotoBase64': fotoBase64,
+      'metodeCheckout': metodeCheckout,
     };
     
     

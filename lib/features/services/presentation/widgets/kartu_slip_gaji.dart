@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../utils/periode_gaji.dart';
 import 'modal_detail_slip_gaji.dart';
-
 
 class KartuSlipGaji extends StatelessWidget {
   final Map<String, dynamic> slipData;
@@ -29,13 +29,16 @@ class KartuSlipGaji extends StatelessWidget {
   }
 
   String _formatRupiah(num number) {
-    final str = number.toInt().toString().replaceAll(RegExp(r'\B(?=(\d{3})+(?!\d))'), '.');
+    final str = number
+        .toInt()
+        .toString()
+        .replaceAll(RegExp(r'\B(?=(\d{3})+(?!\d))'), '.');
     return 'Rp $str';
   }
 
   @override
   Widget build(BuildContext context) {
-    final periode = slipData['periode']?.toString() ?? 'Periode Bulan Ini';
+    final periode = formatPeriodeGaji(slipData['periode']);
     final totalDiterima = slipData['totalDiterima'] ?? 0;
     final jumlah = _formatRupiah(totalDiterima);
 

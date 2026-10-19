@@ -1,11 +1,11 @@
 {
-    "name": "attendance_app",
-    "short_name": "attendance_app",
+    "name": "Indoteknik Prima Mekongga",
+    "short_name": "Indoteknik Prima",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Aplikasi absensi Indoteknik Prima Mekongga.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

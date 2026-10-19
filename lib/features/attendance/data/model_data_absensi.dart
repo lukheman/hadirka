@@ -16,6 +16,7 @@ class DataAbsensi {
   final String statusKetepatan;
   final int keterlambatanMenit;
   final int durasiKerjaMenit; 
+  final String? metodeCheckout;
   const DataAbsensi({
     this.id,
     required this.tipe,
@@ -31,6 +32,7 @@ class DataAbsensi {
     this.statusKetepatan = 'tepat_waktu',
     this.keterlambatanMenit = 0,
     this.durasiKerjaMenit = 0,
+    this.metodeCheckout,
   });
 
   DataAbsensi copyWith({
@@ -48,6 +50,7 @@ class DataAbsensi {
     String? statusKetepatan,
     int? keterlambatanMenit,
     int? durasiKerjaMenit,
+    String? metodeCheckout,
   }) {
     return DataAbsensi(
       id: id ?? this.id,
@@ -64,6 +67,7 @@ class DataAbsensi {
       statusKetepatan: statusKetepatan ?? this.statusKetepatan,
       keterlambatanMenit: keterlambatanMenit ?? this.keterlambatanMenit,
       durasiKerjaMenit: durasiKerjaMenit ?? this.durasiKerjaMenit,
+      metodeCheckout: metodeCheckout ?? this.metodeCheckout,
     );
   }
 
@@ -79,9 +83,10 @@ class DataAbsensi {
       waktu: json['waktu'] != null ? DateTime.parse(json['waktu'].toString()).toLocal() : DateTime.now(),
       jamMasuk: json['waktuIn'] != null ? _parseTime(json['waktuIn'].toString()) : null,
       jamKeluar: json['waktuOut'] != null ? _parseTime(json['waktuOut'].toString()) : null,
-      statusKetepatan: json['isTepat'] == true ? 'tepat_waktu' : 'terlambat',
-      keterlambatanMenit: (json['keterlambatanMenit'] as num?)?.toInt() ?? 0,
+      statusKetepatan: 'hadir',
+      keterlambatanMenit: 0,
       durasiKerjaMenit: (json['durasiKerjaMenit'] as num?)?.toInt() ?? 0,
+      metodeCheckout: json['metode_checkout']?.toString() ?? json['metodeCheckout']?.toString(),
     );
   }
 

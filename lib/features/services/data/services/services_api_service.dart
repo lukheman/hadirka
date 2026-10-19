@@ -20,8 +20,20 @@ class ServicesApiService {
     return response as List<dynamic>;
   }
 
-  Future<List<dynamic>> getPayslips(String username) async {
-    final response = await _apiClient.get(username.isNotEmpty ? '/payslip?username=$username' : '/payslip');
+  Future<List<dynamic>> getPayslips(String username, {String? periode}) async {
+    if (username.trim().isEmpty) {
+      return <dynamic>[];
+    }
+
+    final query = <String, dynamic>{'username': username.trim()};
+    if (periode != null && periode.trim().isNotEmpty) {
+      query['periode'] = periode.trim();
+    }
+
+    final response = await _apiClient.get(
+      '/payslip',
+      queryParameters: query,
+    );
     return response as List<dynamic>;
   }
 
@@ -48,7 +60,8 @@ class ServicesApiService {
     return true;
   }
 
-  Future<bool> updatePassword(String username, String oldPass, String newPass) async {
+  Future<bool> updatePassword(
+      String username, String oldPass, String newPass) async {
     await _apiClient.put('/user/password', data: {
       'username': username,
       'oldPassword': oldPass,

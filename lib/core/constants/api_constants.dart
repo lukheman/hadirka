@@ -90,7 +90,7 @@ class ApiConstants {
 
     // Rapikan slash di akhir, lalu pastikan berakhiran '/api'.
     // Server baru = website HRD (contoh: http://192.168.x.x/ipm-hris atau
-    // http://192.168.x.x:8000 saat dev) sehingga port :3000 tidak dipaksa lagi.
+    // http://192.168.x.x:8000 saat dev) sehingga port lama tidak dipaksa lagi.
     while (clean.endsWith('/')) {
       clean = clean.substring(0, clean.length - 1);
     }

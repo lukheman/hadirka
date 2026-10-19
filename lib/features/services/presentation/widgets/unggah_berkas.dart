@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 
-
 class UnggahBerkas extends StatefulWidget {
   final Function(File?)? onFileSelected;
 
@@ -49,7 +48,8 @@ class _UnggahBerkasState extends State<UnggahBerkas> {
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         decoration: BoxDecoration(
           color: AppColors.successBg.withOpacity(0.6),
-          border: Border.all(color: AppColors.success.withOpacity(0.3), width: 1.5),
+          border:
+              Border.all(color: AppColors.success.withOpacity(0.3), width: 1.5),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -61,7 +61,6 @@ class _UnggahBerkasState extends State<UnggahBerkas> {
         ),
         child: Row(
           children: [
-            
             Container(
               width: 4,
               height: 34,
@@ -126,7 +125,8 @@ class _UnggahBerkasState extends State<UnggahBerkas> {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: AppColors.surfaceContainerLowest,
-          border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 1.5),
+          border:
+              Border.all(color: AppColors.primary.withOpacity(0.3), width: 1.5),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -152,7 +152,7 @@ class _UnggahBerkasState extends State<UnggahBerkas> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Unggah Lampiran Dokumen',
+              'Unggah Lampiran Dokumen (Opsional)',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -161,7 +161,7 @@ class _UnggahBerkasState extends State<UnggahBerkas> {
             ),
             const SizedBox(height: 4),
             const Text(
-              'Foto Surat Sakit (SKS) / Berkas Cuti (JPG, PNG)',
+              'Foto Surat Sakit (SKS) / Berkas pendukung (JPG, PNG)',
               style: TextStyle(
                 fontSize: 12,
                 color: AppColors.onSurfaceVariant,
@@ -171,10 +171,13 @@ class _UnggahBerkasState extends State<UnggahBerkas> {
             OutlinedButton.icon(
               onPressed: _pickImage,
               icon: const Icon(LucideIcons.paperclip, size: 16),
-              label: const Text('PILIH DOKUMEN', style: TextStyle(fontWeight: FontWeight.w800)),
+              label: const Text('PILIH DOKUMEN',
+                  style: TextStyle(fontWeight: FontWeight.w800)),
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ],

@@ -36,7 +36,8 @@ class LayarLayanan extends StatelessWidget {
       body: ResponsiveContainer(
         maxWidth: 1200,
         child: ListView(
-          padding: const EdgeInsets.only(top: 100, left: 24, right: 24, bottom: 100),
+          padding:
+              const EdgeInsets.only(top: 100, left: 24, right: 24, bottom: 100),
           children: [
             KategoriLayanan(
               judulKategori: 'PENGELOLAAN WAKTU',
@@ -57,7 +58,7 @@ class LayarLayanan extends StatelessWidget {
               itemLayanan: [
                 ItemLayananModel(
                   judul: 'Slip Gaji',
-                  subjudul: 'Unduh slip gaji bulanan',
+                  subjudul: 'Lihat riwayat slip gaji bulanan',
                   ikon: LucideIcons.receipt,
                   rute: '/services/payslip',
                   warnaIkon: AppColors.success,

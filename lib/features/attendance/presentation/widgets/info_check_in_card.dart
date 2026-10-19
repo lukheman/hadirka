@@ -16,9 +16,8 @@ class InfoCheckInCard extends StatelessWidget {
     final waktuIn = dataIn.waktu;
     final jamIn = AbsensiConfig.formatJamMenit(waktuIn);
 
-    final isTerlambat = dataIn.statusKetepatan == 'terlambat';
-    final statusLabel = isTerlambat ? 'Terlambat' : 'Tepat Waktu';
-    final statusColor = isTerlambat ? AppColors.error : AppColors.success;
+    const statusLabel = 'Hadir';
+    const statusColor = AppColors.success;
 
     return Container(
       decoration: BoxDecoration(
@@ -40,13 +39,13 @@ class InfoCheckInCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isTerlambat ? AppColors.errorBg : AppColors.successBg,
+              color: AppColors.successBg,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
             ),
             child: Row(
               children: [
                 Icon(
-                  isTerlambat ? LucideIcons.alertCircle : LucideIcons.checkCircle2,
+                  LucideIcons.checkCircle2,
                   size: 22,
                   color: statusColor,
                 ),
@@ -66,7 +65,7 @@ class InfoCheckInCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Absen Masuk Berhasil ($statusLabel)',
+                         'Absen Masuk Berhasil',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
@@ -111,7 +110,7 @@ class InfoCheckInCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    if (state.sudahCheckOut) ...[
+                     if (state.sudahCheckOut) ...[
                       Expanded(
                         child: _buildInfoItem(
                           icon: LucideIcons.clock,
@@ -122,14 +121,6 @@ class InfoCheckInCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                     ],
-                    Expanded(
-                      child: _buildInfoItem(
-                        icon: LucideIcons.badgeCheck,
-                        label: 'Status Ketepatan',
-                        value: statusLabel,
-                        color: statusColor,
-                      ),
-                    ),
                   ],
                 ),
                 const Divider(height: 24, color: AppColors.border),

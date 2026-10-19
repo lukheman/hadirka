@@ -4,7 +4,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../providers/absensi_provider.dart';
 
-
 class StatusJarakCard extends ConsumerWidget {
   final AbsensiState state;
 
@@ -22,10 +21,6 @@ class StatusJarakCard extends ConsumerWidget {
     final akurasiTeks = state.akurasiGps != null
         ? '±${state.akurasiGps!.toStringAsFixed(1)}m ${state.akurasiGpsValid ? "(Akurat)" : "(Kurang Akurat)"}'
         : '-';
-    final koordinatTeks = state.posisiSaatIni != null
-        ? '${state.posisiSaatIni!.latitude.toStringAsFixed(6)}, ${state.posisiSaatIni!.longitude.toStringAsFixed(6)}'
-        : 'Menunggu sinyal GPS...';
-
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowest,
@@ -47,12 +42,12 @@ class StatusJarakCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: dalamJangkauan ? AppColors.successBg : AppColors.errorBg,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(18)),
             ),
             child: Row(
               children: [
@@ -63,13 +58,18 @@ class StatusJarakCard extends ConsumerWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: (dalamJangkauan ? AppColors.success : AppColors.error).withOpacity(0.2),
+                        color: (dalamJangkauan
+                                ? AppColors.success
+                                : AppColors.error)
+                            .withOpacity(0.2),
                         blurRadius: 6,
                       )
                     ],
                   ),
                   child: Icon(
-                    dalamJangkauan ? LucideIcons.checkCircle2 : LucideIcons.alertCircle,
+                    dalamJangkauan
+                        ? LucideIcons.checkCircle2
+                        : LucideIcons.alertCircle,
                     size: 20,
                     color: dalamJangkauan ? AppColors.success : AppColors.error,
                   ),
@@ -80,11 +80,15 @@ class StatusJarakCard extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        dalamJangkauan ? 'STATUS LOKASI: DALAM JANGKAUAN' : 'STATUS LOKASI: DI LUAR JANGKAUAN',
+                        dalamJangkauan
+                            ? 'STATUS LOKASI: DALAM JANGKAUAN'
+                            : 'STATUS LOKASI: DI LUAR JANGKAUAN',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
-                          color: dalamJangkauan ? AppColors.success : AppColors.error,
+                          color: dalamJangkauan
+                              ? AppColors.success
+                              : AppColors.error,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -105,8 +109,6 @@ class StatusJarakCard extends ConsumerWidget {
               ],
             ),
           ),
-
-          
           Padding(
             padding: const EdgeInsets.all(18),
             child: Column(
@@ -159,7 +161,9 @@ class StatusJarakCard extends ConsumerWidget {
                         icon: LucideIcons.ruler,
                         label: 'Jarak ke Lokasi',
                         value: jarakTeks,
-                        badgeColor: dalamJangkauan ? AppColors.success : AppColors.warning,
+                        badgeColor: dalamJangkauan
+                            ? AppColors.success
+                            : AppColors.warning,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -178,14 +182,9 @@ class StatusJarakCard extends ConsumerWidget {
                   icon: LucideIcons.satellite,
                   label: 'Akurasi GPS',
                   value: akurasiTeks,
-                  valueColor: state.akurasiGpsValid ? AppColors.success : AppColors.warning,
-                ),
-                const SizedBox(height: 12),
-                _buildFieldRow(
-                  icon: LucideIcons.navigation,
-                  label: 'Koordinat GPS',
-                  value: koordinatTeks,
-                  valueColor: AppColors.onSurfaceVariant,
+                  valueColor: state.akurasiGpsValid
+                      ? AppColors.success
+                      : AppColors.warning,
                 ),
               ],
             ),

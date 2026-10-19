@@ -4,7 +4,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/backend/backend_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
 
-final recentActivityProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
+final recentActivityProvider =
+    FutureProvider<List<Map<String, dynamic>>>((ref) async {
   ref.watch(backendDataTriggerProvider);
   final user = ref.watch(authProvider).user;
   if (user == null) return [];
@@ -25,11 +26,19 @@ final recentActivityProvider = FutureProvider<List<Map<String, dynamic>>>((ref) 
     final cleanUser = user.username.trim().toUpperCase();
     final cleanNama = user.nama.trim().toUpperCase();
 
-    
     final userLogs = attendanceLogs.where((log) {
-      final logU = (log['username'] ?? log['username_karyawan'] ?? '').toString().trim().toUpperCase();
-      final logNik = (log['nik'] ?? log['id_karyawan'] ?? '').toString().trim().toUpperCase();
-      final logNama = (log['nama'] ?? log['nama_karyawan'] ?? '').toString().trim().toUpperCase();
+      final logU = (log['username'] ?? log['username_karyawan'] ?? '')
+          .toString()
+          .trim()
+          .toUpperCase();
+      final logNik = (log['nik'] ?? log['id_karyawan'] ?? '')
+          .toString()
+          .trim()
+          .toUpperCase();
+      final logNama = (log['nama'] ?? log['nama_karyawan'] ?? '')
+          .toString()
+          .trim()
+          .toUpperCase();
 
       return logU == cleanUser ||
           logNik == cleanUser ||
@@ -38,11 +47,11 @@ final recentActivityProvider = FutureProvider<List<Map<String, dynamic>>>((ref) 
 
     for (var log in userLogs) {
       final tgl = log['tanggal']?.toString() ?? '';
-      final lokasiNama = (log['lokasiNama'] != null && log['lokasiNama'].toString().isNotEmpty)
-          ? log['lokasiNama'].toString()
-          : 'Kantor / Site';
+      final lokasiNama =
+          (log['lokasiNama'] != null && log['lokasiNama'].toString().isNotEmpty)
+              ? log['lokasiNama'].toString()
+              : 'Kantor / Site';
 
-      
       final rawIn = log['waktuIn']?.toString();
       if (rawIn != null && rawIn.isNotEmpty) {
         final timeIn = rawIn.replaceAll(' WITA', '').trim();
@@ -66,7 +75,6 @@ final recentActivityProvider = FutureProvider<List<Map<String, dynamic>>>((ref) 
         });
       }
 
-      
       final rawOut = log['waktuOut']?.toString();
       if (rawOut != null && rawOut.isNotEmpty) {
         final timeOut = rawOut.replaceAll(' WITA', '').trim();
@@ -75,7 +83,8 @@ final recentActivityProvider = FutureProvider<List<Map<String, dynamic>>>((ref) 
           if (tgl.isNotEmpty && timeOut.isNotEmpty) {
             tsOut = DateTime.tryParse('${tgl}T$timeOut:00');
           } else if (log['waktu'] != null) {
-            tsOut = DateTime.tryParse(log['waktu'].toString())?.add(const Duration(hours: 8));
+            tsOut = DateTime.tryParse(log['waktu'].toString())
+                ?.add(const Duration(hours: 8));
           }
         } catch (_) {}
 
@@ -91,37 +100,59 @@ final recentActivityProvider = FutureProvider<List<Map<String, dynamic>>>((ref) 
       }
     }
 
-    
     final userLeaves = leaveApps.where((leave) {
-      final logU = (leave['username'] ?? leave['username_karyawan'] ?? '').toString().trim().toUpperCase();
-      final logNik = (leave['id_karyawan'] ?? leave['id'] ?? '').toString().trim().toUpperCase();
-      final logNama = (leave['nama'] ?? leave['nama_karyawan'] ?? '').toString().trim().toUpperCase();
-      return logU == cleanUser || logNik == cleanUser || (cleanNama.isNotEmpty && logNama == cleanNama);
+      final logU = (leave['username'] ?? leave['username_karyawan'] ?? '')
+          .toString()
+          .trim()
+          .toUpperCase();
+      final logNik = (leave['id_karyawan'] ?? leave['id'] ?? '')
+          .toString()
+          .trim()
+          .toUpperCase();
+      final logNama = (leave['nama'] ?? leave['nama_karyawan'] ?? '')
+          .toString()
+          .trim()
+          .toUpperCase();
+      return logU == cleanUser ||
+          logNik == cleanUser ||
+          (cleanNama.isNotEmpty && logNama == cleanNama);
     }).toList();
 
     for (var leave in userLeaves) {
-      final createdAt = leave['createdAt'] ?? leave['tanggal'] ?? leave['dibuat_pada'] ?? '';
+      final createdAt =
+          leave['createdAt'] ?? leave['tanggal'] ?? leave['dibuat_pada'] ?? '';
       final st = leave['status'] ?? leave['status_approval'] ?? 'MENUNGGU';
       final jenis = leave['jenis'] ?? leave['jenis_pengajuan'] ?? 'Cuti';
       final alasan = leave['alasan'] ?? leave['alasan_pengajuan'] ?? '';
 
       activities.add({
         'title': 'Pengajuan $jenis',
-        'description': 'Status: $st${alasan.toString().isNotEmpty ? ' - $alasan' : ''}',
+        'description':
+            'Status: $st${alasan.toString().isNotEmpty ? ' - $alasan' : ''}',
         'time': createdAt.toString().split('T').first,
         'timestamp': DateTime.tryParse(createdAt.toString()) ?? DateTime.now(),
         'icon': Icons.event_note,
-        'iconBg': Colors.orange.withOpacity(0.15),
-        'iconColor': Colors.orange,
+        'iconBg': AppColors.ipmOrangeSoft,
+        'iconColor': AppColors.ipmOrangeDark,
       });
     }
 
-    
     final userLoans = loanApps.where((loan) {
-      final logU = (loan['username'] ?? loan['username_karyawan'] ?? '').toString().trim().toUpperCase();
-      final logNik = (loan['id_karyawan'] ?? loan['id'] ?? '').toString().trim().toUpperCase();
-      final logNama = (loan['nama'] ?? loan['nama_karyawan'] ?? '').toString().trim().toUpperCase();
-      return logU == cleanUser || logNik == cleanUser || (cleanNama.isNotEmpty && logNama == cleanNama);
+      final logU = (loan['username'] ?? loan['username_karyawan'] ?? '')
+          .toString()
+          .trim()
+          .toUpperCase();
+      final logNik = (loan['id_karyawan'] ?? loan['id'] ?? '')
+          .toString()
+          .trim()
+          .toUpperCase();
+      final logNama = (loan['nama'] ?? loan['nama_karyawan'] ?? '')
+          .toString()
+          .trim()
+          .toUpperCase();
+      return logU == cleanUser ||
+          logNik == cleanUser ||
+          (cleanNama.isNotEmpty && logNama == cleanNama);
     }).toList();
 
     for (var loan in userLoans) {
@@ -129,13 +160,18 @@ final recentActivityProvider = FutureProvider<List<Map<String, dynamic>>>((ref) 
       final st = loan['status'] ?? loan['status_approval'] ?? 'MENUNGGU';
       final rawNominal = loan['nominal'] ?? loan['nominal_pinjaman'] ?? 0;
       final num val = num.tryParse(rawNominal.toString()) ?? 0;
-      final strNominal = val.toInt().toString().replaceAll(RegExp(r'\B(?=(\d{3})+(?!\d))'), '.');
+      final strNominal = val
+          .toInt()
+          .toString()
+          .replaceAll(RegExp(r'\B(?=(\d{3})+(?!\d))'), '.');
       final tenor = loan['tenor'] ?? loan['tenor_bulan'] ?? 1;
 
       activities.add({
         'title': 'Pengajuan Pinjaman',
         'description': 'Status: $st • Rp $strNominal ($tenor bln)',
-        'time': createdAt.toString().isNotEmpty ? createdAt.toString().split('T').first : 'Terbaru',
+        'time': createdAt.toString().isNotEmpty
+            ? createdAt.toString().split('T').first
+            : 'Terbaru',
         'timestamp': DateTime.tryParse(createdAt.toString()) ?? DateTime.now(),
         'icon': Icons.account_balance_wallet_outlined,
         'iconBg': AppColors.hrPurpleBg,
@@ -144,14 +180,16 @@ final recentActivityProvider = FutureProvider<List<Map<String, dynamic>>>((ref) 
     }
   } catch (_) {}
 
-  activities.sort((a, b) => (b['timestamp'] as DateTime).compareTo(a['timestamp'] as DateTime));
+  activities.sort((a, b) =>
+      (b['timestamp'] as DateTime).compareTo(a['timestamp'] as DateTime));
   return activities;
 });
 
 class BerandaRecentActivity extends ConsumerWidget {
   const BerandaRecentActivity({super.key});
 
-  void _tampilkanSemuaAktivitas(BuildContext context, List<Map<String, dynamic>> activities) {
+  void _tampilkanSemuaAktivitas(
+      BuildContext context, List<Map<String, dynamic>> activities) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -180,7 +218,8 @@ class BerandaRecentActivity extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -206,7 +245,8 @@ class BerandaRecentActivity extends ConsumerWidget {
                           ],
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close, color: AppColors.onSurfaceVariant),
+                          icon: const Icon(Icons.close,
+                              color: AppColors.onSurfaceVariant),
                           onPressed: () => Navigator.of(ctx).pop(),
                         ),
                       ],
@@ -251,20 +291,25 @@ class BerandaRecentActivity extends ConsumerWidget {
     return Column(
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Aktivitas Terakhir',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.onSurface,
+            const Expanded(
+              child: Text(
+                'Aktivitas Terakhir',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.onSurface,
+                ),
               ),
             ),
+            const SizedBox(width: 8),
             activitiesAsync.maybeWhen(
               data: (activities) => activities.isNotEmpty
                   ? TextButton(
-                      onPressed: () => _tampilkanSemuaAktivitas(context, activities),
+                      onPressed: () =>
+                          _tampilkanSemuaAktivitas(context, activities),
                       style: TextButton.styleFrom(
                         foregroundColor: AppColors.primary,
                         padding: EdgeInsets.zero,
@@ -393,4 +438,3 @@ class BerandaRecentActivity extends ConsumerWidget {
     );
   }
 }
-

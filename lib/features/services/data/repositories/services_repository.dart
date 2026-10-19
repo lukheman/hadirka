@@ -20,8 +20,9 @@ class ServicesRepository {
     return List<Map<String, dynamic>>.from(data);
   }
 
-  Future<List<Map<String, dynamic>>> getPayslips(String username) async {
-    final data = await _apiService.getPayslips(username);
+  Future<List<Map<String, dynamic>>> getPayslips(String username,
+      {String? periode}) async {
+    final data = await _apiService.getPayslips(username, periode: periode);
     return List<Map<String, dynamic>>.from(data);
   }
 
@@ -42,7 +43,8 @@ class ServicesRepository {
     return await _apiService.updateProfile(data);
   }
 
-  Future<bool> updatePassword(String username, String oldPass, String newPass) async {
+  Future<bool> updatePassword(
+      String username, String oldPass, String newPass) async {
     return await _apiService.updatePassword(username, oldPass, newPass);
   }
 }

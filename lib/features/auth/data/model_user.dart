@@ -1,12 +1,11 @@
-
 class UserAccount {
   final String id;
   final String nik;
-  final String username; 
+  final String username;
   final String nama;
   final String email;
   final String noHp;
-  final String role; 
+  final String role;
   final String jabatan;
   final String departemen;
   final String? token;
@@ -25,7 +24,6 @@ class UserAccount {
     this.token,
     this.fotoProfil,
   });
-
 
   UserAccount copyWith({
     String? id,
@@ -58,8 +56,19 @@ class UserAccount {
   factory UserAccount.fromJson(Map<String, dynamic> json) {
     return UserAccount(
       id: (json['id'] ?? json['id_karyawan'] ?? '').toString(),
-      nik: (json['nik'] ?? json['nik_karyawan_internal'] ?? '').toString(),
-      username: (json['username'] ?? '').toString(),
+      nik: (json['nik'] ??
+              json['nik_karyawan'] ??
+              json['nik_karyawan_internal'] ??
+              json['identifier'] ??
+              json['username'] ??
+              '')
+          .toString(),
+      username: (json['username'] ??
+              json['nik'] ??
+              json['nik_karyawan'] ??
+              json['identifier'] ??
+              '')
+          .toString(),
       nama: (json['nama'] ?? json['nama_lengkap'] ?? '').toString(),
       email: (json['email'] ?? '').toString(),
       noHp: (json['noHp'] ?? json['no_hp'] ?? '').toString(),
@@ -67,7 +76,8 @@ class UserAccount {
       jabatan: (json['jabatan'] ?? '-').toString(),
       departemen: (json['departemen'] ?? '-').toString(),
       token: json['token']?.toString(),
-      fotoProfil: json['fotoProfil']?.toString() ?? json['foto_profil']?.toString(),
+      fotoProfil:
+          json['fotoProfil']?.toString() ?? json['foto_profil']?.toString(),
     );
   }
 

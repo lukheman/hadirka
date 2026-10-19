@@ -157,6 +157,7 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
   StreamSubscription<Position>? _posisiStream;
   Timer? _retryTimer;
   Timer? _waktuTimer;
+  Timer? _keluarLokasiTimer;
 
   bool _notifikasiCheckOutTerkirim = false;
   bool _lokasiPresisiAktif = true;
@@ -215,9 +216,8 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
             dataCheckOut: dataOut,
             statusAbsensiKode:
                 sudahCheckOut ? 'sudah_selesai' : 'sedang_bekerja',
-            keterlambatanMenit: dataIn.keterlambatanMenit,
-            keterlambatanTeks:
-                AbsensiConfig.formatDurasiMenit(dataIn.keterlambatanMenit),
+            keterlambatanMenit: 0,
+            keterlambatanTeks: '0 menit',
             durasiKerjaMenit: totalMenit,
             durasiKerjaTeks: AbsensiConfig.formatDurasiMenit(totalMenit),
           );
@@ -235,8 +235,6 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
     if (!mounted) return;
 
     final witaNow = AbsensiConfig.witaNow;
-    final statusWaktu = AbsensiConfig.evaluasiStatusWaktuMasuk(witaNow);
-
     String statusKode = state.statusAbsensiKode;
     String statusLabel = '';
     String ket = '';
@@ -289,46 +287,13 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
         ket = '';
       }
     } else {
-      switch (statusWaktu) {
-        case 'belum_dimulai':
-          statusKode = 'belum_dimulai';
-          statusLabel = 'BELUM DIMULAI';
-          ket =
-              'Jam operasional belum dimulai. Absensi masuk & keluar ditutup otomatis.';
-          bisaCheckIn = false;
-          bisaCheckOut = false;
-          break;
-        case 'tepat_waktu':
-          statusKode = 'tepat_waktu';
-          statusLabel = 'TEPAT WAKTU';
-          ket =
-              'Jam operasional sedang berlangsung. Anda masih dalam batas waktu absensi tepat waktu (07:30 - 08:00 WITA).';
-          bisaCheckIn = true;
-          bisaCheckOut = false;
-          keterlambatanMenit = 0;
-          keterlambatanTeks = '0 menit';
-          break;
-        case 'terlambat':
-          statusKode = 'terlambat';
-          statusLabel = 'TERLAMBAT';
-          final kMenit = AbsensiConfig.hitungKeterlambatanMenit(witaNow);
-          keterlambatanMenit = kMenit;
-          keterlambatanTeks = AbsensiConfig.formatDurasiMenit(kMenit);
-          ket =
-              'Anda melakukan absensi setelah batas waktu 08:00 WITA dan tercatat keterlambatan $keterlambatanTeks.';
-          bisaCheckIn = true;
-          bisaCheckOut = false;
-          break;
-        case 'jam_operasional_berakhir':
-        default:
-          statusKode = 'jam_operasional_berakhir';
-          statusLabel = 'JAM OPERASIONAL BERAKHIR';
-          ket =
-              'Jam operasional hari ini (16:00 WITA) telah berakhir. Absensi masuk & keluar ditutup otomatis.';
-          bisaCheckIn = false;
-          bisaCheckOut = false;
-          break;
-      }
+      statusKode = 'tepat_waktu';
+      statusLabel = 'SIAP ABSEN';
+      ket = '';
+      bisaCheckIn = true;
+      bisaCheckOut = false;
+      keterlambatanMenit = 0;
+      keterlambatanTeks = '0 menit';
     }
 
     state = state.copyWith(
@@ -632,6 +597,51 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
       pesanError: pesanAkurasi,
       clearError: gpsAkurat && _lokasiPresisiAktif,
     );
+
+    _pantauKeluarLokasi(targetLokasi, jarakTarget, gpsAkurat);
+  }
+
+  void _pantauKeluarLokasi(
+      LokasiAbsensi? lokasi, double? jarak, bool gpsAkurat) {
+    if (!state.sudahCheckIn || state.sudahCheckOut || lokasi == null ||
+        jarak == null || !gpsAkurat || jarak <= 1000) {
+      _keluarLokasiTimer?.cancel();
+      _keluarLokasiTimer = null;
+      return;
+    }
+    if (_keluarLokasiTimer != null) return;
+    _keluarLokasiTimer = Timer(const Duration(hours: 1), () {
+      _keluarLokasiTimer = null;
+      _checkoutOtomatis();
+    });
+  }
+
+  Future<void> _checkoutOtomatis() async {
+    if (!mounted || !state.sudahCheckIn || state.sudahCheckOut ||
+        state.posisiSaatIni == null || state.akurasiGps == null) return;
+    try {
+      final data = await _attendanceRepo.submitAttendance(
+        username: _user?.username ?? 'UNKNOWN',
+        latitude: state.posisiSaatIni!.latitude,
+        longitude: state.posisiSaatIni!.longitude,
+        accuracy: state.akurasiGps!,
+        tipe: 'check_out',
+        metodeCheckout: 'otomatis',
+      );
+      state = state.copyWith(
+        sudahCheckOut: true,
+        dataCheckOut: data,
+        statusAbsensiKode: 'sudah_selesai',
+        statusAbsensiLabel: 'SUDAH SELESAI',
+        durasiKerjaMenit: data.durasiKerjaMenit,
+        durasiKerjaTeks: AbsensiConfig.formatDurasiMenit(data.durasiKerjaMenit),
+      );
+      NotificationService().showInstantNotification(
+        105,
+        'Presensi Keluar Otomatis',
+        'Anda berada di luar lokasi kerja lebih dari 1 km selama 1 jam.',
+      );
+    } catch (_) {}
   }
 
   void hentikanPantauLokasi() {
@@ -639,6 +649,8 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
     _posisiStream = null;
     _retryTimer?.cancel();
     _retryTimer = null;
+    _keluarLokasiTimer?.cancel();
+    _keluarLokasiTimer = null;
   }
 
   Future<void> simpanFotoSelfie(File foto) async {
@@ -690,21 +702,9 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
 
     if (tipe == 'check_in') {
       if (!state.bisaCheckIn) {
-        if (state.statusAbsensiKode == 'belum_dimulai') {
-          state = state.copyWith(
-            pesanError:
-                'Ditolak: Jam operasional belum dimulai. Absensi dapat dilakukan mulai pukul 07:30 WITA.',
-          );
-        } else if (state.statusAbsensiKode == 'jam_operasional_berakhir') {
-          state = state.copyWith(
-            pesanError:
-                'Ditolak: Jam operasional hari ini (16:00 WITA) telah berakhir. Absensi masuk ditutup.',
-          );
-        } else {
-          state = state.copyWith(
-            pesanError: 'Ditolak: Anda sudah melakukan absensi masuk hari ini.',
-          );
-        }
+        state = state.copyWith(
+          pesanError: 'Ditolak: Anda sudah melakukan absensi masuk hari ini.',
+        );
         return false;
       }
     } else if (tipe == 'check_out') {
@@ -718,8 +718,7 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
               pesanError: 'Gagal Check-Out: Anda belum melakukan Absen Masuk.');
         } else {
           state = state.copyWith(
-              pesanError:
-                  'Ditolak: Fitur absensi keluar ditutup otomatis di luar jam operasional (07:30 - 16:00 WITA).');
+              pesanError: 'Gagal Check-Out: status absensi belum siap.');
         }
         return false;
       }
@@ -770,6 +769,7 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
         // base64 dan server membuat path upload-nya sendiri.
         fotoPath: null,
         fotoBase64: fotoB64,
+        metodeCheckout: tipe == 'check_out' ? 'manual' : null,
       );
 
       if (tipe == 'check_in') {
@@ -785,14 +785,10 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
               AbsensiConfig.formatDurasiMenit(dataAbsensi.keterlambatanMenit),
         );
 
-        final statusKehadiran = dataAbsensi.keterlambatanMenit > 0
-            ? 'Terlambat (${AbsensiConfig.formatDurasiMenit(dataAbsensi.keterlambatanMenit)})'
-            : 'Tepat Waktu';
-
         NotificationService().showInstantNotification(
           103,
           'Presensi Masuk Berhasil',
-          'Presensi Masuk Anda ($statusKehadiran) telah tercatat di sistem.',
+          'Presensi Masuk Anda telah tercatat di sistem.',
         );
       } else {
         state = state.copyWith(

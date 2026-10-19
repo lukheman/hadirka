@@ -31,7 +31,7 @@ class TombolAbsensi extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        
+
         AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           child: ElevatedButton(
@@ -79,7 +79,7 @@ class TombolAbsensi extends StatelessWidget {
                           style: const TextStyle(
                             fontWeight: FontWeight.w700,
                             letterSpacing: 1.0,
-                            fontSize: 15,
+                            fontSize: 12,
                           ),
                         ),
                       ),
@@ -89,7 +89,7 @@ class TombolAbsensi extends StatelessWidget {
         ),
         const SizedBox(height: 12),
 
-        
+
         OutlinedButton(
           onPressed: bisaCheckOut ? () => onProsesAbsensi('check_out') : null,
           style: OutlinedButton.styleFrom(
@@ -127,7 +127,7 @@ class TombolAbsensi extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.0,
-                    fontSize: 15,
+                    fontSize: 12,
                   ),
                 ),
               ),
@@ -135,23 +135,7 @@ class TombolAbsensi extends StatelessWidget {
           ),
         ),
 
-        
-        if (state.statusAbsensiKode == 'belum_dimulai' && !state.sudahCheckOut) ...[
-          const SizedBox(height: 12),
-          _buildHelperMessage(
-            'Jam operasional belum dimulai (07:30 WITA). Fitur absen masuk & keluar ditutup otomatis.',
-            LucideIcons.clock,
-            AppColors.warning,
-          ),
-        ],
-        if (state.statusAbsensiKode == 'jam_operasional_berakhir' && !state.sudahCheckOut) ...[
-          const SizedBox(height: 12),
-          _buildHelperMessage(
-            'Jam operasional hari ini (16:00 WITA) telah berakhir. Fitur absen masuk & keluar ditutup otomatis.',
-            LucideIcons.timerOff,
-            AppColors.error,
-          ),
-        ],
+
         if ((state.bisaCheckIn || state.bisaCheckOut) &&
             !state.dalamJangkauan &&
             state.lokasiAktif) ...[

@@ -5,7 +5,6 @@ import '../../../core/backend/backend_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import 'widgets/kartu_slip_gaji.dart';
 
-
 class LayarSlipGaji extends ConsumerWidget {
   const LayarSlipGaji({super.key});
 
@@ -85,19 +84,25 @@ class LayarSlipGaji extends ConsumerWidget {
               );
             }
 
-            return ListView.builder(
+            return ListView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              itemCount: payslips.length,
-              itemBuilder: (context, index) {
-                final slip = payslips[index];
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 14.0),
-                  child: KartuSlipGaji(
-                    slipData: slip,
+              children: [
+                Text(
+                  '${payslips.length} riwayat slip gaji',
+                  style: const TextStyle(
+                    color: AppColors.onSurfaceVariant,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
                   ),
-                );
-              },
+                ),
+                const SizedBox(height: 12),
+                ...payslips.map(
+                  (slip) => Padding(
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: KartuSlipGaji(slipData: slip),
+                  ),
+                ),
+              ],
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
