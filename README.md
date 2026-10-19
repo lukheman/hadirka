@@ -1,6 +1,6 @@
-# TJS Absensi App
+# Indoteknik Prima Mekongga Absensi App
 
-Aplikasi absensi karyawan PT Triputra Jaya Sultra (Flutter) + backend API (Node.js/Express + MariaDB/MySQL).
+Aplikasi absensi karyawan Indoteknik Prima Mekongga (Flutter) + API website IPM HRIS (PHP + MySQL).
 
 ## Konfigurasi Aplikasi Flutter (`.env`)
 
@@ -8,14 +8,16 @@ Konfigurasi environment aplikasi ada di file **`.env`** di root project (templat
 
 | Key | Default | Keterangan |
 | --- | --- | --- |
-| `API_BASE_URL` | kosong = otomatis per platform (desktop/web: `localhost:3000`, Android: `10.174.154.8:3000`) | URL server API |
+| `API_BASE_URL` | kosong = otomatis per platform (desktop/web: `localhost:8000/api`, Android: `10.174.154.8:8000/api`) | URL server API website IPM HRIS |
 | `API_FALLBACK_IPS` | daftar IP lokal | Kandidat URL untuk deteksi otomatis server di jaringan lokal (dipisah koma) |
 | `API_TIMEOUT_SECONDS` | `8` | Timeout request API (detik) |
+| `UPDATE_VERSION_URL` | kosong = update dimatikan | URL HTTPS `version.json` untuk update APK Android |
 
 Catatan:
 - `.env` di-bundle sebagai asset saat build — setelah diubah, jalankan **hot restart (`R`)** atau jalankan ulang aplikasi.
 - File `.env` **sengaja ikut ter-commit** (berisi nilai non-rahasia dan wajib ada saat build). Template-nya di `.env.example`.
 - URL server juga bisa diganti saat runtime dari dalam aplikasi (tersimpan di SharedPreferences, key `custom_server_url`) tanpa perlu rebuild.
+- Update APK self-hosted hanya aktif jika `UPDATE_VERSION_URL` diisi. URL harus HTTPS dan mengembalikan JSON versi terbaru.
 
 ## Google Maps Flutter
 
@@ -42,38 +44,29 @@ flutter run
 Tanpa API key valid, widget map tetap dibuat tetapi tile Google Maps tidak
 ditampilkan.
 
-## Setup Backend & Database
+## Setup API Website & Database
 
 ```bash
-# 1. Setup database (sekali saja, butuh akses admin MySQL)
-sudo mariadb < backend_server/db_absen_tjs.sql
-
-# 2. Install dependency & jalankan backend
-cd backend_server
-npm install
-npm start
+# Dev: jalankan dari root website IPM HRIS
+php -S 0.0.0.0:8000 router.php
 ```
 
-Backend berjalan di `http://localhost:3000/api`.
+API berasal dari website IPM HRIS pada `http://localhost:8000/api`.
+Untuk produksi, gunakan Apache/XAMPP/Laragon dengan `mod_rewrite` aktif.
 
 ## Akun Login Demo (untuk testing)
 
-Password semua akun di bawah: **`tjs2026`**
+Password akun demo: gunakan kredensial yang disediakan administrator IPM HRIS.
 
 | NIK / ID | Nama | Jabatan |
 | --- | --- | --- |
-| `TJS-2024-089` | Ahmad Fauzan | Operator Produksi |
-| `TJS-2024-001` | Budi Santoso | Kepala Teknik |
-| `TJS-2024-002` | Siti Rahmawati | Staf Administrasi |
+| `IPM-00002` | Ahmad Fauzan | Operator Produksi |
+| `IPM-00001` | Budi Santoso | Kepala Teknik |
+| `IPM-00003` | Siti Rahmawati | Staf Administrasi |
 
 Akun baru juga bisa didaftarkan langsung dari aplikasi (menu **Daftar Sekarang**) atau lewat halaman kelola user.
 
-## Kredensial Database
+## Database
 
-| Item | Nilai |
-| --- | --- |
-| Database | `db_absen_tjs` |
-| User backend | `tjs_app` |
-| Password | `tjs_app_2026` |
-
-Kredensial ini dipakai oleh `backend_server/server.js` dan bisa dioverride dengan environment variable `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_PORT`.
+Database dan kredensial dikelola oleh website IPM HRIS. Aplikasi Flutter tidak
+terhubung langsung ke database; semua data diakses melalui API website.
