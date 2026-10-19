@@ -14,6 +14,15 @@ if (localPropertiesFile.exists()) {
 val mapsApiKey = providers.gradleProperty("MAPS_API_KEY").orNull
     ?: localProperties.getProperty("MAPS_API_KEY", "")
 
+val keyProperties = Properties()
+val keyPropertiesFile = rootProject.file("key.properties")
+
+if (keyPropertiesFile.exists()) {
+ keyPropertiesFile.inputStream().use {
+     keyProperties.load(it)
+ }
+}
+
 android {
     namespace = "com.example.attendance_app"
     compileSdk = 36
@@ -37,13 +46,23 @@ android {
         manifestPlaceholders["googleMapsApiKey"] = mapsApiKey
     }
 
-    buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
-        }
-    }
+     signingConfigs {
+         create("release") {
+             keyAlias = keyProperties["keyAlias"] as String?
+             keyPassword = keyProperties["keyPassword"] as String?
+             storeFile = (keyProperties["storeFile"] as String?)?.let { file(it) }
+             storePassword = keyProperties["storePassword"] as String?
+         }
+     }
+
+     buildTypes {
+         release {
+             signingConfig = signingConfigs.getByName("release")
+             isMinifyEnabled = false
+             isShrinkResources = false
+         }
+     }
+
 }
 
 kotlin {
