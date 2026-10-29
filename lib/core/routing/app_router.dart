@@ -16,7 +16,6 @@ import '../../features/services/presentation/layar_pengajuan_pinjaman.dart';
 import '../../features/notifications/presentation/layar_notifikasi.dart';
 import '../../features/profile/presentation/layar_profil.dart';
 
-
 final routerProvider = Provider<GoRouter>((ref) {
   final routerRefresh = _AuthRouterRefresh(ref.read(authProvider.notifier));
   ref.onDispose(routerRefresh.dispose);
@@ -29,7 +28,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isLoggingIn = state.matchedLocation == '/login';
       final isRegistering = state.matchedLocation == '/register';
 
-      
+      if (authState.isLoading) {
+        return null;
+      }
+
       if (!authState.isAuthenticated) {
         if (!isLoggingIn && !isRegistering) {
           return '/login';
@@ -37,7 +39,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      
       if (isLoggingIn || isRegistering) {
         return '/dashboard';
       }

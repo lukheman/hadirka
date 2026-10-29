@@ -15,6 +15,10 @@ class JamAbsensiCard extends StatelessWidget {
     final jamStr = AbsensiConfig.formatJamMenitDetik(wita);
     final statusKode = state.statusAbsensiKode;
     final statusLabel = state.statusAbsensiLabel;
+    final jamMulai = state.dataCheckIn?.jamKerjaMulai ?? '08:00:00';
+    final jamSelesai = state.dataCheckIn?.jamKerjaSelesai ?? '17:00:00';
+    String jamPendek(String value) =>
+        value.length >= 5 ? value.substring(0, 5) : value;
 
     Color statusColor;
     Color statusBg;
@@ -101,7 +105,7 @@ class JamAbsensiCard extends StatelessWidget {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        '07.30 - 16.00 WITA',
+                        '${jamPendek(jamMulai)} - ${jamPendek(jamSelesai)} WITA',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
@@ -110,7 +114,7 @@ class JamAbsensiCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Batas Tepat Waktu: ${AbsensiConfig.onTimeLimitStr} WITA',
+                      'Batas Tepat Waktu: ${jamPendek(jamMulai)} WITA',
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,

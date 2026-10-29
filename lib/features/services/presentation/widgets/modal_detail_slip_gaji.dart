@@ -21,15 +21,28 @@ class ModalDetailSlipGaji extends ConsumerWidget {
     return 'Rp $str';
   }
 
+  num _asNumber(dynamic value) {
+    if (value is num) return value;
+    return num.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).user;
     final periode = formatPeriodeGaji(slipData['periode']);
     final nama = slipData['nama']?.toString() ?? user?.nama ?? 'Karyawan';
     final username = slipData['username']?.toString() ?? user?.username ?? '-';
-    final gajiPokok = slipData['gajiPokok'] ?? 0;
-    final potongan = slipData['potongan'] ?? 0;
-    final totalDiterima = slipData['totalDiterima'] ?? 0;
+    final gajiPokok = _asNumber(slipData['gajiPokok']);
+    final metode = (slipData['metodePerhitungan'] ??
+            slipData['metodePerhitunganGaji'] ??
+            '')
+        .toString()
+        .toLowerCase();
+    final isHarian = metode == 'harian';
+    final upahHarian = _asNumber(slipData['upahHarian']);
+    final hariKerja = _asNumber(slipData['hariKerja']);
+    final potongan = _asNumber(slipData['potongan']);
+    final totalDiterima = _asNumber(slipData['totalDiterima']);
     final totalJumlahStr = _formatRupiah(totalDiterima);
 
     return Padding(
@@ -67,7 +80,28 @@ class ModalDetailSlipGaji extends ConsumerWidget {
           const SizedBox(height: 20),
           const Divider(color: AppColors.border),
           const SizedBox(height: 12),
-          BarisDetailGaji(label: 'Gaji Pokok', nilai: _formatRupiah(gajiPokok)),
+          BarisDetailGaji(
+            label: isHarian ? 'Upah Harian × Hari Kerja' : 'Gaji Pokok Bulanan',
+            nilai: isHarian
+                ? '${_formatRupiah(upahHarian)} × ${hariKerja.toInt()} = ${_formatRupiah(_asNumber(slipData['pendapatanDasar']) == 0 ? gajiPokok : _asNumber(slipData['pendapatanDasar']))}'
+                : _formatRupiah(_asNumber(slipData['gajiPokokBulanan']) == 0
+                    ? gajiPokok
+                    : _asNumber(slipData['gajiPokokBulanan'])),
+          ),
+          if (slipData['tipeKaryawan'] != null) ...[
+            const SizedBox(height: 8),
+            BarisDetailGaji(
+              label: 'Tipe Karyawan',
+              nilai: slipData['tipeKaryawan'].toString(),
+            ),
+          ],
+          if (slipData['totalPendapatan'] != null) ...[
+            const SizedBox(height: 12),
+            BarisDetailGaji(
+              label: 'Total Pendapatan',
+              nilai: _formatRupiah(_asNumber(slipData['totalPendapatan'])),
+            ),
+          ],
           const SizedBox(height: 12),
           const Divider(color: AppColors.border),
           const SizedBox(height: 12),

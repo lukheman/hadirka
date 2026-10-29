@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/constants/api_constants.dart';
@@ -33,8 +34,26 @@ class AuthApiService {
     await prefs.setString(ApiConstants.keyAuthToken, token);
   }
 
+  Future<void> saveUser(Map<String, dynamic> user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(ApiConstants.keyAuthUser, jsonEncode(user));
+  }
+
+  Future<Map<String, dynamic>?> getSavedUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(ApiConstants.keyAuthUser);
+    if (value == null || value.isEmpty) return null;
+
+    try {
+      return Map<String, dynamic>.from(jsonDecode(value) as Map);
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> deleteToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(ApiConstants.keyAuthToken);
+    await prefs.remove(ApiConstants.keyAuthUser);
   }
 }

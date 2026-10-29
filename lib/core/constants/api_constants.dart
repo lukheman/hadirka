@@ -3,18 +3,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class ApiConstants {
   static const String keyCustomUrl = 'custom_server_url';
   static const String keyAuthToken = 'auth_token';
+  static const String keyAuthUser = 'auth_user';
 
-  
   static String _env(String key) {
     if (!dotenv.isInitialized) return '';
     return dotenv.env[key]?.trim() ?? '';
   }
 
-  
   static String get defaultBaseUrl {
     final fromEnv = _env('API_BASE_URL');
     if (fromEnv.isNotEmpty) return fromEnv;
@@ -27,14 +25,12 @@ class ApiConstants {
         return 'http://localhost:8000/api';
       }
       if (Platform.isAndroid) {
-        
         return 'http://10.174.154.8:8000/api';
       }
     } catch (_) {}
     return 'http://10.174.154.8:8000/api';
   }
 
-  
   static const List<String> _defaultCandidateIps = [
     'http://10.174.154.8:8000/api',
     'http://10.0.2.2:8000/api',
@@ -46,7 +42,6 @@ class ApiConstants {
     'http://localhost/ipm-hris/api',
   ];
 
-  
   static List<String> get candidateIps {
     final fromEnv = _env('API_FALLBACK_IPS');
     if (fromEnv.isEmpty) return _defaultCandidateIps;
@@ -56,8 +51,7 @@ class ApiConstants {
         .where((e) => e.isNotEmpty)
         .toList();
   }
-  
-  
+
   static Duration get timeoutDuration {
     final seconds = int.tryParse(_env('API_TIMEOUT_SECONDS'));
     if (seconds == null || seconds <= 0) return const Duration(seconds: 8);
@@ -66,7 +60,6 @@ class ApiConstants {
 
   static String? _customServerUrl;
 
-  
   static Future<void> loadCustomUrl() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -74,12 +67,10 @@ class ApiConstants {
     } catch (_) {}
   }
 
-  
   static String get baseUrl {
     return _customServerUrl ?? defaultBaseUrl;
   }
 
-  
   static Future<void> setCustomUrl(String input) async {
     String clean = input.trim();
     if (clean.isEmpty) return;

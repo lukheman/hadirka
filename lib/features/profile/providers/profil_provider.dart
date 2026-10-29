@@ -11,7 +11,6 @@ import '../data/model_profil.dart';
 
 import '../../../../core/backend/backend_provider.dart';
 
-
 final profilProvider = StateNotifierProvider<ProfilNotifier, ProfilUser>((ref) {
   final notifier = ProfilNotifier(ref);
 
@@ -37,7 +36,7 @@ class ProfilNotifier extends StateNotifier<ProfilUser> {
 
   ProfilNotifier([this._ref])
       : super(
-        const ProfilUser(
+          const ProfilUser(
             id: '-',
             nik: '-',
             nama: 'Karyawan',
@@ -66,6 +65,11 @@ class ProfilNotifier extends StateNotifier<ProfilUser> {
       noHp: user.noHp,
       jabatan: user.jabatan,
       departemen: user.departemen,
+      tipeKaryawan: user.tipeKaryawan,
+      idTipeKaryawan: user.idTipeKaryawan,
+      metodePerhitunganGaji: user.metodePerhitunganGaji,
+      jamKerjaMulai: user.jamKerjaMulai,
+      jamKerjaSelesai: user.jamKerjaSelesai,
     );
 
     if (user.fotoProfil != null && user.fotoProfil!.isNotEmpty) {
@@ -84,7 +88,7 @@ class ProfilNotifier extends StateNotifier<ProfilUser> {
   Future<void> _loadSavedFotoProfil(String nik) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       final List<String> keysToTry = [
         if (nik.isNotEmpty && nik != '-') 'foto_profil_base64_$nik',
       ];
@@ -127,13 +131,12 @@ class ProfilNotifier extends StateNotifier<ProfilUser> {
     final prefs = await SharedPreferences.getInstance();
     final isActive = prefs.getBool('notifikasi_aktif') ?? true;
     state = state.copyWith(notifikasiAktif: isActive);
-    
+
     if (isActive) {
       NotificationService().scheduleDailyReminders();
     }
   }
 
-  
   void updateProfil({
     required String nama,
     required String noHp,
@@ -146,7 +149,6 @@ class ProfilNotifier extends StateNotifier<ProfilUser> {
     );
   }
 
-  
   Future<Map<String, dynamic>?> pickFotoProfil(ImageSource source) async {
     try {
       final XFile? pickedFile = await _picker.pickImage(
@@ -170,7 +172,6 @@ class ProfilNotifier extends StateNotifier<ProfilUser> {
       debugPrint('Standard ImagePicker error: $e');
     }
 
-    
     if (!kIsWeb && Platform.isWindows) {
       try {
         const script = r'''
@@ -182,7 +183,8 @@ if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     Write-Output $dialog.FileName
 }
 ''';
-        final result = await Process.run('powershell', ['-NoProfile', '-Command', script]);
+        final result =
+            await Process.run('powershell', ['-NoProfile', '-Command', script]);
         final filePath = result.stdout.toString().trim();
         if (filePath.isNotEmpty && await File(filePath).exists()) {
           final file = File(filePath);
@@ -200,15 +202,12 @@ if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     return null;
   }
 
-  
   Future<void> setFotoProfilBytes(Uint8List bytes, [File? file]) async {
-    
     state = state.copyWith(fotoProfilBytes: bytes, fotoProfil: file);
 
     final base64Str = base64Encode(bytes);
     final currentNik = state.nik;
 
-    
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('foto_profil_base64_global', base64Str);
@@ -220,7 +219,6 @@ if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
       debugPrint('Error setFotoProfilBytes prefs: $e');
     }
 
-    
     if (_ref != null) {
       final authUser = _ref!.read(authProvider).user;
       if (authUser != null) {
@@ -228,11 +226,9 @@ if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
       }
     }
 
-    
     if (_ref != null && currentNik.isNotEmpty && currentNik != '-') {
       try {
         await _ref!.read(servicesRepositoryProvider).updateProfile({
-          'nik': currentNik,
           'fotoProfil': base64Str,
         });
         debugPrint('Foto profil berhasil disimpan ke MySQL Database!');
@@ -242,7 +238,6 @@ if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     }
   }
 
-  
   Future<void> hapusFotoProfil() async {
     state = state.copyWith(clearFoto: true);
     try {
@@ -258,10 +253,9 @@ if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     } catch (_) {}
   }
 
-  
   Future<void> toggleNotifikasi(bool status) async {
     state = state.copyWith(notifikasiAktif: status);
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('notifikasi_aktif', status);
 
@@ -274,4 +268,3 @@ if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     }
   }
 }
-

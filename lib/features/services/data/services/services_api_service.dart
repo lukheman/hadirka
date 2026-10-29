@@ -21,11 +21,7 @@ class ServicesApiService {
   }
 
   Future<List<dynamic>> getPayslips(String username, {String? periode}) async {
-    if (username.trim().isEmpty) {
-      return <dynamic>[];
-    }
-
-    final query = <String, dynamic>{'username': username.trim()};
+    final query = <String, dynamic>{};
     if (periode != null && periode.trim().isNotEmpty) {
       query['periode'] = periode.trim();
     }

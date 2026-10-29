@@ -36,10 +36,18 @@ class KartuSlipGaji extends StatelessWidget {
     return 'Rp $str';
   }
 
+  num _asNumber(dynamic value) {
+    if (value is num) return value;
+    return num.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final periode = formatPeriodeGaji(slipData['periode']);
-    final totalDiterima = slipData['totalDiterima'] ?? 0;
+    final totalDiterima = _asNumber(slipData['totalDiterima']);
+    final metode =
+        (slipData['metodePerhitungan'] ?? '').toString().toLowerCase();
+    final tipe = slipData['tipeKaryawan']?.toString();
     final jumlah = _formatRupiah(totalDiterima);
 
     return Container(
@@ -73,6 +81,14 @@ class KartuSlipGaji extends StatelessWidget {
                           .displaySmall
                           ?.copyWith(color: AppColors.primary),
                     ),
+                    if (tipe != null || metode.isNotEmpty)
+                      Text(
+                        [
+                          if (tipe != null) tipe,
+                          if (metode.isNotEmpty) metode,
+                        ].join(' • '),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                   ],
                 ),
                 Container(

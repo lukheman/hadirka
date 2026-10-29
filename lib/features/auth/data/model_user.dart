@@ -10,6 +10,11 @@ class UserAccount {
   final String departemen;
   final String? token;
   final String? fotoProfil;
+  final String? tipeKaryawan;
+  final int? idTipeKaryawan;
+  final String? metodePerhitunganGaji;
+  final String? jamKerjaMulai;
+  final String? jamKerjaSelesai;
 
   const UserAccount({
     required this.id,
@@ -23,6 +28,11 @@ class UserAccount {
     required this.departemen,
     this.token,
     this.fotoProfil,
+    this.tipeKaryawan,
+    this.idTipeKaryawan,
+    this.metodePerhitunganGaji,
+    this.jamKerjaMulai,
+    this.jamKerjaSelesai,
   });
 
   UserAccount copyWith({
@@ -37,6 +47,11 @@ class UserAccount {
     String? departemen,
     String? token,
     String? fotoProfil,
+    String? tipeKaryawan,
+    int? idTipeKaryawan,
+    String? metodePerhitunganGaji,
+    String? jamKerjaMulai,
+    String? jamKerjaSelesai,
   }) {
     return UserAccount(
       id: id ?? this.id,
@@ -50,6 +65,12 @@ class UserAccount {
       departemen: departemen ?? this.departemen,
       token: token ?? this.token,
       fotoProfil: fotoProfil ?? this.fotoProfil,
+      tipeKaryawan: tipeKaryawan ?? this.tipeKaryawan,
+      idTipeKaryawan: idTipeKaryawan ?? this.idTipeKaryawan,
+      metodePerhitunganGaji:
+          metodePerhitunganGaji ?? this.metodePerhitunganGaji,
+      jamKerjaMulai: jamKerjaMulai ?? this.jamKerjaMulai,
+      jamKerjaSelesai: jamKerjaSelesai ?? this.jamKerjaSelesai,
     );
   }
 
@@ -78,6 +99,16 @@ class UserAccount {
       token: json['token']?.toString(),
       fotoProfil:
           json['fotoProfil']?.toString() ?? json['foto_profil']?.toString(),
+      tipeKaryawan:
+          json['tipeKaryawan']?.toString() ?? json['tipe_karyawan']?.toString(),
+      idTipeKaryawan:
+          _asInt(json['idTipeKaryawan'] ?? json['id_tipe_karyawan']),
+      metodePerhitunganGaji: json['metodePerhitunganGaji']?.toString() ??
+          json['metode_perhitungan_gaji']?.toString(),
+      jamKerjaMulai: json['jamKerjaMulai']?.toString() ??
+          json['jam_kerja_mulai']?.toString(),
+      jamKerjaSelesai: json['jamKerjaSelesai']?.toString() ??
+          json['jam_kerja_selesai']?.toString(),
     );
   }
 
@@ -93,6 +124,16 @@ class UserAccount {
       'jabatan': jabatan,
       'departemen': departemen,
       'token': token,
+      'tipeKaryawan': tipeKaryawan,
+      'idTipeKaryawan': idTipeKaryawan,
+      'metodePerhitunganGaji': metodePerhitunganGaji,
+      'jamKerjaMulai': jamKerjaMulai,
+      'jamKerjaSelesai': jamKerjaSelesai,
     };
+  }
+
+  static int? _asInt(dynamic value) {
+    if (value == null) return null;
+    return value is int ? value : int.tryParse(value.toString());
   }
 }

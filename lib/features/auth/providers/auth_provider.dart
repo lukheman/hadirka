@@ -4,7 +4,6 @@ import '../data/repositories/auth_repository.dart';
 import '../data/services/auth_api_service.dart';
 import '../data/model_user.dart';
 
-
 class AuthState {
   final bool isLoading;
   final UserAccount? user;
@@ -33,7 +32,6 @@ class AuthState {
   }
 }
 
-
 final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
 
 final authApiServiceProvider = Provider<AuthApiService>((ref) {
@@ -54,9 +52,19 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository _repository;
 
-  AuthNotifier(this._repository) : super(const AuthState());
+  AuthNotifier(this._repository) : super(const AuthState(isLoading: true)) {
+    _restoreSession();
+  }
 
-  
+  Future<void> _restoreSession() async {
+    try {
+      final user = await _repository.restoreSession();
+      state = AuthState(user: user);
+    } catch (_) {
+      state = const AuthState();
+    }
+  }
+
   Future<bool> login({
     required String identifier,
     required String password,
@@ -75,7 +83,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  
   Future<bool> register({
     required String username,
     required String nama,
@@ -98,9 +105,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         'departemen': departemen.trim(),
         'createdAt': DateTime.now().toIso8601String(),
       };
-      
+
       await _repository.register(newUserData);
-      
+
       state = state.copyWith(isLoading: false);
       return true;
     } catch (e) {
@@ -127,7 +134,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  
   void updateUser({
     String? nama,
     String? email,
@@ -149,7 +155,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  
   Future<void> logout() async {
     await _repository.logout();
     state = const AuthState();

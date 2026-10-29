@@ -8,17 +8,24 @@ class AuthRepository {
 
   Future<UserAccount> login(String identifier, String password) async {
     final result = await _apiService.login(identifier, password);
-    
+
     final userJson = result['user'] ?? result;
     final user = UserAccount.fromJson(userJson);
-    
-    
+
     final token = result['token'] ?? userJson['token'];
     if (token != null) {
       await _apiService.saveToken(token.toString());
     }
 
+    await _apiService.saveUser(user.toJson());
+
     return user;
+  }
+
+  Future<UserAccount?> restoreSession() async {
+    final userJson = await _apiService.getSavedUser();
+    if (userJson == null) return null;
+    return UserAccount.fromJson(userJson);
   }
 
   Future<UserAccount> register(Map<String, dynamic> userData) async {

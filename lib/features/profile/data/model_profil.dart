@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-
 class ProfilUser {
   final String id;
   final String nik;
@@ -20,6 +19,11 @@ class ProfilUser {
   final File? fotoProfil;
   final Uint8List? fotoProfilBytes;
   final bool notifikasiAktif;
+  final String? tipeKaryawan;
+  final int? idTipeKaryawan;
+  final String? metodePerhitunganGaji;
+  final String? jamKerjaMulai;
+  final String? jamKerjaSelesai;
 
   const ProfilUser({
     required this.id,
@@ -39,6 +43,11 @@ class ProfilUser {
     this.fotoProfil,
     this.fotoProfilBytes,
     this.notifikasiAktif = true,
+    this.tipeKaryawan,
+    this.idTipeKaryawan,
+    this.metodePerhitunganGaji,
+    this.jamKerjaMulai,
+    this.jamKerjaSelesai,
   });
 
   bool get hasFoto => fotoProfilBytes != null && fotoProfilBytes!.isNotEmpty;
@@ -62,6 +71,11 @@ class ProfilUser {
     Uint8List? fotoProfilBytes,
     bool clearFoto = false,
     bool? notifikasiAktif,
+    String? tipeKaryawan,
+    int? idTipeKaryawan,
+    String? metodePerhitunganGaji,
+    String? jamKerjaMulai,
+    String? jamKerjaSelesai,
   }) {
     return ProfilUser(
       id: id ?? this.id,
@@ -79,8 +93,15 @@ class ProfilUser {
       noRek: noRek ?? this.noRek,
       atasNamaRek: atasNamaRek ?? this.atasNamaRek,
       fotoProfil: clearFoto ? null : (fotoProfil ?? this.fotoProfil),
-      fotoProfilBytes: clearFoto ? null : (fotoProfilBytes ?? this.fotoProfilBytes),
+      fotoProfilBytes:
+          clearFoto ? null : (fotoProfilBytes ?? this.fotoProfilBytes),
       notifikasiAktif: notifikasiAktif ?? this.notifikasiAktif,
+      tipeKaryawan: tipeKaryawan ?? this.tipeKaryawan,
+      idTipeKaryawan: idTipeKaryawan ?? this.idTipeKaryawan,
+      metodePerhitunganGaji:
+          metodePerhitunganGaji ?? this.metodePerhitunganGaji,
+      jamKerjaMulai: jamKerjaMulai ?? this.jamKerjaMulai,
+      jamKerjaSelesai: jamKerjaSelesai ?? this.jamKerjaSelesai,
     );
   }
 }

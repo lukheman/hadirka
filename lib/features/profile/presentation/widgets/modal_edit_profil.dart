@@ -8,7 +8,6 @@ import '../../../auth/providers/auth_provider.dart';
 import '../../data/model_profil.dart';
 import '../../providers/profil_provider.dart';
 
-
 class ModalEditProfil extends ConsumerStatefulWidget {
   final ProfilUser profil;
 
@@ -48,41 +47,37 @@ class _ModalEditProfilState extends ConsumerState<ModalEditProfil> {
       final namaBaru = _namaController.text.trim();
 
       final noHpBaru = _noHpController.text.trim();
-      final alamatBaru = _alamatController.text.trim();
       final nik = widget.profil.nik;
 
-      
       try {
         await ref.read(servicesRepositoryProvider).updateProfile({
           'nik': nik,
           'nama': namaBaru,
           'noHp': noHpBaru,
-          'alamat': alamatBaru,
         });
       } catch (e) {
         if (mounted) {
-          AppNotification.showError(context, 'Gagal mengupdate database: ${e.toString().replaceAll('Exception: ', '')}');
+          AppNotification.showError(context,
+              'Gagal mengupdate database: ${e.toString().replaceAll('Exception: ', '')}');
         }
         return;
       }
 
-      
       ref.read(profilProvider.notifier).updateProfil(
             nama: namaBaru,
-
             noHp: noHpBaru,
-            alamat: alamatBaru,
+            alamat: widget.profil.alamat,
           );
 
       ref.read(authProvider.notifier).updateUser(
             nama: namaBaru,
-
             noHp: noHpBaru,
           );
 
       if (mounted) {
         Navigator.of(context).pop();
-        AppNotification.showSuccess(context, 'Profil berhasil disimpan ke database!');
+        AppNotification.showSuccess(
+            context, 'Profil berhasil disimpan ke database!');
       }
     }
   }
@@ -140,21 +135,17 @@ class _ModalEditProfilState extends ConsumerState<ModalEditProfil> {
                     ],
                   ),
                   const SizedBox(height: 20),
-
-                  
                   TextFormField(
                     controller: _namaController,
                     decoration: _inputDecoration(
                       label: 'Nama Lengkap',
                       icon: LucideIcons.user,
                     ),
-                    validator: (val) =>
-                        val == null || val.isEmpty ? 'Nama tidak boleh kosong' : null,
+                    validator: (val) => val == null || val.isEmpty
+                        ? 'Nama tidak boleh kosong'
+                        : null,
                   ),
                   const SizedBox(height: 14),
-
-
-                  
                   TextFormField(
                     controller: _noHpController,
                     keyboardType: TextInputType.phone,
@@ -162,12 +153,11 @@ class _ModalEditProfilState extends ConsumerState<ModalEditProfil> {
                       label: 'Nomor WhatsApp / HP',
                       icon: LucideIcons.phone,
                     ),
-                    validator: (val) =>
-                        val == null || val.isEmpty ? 'No. HP tidak boleh kosong' : null,
+                    validator: (val) => val == null || val.isEmpty
+                        ? 'No. HP tidak boleh kosong'
+                        : null,
                   ),
                   const SizedBox(height: 14),
-
-                  
                   TextFormField(
                     controller: _alamatController,
                     maxLines: 2,
@@ -175,12 +165,11 @@ class _ModalEditProfilState extends ConsumerState<ModalEditProfil> {
                       label: 'Alamat Tempat Tinggal',
                       icon: LucideIcons.mapPin,
                     ),
-                    validator: (val) =>
-                        val == null || val.isEmpty ? 'Alamat tidak boleh kosong' : null,
+                    validator: (val) => val == null || val.isEmpty
+                        ? 'Alamat tidak boleh kosong'
+                        : null,
                   ),
                   const SizedBox(height: 24),
-
-                  
                   ElevatedButton.icon(
                     onPressed: _simpanPembaruan,
                     icon: const Icon(LucideIcons.save, size: 18),
@@ -210,7 +199,8 @@ class _ModalEditProfilState extends ConsumerState<ModalEditProfil> {
     );
   }
 
-  InputDecoration _inputDecoration({required String label, required IconData icon}) {
+  InputDecoration _inputDecoration(
+      {required String label, required IconData icon}) {
     return InputDecoration(
       labelText: label,
       prefixIcon: Icon(icon, size: 18, color: AppColors.secondary),
@@ -231,4 +221,3 @@ class _ModalEditProfilState extends ConsumerState<ModalEditProfil> {
     );
   }
 }
-

@@ -261,6 +261,22 @@ class LayarProfil extends ConsumerWidget {
                       BarisStatus(
                           label: 'Status Kepegawaian',
                           nilai: profil.statusKepegawaian),
+                      if (profil.tipeKaryawan != null) ...[
+                        const Divider(height: 1, color: AppColors.border),
+                        BarisInformasi(
+                          label: 'Tipe Karyawan',
+                          nilai: profil.tipeKaryawan!,
+                        ),
+                      ],
+                      if (profil.jamKerjaMulai != null ||
+                          profil.jamKerjaSelesai != null) ...[
+                        const Divider(height: 1, color: AppColors.border),
+                        BarisInformasi(
+                          label: 'Jam Kerja',
+                          nilai:
+                              '${profil.jamKerjaMulai ?? '-'} - ${profil.jamKerjaSelesai ?? '-'}',
+                        ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 32),
