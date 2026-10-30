@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_notification.dart';
 import '../../../core/utils/responsive.dart';
@@ -684,6 +685,32 @@ class KartuAksiProfil extends StatelessWidget {
               value: profil.notifikasiAktif,
               activeColor: AppColors.primary,
               onChanged: onToggleNotifikasi,
+            ),
+            const Divider(height: 1, color: AppColors.border),
+            FutureBuilder<PackageInfo>(
+              future: PackageInfo.fromPlatform(),
+              builder: (context, snapshot) {
+                final version = snapshot.hasData
+                    ? 'Versi ${snapshot.data!.version}+${snapshot.data!.buildNumber}'
+                    : 'Memuat versi aplikasi...';
+                return ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(LucideIcons.info,
+                        size: 18, color: AppColors.secondary),
+                  ),
+                  title: const Text('Versi Aplikasi',
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                  subtitle: Text(version,
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.onSurfaceVariant)),
+                );
+              },
             ),
           ],
         ),
