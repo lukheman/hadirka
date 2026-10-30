@@ -123,8 +123,6 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildIntroCard(state),
-              const SizedBox(height: 16),
               if (state.pesanError != null) ...[
                 PesanErrorCard(
                   pesan: state.pesanError!,
@@ -175,80 +173,6 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildIntroCard(AbsensiState state) {
-    final sudahSelesai = state.sudahCheckOut;
-    final judul = sudahSelesai
-        ? 'Absensi hari ini selesai'
-        : state.sudahCheckIn
-            ? 'Anda sedang bekerja'
-            : 'Siap melakukan absensi?';
-    final deskripsi = sudahSelesai
-        ? 'Semua catatan kehadiran hari ini sudah tersimpan.'
-        : state.sudahCheckIn
-            ? 'Lakukan check-out saat jam kerja selesai.'
-            : 'Ikuti langkah singkat di bawah. Pastikan lokasi dan foto sudah siap.';
-    final warna = sudahSelesai
-        ? AppColors.success
-        : state.sudahCheckIn
-            ? AppColors.primary
-            : AppColors.onSurface;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: warna.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              sudahSelesai
-                  ? LucideIcons.circleCheck
-                  : state.sudahCheckIn
-                      ? LucideIcons.briefcase
-                      : LucideIcons.hand,
-              color: warna,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  judul,
-                  style: TextStyle(
-                    color: warna,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  deskripsi,
-                  style: const TextStyle(
-                    color: AppColors.onSurfaceVariant,
-                    fontSize: 12,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
