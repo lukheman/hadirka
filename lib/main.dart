@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,6 +45,13 @@ class _MainAppState extends ConsumerState<MainApp> {
   @override
   void initState() {
     super.initState();
+
+    // Linux tidak memerlukan permission flow Android/iOS.
+    if (defaultTargetPlatform == TargetPlatform.linux) {
+      _izinAwalSelesai = true;
+      return;
+    }
+
     _bacaStatusIzinAwal();
   }
 
