@@ -34,9 +34,9 @@ class PilihanLokasiCard extends StatelessWidget {
       case 'kantor':
         return AppColors.primary;
       case 'site_antam':
-        return const Color(0xFFD97706); 
+        return const Color(0xFFD97706);
       case 'site_ipip':
-        return const Color(0xFF0D9488); 
+        return const Color(0xFF0D9488);
       default:
         return AppColors.primary;
     }
@@ -47,71 +47,7 @@ class PilihanLokasiCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.border),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryContainer.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      LucideIcons.mapPinCheck,
-                      size: 20,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'PILIH LOKASI ABSENSI',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.onSurface,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        SizedBox(height: 2),
-                        Text(
-                          'Pilih lokasi resmi tempat Anda bertugas hari ini',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
 
-        
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -150,7 +86,7 @@ class PilihanLokasiCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      
+
                       Row(
                         children: [
                           Container(
@@ -221,7 +157,7 @@ class PilihanLokasiCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
 
-                      
+
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -264,7 +200,7 @@ class PilihanLokasiCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
 
-                      
+
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
