@@ -143,8 +143,6 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
                 ),
                 const SizedBox(height: 16),
               ] else ...[
-                _buildSelectedLocation(state),
-                const SizedBox(height: 16),
                 if (state.sudahCheckIn && state.dataCheckIn != null) ...[
                   InfoCheckInCard(state: state),
                   const SizedBox(height: 16),
@@ -177,82 +175,4 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
     );
   }
 
-  Widget _buildSelectedLocation(AbsensiState state) {
-    final lokasi = state.lokasiDipilih!;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 12, 10),
-      decoration: BoxDecoration(
-        color: AppColors.primaryContainer.withValues(alpha: 0.45),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.35),
-          width: 1.5,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  LucideIcons.mapPinCheck,
-                  color: Colors.white,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'LOKASI ABSENSI',
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.primary,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      lokasi.nama,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.onSurface,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (!state.sudahCheckIn)
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                onPressed: () {
-                  ref.read(absensiProvider.notifier).gantiLokasi();
-                },
-                icon: const Icon(LucideIcons.arrowLeftRight, size: 15),
-                label: const Text('Ganti lokasi'),
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  visualDensity: VisualDensity.compact,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
 }
