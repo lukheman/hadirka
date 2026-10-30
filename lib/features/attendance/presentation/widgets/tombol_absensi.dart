@@ -32,16 +32,12 @@ class TombolAbsensi extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
 
-        AnimatedContainer(
+        if (!state.sudahCheckIn) AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           child: ElevatedButton(
-            onPressed: state.sudahCheckIn
-                ? null
-                : (bisaCheckIn ? () => onProsesAbsensi('check_in') : null),
+            onPressed: bisaCheckIn ? () => onProsesAbsensi('check_in') : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: state.sudahCheckIn
-                  ? AppColors.success
-                  : AppColors.primary,
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               disabledBackgroundColor: AppColors.surfaceContainerHigh,
               disabledForegroundColor: AppColors.textTertiary,
@@ -64,17 +60,13 @@ class TombolAbsensi extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        state.sudahCheckIn
-                            ? LucideIcons.circleCheck
-                            : LucideIcons.logIn,
+                         LucideIcons.logIn,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
-                          state.sudahCheckIn
-                              ? 'SUDAH CHECK IN'
-                              : 'CHECK IN (ABSEN MASUK)',
+                           'CHECK IN (ABSEN MASUK)',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontWeight: FontWeight.w700,
@@ -87,10 +79,9 @@ class TombolAbsensi extends StatelessWidget {
                   ),
           ),
         ),
-        const SizedBox(height: 12),
-
-
-        OutlinedButton(
+        if (state.sudahCheckIn && !state.sudahCheckOut) ...[
+          const SizedBox(height: 12),
+          OutlinedButton(
           onPressed: bisaCheckOut ? () => onProsesAbsensi('check_out') : null,
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 20),
@@ -133,7 +124,8 @@ class TombolAbsensi extends StatelessWidget {
               ),
             ],
           ),
-        ),
+          ),
+        ],
 
 
         if ((state.bisaCheckIn || state.bisaCheckOut) &&
