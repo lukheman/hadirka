@@ -154,28 +154,20 @@ class StatusJarakCard extends ConsumerWidget {
                       : null,
                 ),
                 const Divider(height: 24, color: AppColors.border),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildMiniCard(
-                        icon: LucideIcons.ruler,
-                        label: 'Jarak ke Lokasi',
-                        value: jarakTeks,
-                        badgeColor: dalamJangkauan
-                            ? AppColors.success
-                            : AppColors.warning,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildMiniCard(
-                        icon: LucideIcons.radar,
-                        label: 'Radius Diizinkan',
-                        value: '${radius.toStringAsFixed(0)} meter',
-                        badgeColor: AppColors.primary,
-                      ),
-                    ),
-                  ],
+                _buildFieldRow(
+                  icon: LucideIcons.ruler,
+                  label: 'Jarak ke Lokasi',
+                  value: jarakTeks,
+                  valueColor: dalamJangkauan
+                      ? AppColors.success
+                      : AppColors.warning,
+                ),
+                const Divider(height: 24, color: AppColors.border),
+                _buildFieldRow(
+                  icon: LucideIcons.radar,
+                  label: 'Radius Diizinkan',
+                  value: '${radius.toStringAsFixed(0)} meter',
+                  valueColor: AppColors.primary,
                 ),
                 const Divider(height: 24, color: AppColors.border),
                 _buildFieldRow(
@@ -246,51 +238,4 @@ class StatusJarakCard extends ConsumerWidget {
     );
   }
 
-  Widget _buildMiniCard({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color badgeColor,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 14, color: badgeColor),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.secondary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              color: badgeColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
