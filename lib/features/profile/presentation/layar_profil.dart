@@ -155,10 +155,13 @@ class LayarProfil extends ConsumerWidget {
                 style: TextStyle(color: AppColors.secondary)),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              ref.read(authProvider.notifier).logout();
-              context.go('/login');
+
+              // Tunggu state auth berubah sebelum route lama dibuang. Jika
+              // navigasi dilakukan bersamaan dengan logout, StatefulShellRoute
+              // dapat menghapus element dua kali dan memicu assertion Flutter.
+              await ref.read(authProvider.notifier).logout();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.error,

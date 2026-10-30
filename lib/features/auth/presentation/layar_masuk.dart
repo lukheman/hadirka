@@ -31,16 +31,10 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
     final password = _passwordController.text;
 
     if (username != null || _formKey.currentState!.validate()) {
-      final ok = await ref.read(authProvider.notifier).login(
+      await ref.read(authProvider.notifier).login(
             identifier: identifier,
             password: password,
           );
-
-      if (ok && mounted) {
-        final authState = ref.read(authProvider);
-
-        context.go('/dashboard');
-      }
     }
   }
 
@@ -63,7 +57,7 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                   children: [
                     Image.asset(
                       'assets/images/logo-ipm.png',
-                       height: 180,
+                      height: 180,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
