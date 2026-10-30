@@ -46,7 +46,7 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
     if (berhasil && mounted) {
       AppNotification.showSuccess(
         context,
-        tipe == 'check_in' ? 'Check-in berhasil!' : 'Check-out berhasil!',
+        tipe == 'check_in' ? 'Absen masuk berhasil!' : 'Absen keluar berhasil!',
       );
     }
   }

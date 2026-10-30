@@ -636,7 +636,7 @@ class _BerandaCalendarState extends ConsumerState<BerandaCalendar> {
     } else if (data != null) {
       if (data['type'] == 'attendance') {
         final inTime = data['waktuIn'] ?? '-';
-        final outTime = data['waktuOut'] ?? 'Belum Check-out';
+        final outTime = data['waktuOut'] ?? 'Belum Absen Keluar';
         statusTitle = 'Presensi Hadir';
         statusSubtitle = 'Masuk: $inTime | Keluar: $outTime';
         icon = LucideIcons.checkCircle;

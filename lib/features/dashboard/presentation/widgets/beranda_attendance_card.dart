@@ -21,12 +21,12 @@ class BerandaAttendanceCard extends ConsumerWidget {
     Color statusTextColor;
 
     if (state.sudahCheckOut) {
-      statusJudul = 'Sudah Check-Out';
+      statusJudul = 'Sudah Absen Keluar';
       statusBadgeLabel = 'SELESAI';
       statusBadgeBg = const Color(0x3310B981);
       statusTextColor = const Color(0xFF34D399);
     } else if (state.sudahCheckIn && state.dataCheckIn != null) {
-      statusJudul = 'Sudah Check-In';
+      statusJudul = 'Sudah Absen Masuk';
       statusBadgeLabel = 'HADIR';
       statusBadgeBg = const Color(0x3310B981);
       statusTextColor = const Color(0xFF34D399);
@@ -219,9 +219,9 @@ class BerandaAttendanceCard extends ConsumerWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: _buildInfoGlassTile(
-                         'Status',
-                         state.sudahCheckIn ? 'Hadir' : 'Belum Absen',
-                         LucideIcons.badgeCheck,
+                        'Status',
+                        state.sudahCheckIn ? 'Hadir' : 'Belum Absen',
+                        LucideIcons.badgeCheck,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -264,8 +264,8 @@ class BerandaAttendanceCard extends ConsumerWidget {
                       state.sudahCheckIn
                           ? (state.sudahCheckOut
                               ? 'LIHAT DETAIL PRESENSI'
-                              : 'CHECK OUT SEKARANG')
-                          : 'PRESENSI SEKARANG',
+                              : 'ABSEN KELUAR SEKARANG')
+                          : 'ABSEN MASUK SEKARANG',
                       style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w900,

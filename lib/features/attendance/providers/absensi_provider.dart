@@ -715,10 +715,10 @@ class AbsensiNotifier extends StateNotifier<AbsensiState> {
                   'Ditolak: Anda sudah melakukan absensi keluar hari ini.');
         } else if (!state.sudahCheckIn) {
           state = state.copyWith(
-              pesanError: 'Gagal Check-Out: Anda belum melakukan Absen Masuk.');
+              pesanError: 'Gagal absen keluar: Anda belum melakukan absen masuk.');
         } else {
           state = state.copyWith(
-              pesanError: 'Gagal Check-Out: status absensi belum siap.');
+              pesanError: 'Gagal absen keluar: status absensi belum siap.');
         }
         return false;
       }
