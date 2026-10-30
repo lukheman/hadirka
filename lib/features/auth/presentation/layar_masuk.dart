@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/utils/app_notification.dart';
 import '../providers/auth_provider.dart';
 
 class LayarMasuk extends ConsumerStatefulWidget {
@@ -40,11 +39,6 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
       if (ok && mounted) {
         final authState = ref.read(authProvider);
 
-        AppNotification.showSuccess(
-          context,
-          'Selamat datang kembali, ${authState.user?.nama ?? ""}!',
-        );
-
         context.go('/dashboard');
       }
     }
@@ -64,13 +58,12 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 24),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image.asset(
                       'assets/images/logo-ipm.png',
-                      height: 120,
+                       height: 180,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
@@ -85,44 +78,7 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                         );
                       },
                     ),
-                    const SizedBox(height: 16),
-                    ShaderMask(
-                      shaderCallback: (bounds) => const LinearGradient(
-                        colors: [AppColors.accentGreen, AppColors.primary],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ).createShader(bounds),
-                      child: const Text(
-                        'INDOTEKNIK PRIMA MEKONGGA',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          letterSpacing: 1.0,
-                        ),
-                      ),
-                    ),
                   ],
-                ),
-                const SizedBox(height: 48),
-                const _TypewriterText(
-                  'Selamat Datang',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
-                    color: AppColors.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Masuk menggunakan NIK Anda.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.onSurfaceVariant,
-                    height: 1.4,
-                  ),
                 ),
                 const SizedBox(height: 32),
                 if (authState.errorMessage != null) ...[
@@ -155,7 +111,7 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                   const SizedBox(height: 20),
                 ],
                 const Text(
-                  'ID Karyawan',
+                  'ID/NIK Karyawan',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -167,7 +123,6 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                 TextFormField(
                   controller: _usernameController,
                   decoration: InputDecoration(
-                    hintText: 'Masukkan ID Karyawan',
                     prefixIcon: const Icon(LucideIcons.user,
                         size: 18, color: AppColors.secondary),
                     filled: true,
@@ -209,7 +164,6 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                   controller: _passwordController,
                   obscureText: _sembunyikanPass,
                   decoration: InputDecoration(
-                    hintText: 'Masukkan Password',
                     prefixIcon: const Icon(LucideIcons.lock,
                         size: 18, color: AppColors.secondary),
                     suffixIcon: IconButton(
@@ -314,62 +268,6 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _TypewriterText extends StatefulWidget {
-  final String text;
-  final TextStyle style;
-  const _TypewriterText(this.text, {required this.style});
-
-  @override
-  State<_TypewriterText> createState() => _TypewriterTextState();
-}
-
-class _TypewriterTextState extends State<_TypewriterText> {
-  String _displayedText = '';
-  int _currentIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _animateText();
-  }
-
-  void _animateText() async {
-    while (mounted) {
-      for (int i = 0; i < widget.text.length; i++) {
-        if (!mounted) return;
-        await Future.delayed(const Duration(milliseconds: 100));
-        if (!mounted) return;
-        setState(() {
-          _currentIndex++;
-          _displayedText = widget.text.substring(0, _currentIndex);
-        });
-      }
-
-      await Future.delayed(const Duration(seconds: 2));
-
-      for (int i = widget.text.length; i > 0; i--) {
-        if (!mounted) return;
-        await Future.delayed(const Duration(milliseconds: 50));
-        if (!mounted) return;
-        setState(() {
-          _currentIndex--;
-          _displayedText = widget.text.substring(0, _currentIndex);
-        });
-      }
-
-      await Future.delayed(const Duration(milliseconds: 500));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      _displayedText,
-      style: widget.style,
     );
   }
 }
