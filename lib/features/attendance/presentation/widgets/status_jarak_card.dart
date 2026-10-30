@@ -24,26 +24,19 @@ class StatusJarakCard extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: dalamJangkauan
               ? AppColors.success.withOpacity(0.35)
               : AppColors.border,
           width: 1.5,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
             decoration: BoxDecoration(
               color: dalamJangkauan ? AppColors.successBg : AppColors.errorBg,
               borderRadius:
@@ -52,7 +45,7 @@ class StatusJarakCard extends ConsumerWidget {
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -62,7 +55,7 @@ class StatusJarakCard extends ConsumerWidget {
                                 ? AppColors.success
                                 : AppColors.error)
                             .withOpacity(0.2),
-                        blurRadius: 6,
+                    blurRadius: 3,
                       )
                     ],
                   ),
@@ -70,11 +63,11 @@ class StatusJarakCard extends ConsumerWidget {
                     dalamJangkauan
                         ? LucideIcons.checkCircle2
                         : LucideIcons.alertCircle,
-                    size: 20,
+                     size: 17,
                     color: dalamJangkauan ? AppColors.success : AppColors.error,
                   ),
                 ),
-                const SizedBox(width: 12),
+                 const SizedBox(width: 9),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,7 +77,7 @@ class StatusJarakCard extends ConsumerWidget {
                             ? 'STATUS LOKASI: DALAM JANGKAUAN'
                             : 'STATUS LOKASI: DI LUAR JANGKAUAN',
                         style: TextStyle(
-                          fontSize: 11,
+                           fontSize: 10,
                           fontWeight: FontWeight.w800,
                           color: dalamJangkauan
                               ? AppColors.success
@@ -92,25 +85,14 @@ class StatusJarakCard extends ConsumerWidget {
                           letterSpacing: 0.5,
                         ),
                       ),
-                      if (!dalamJangkauan) ...[
-                        const SizedBox(height: 2),
-                        const Text(
-                          'Mendekatlah ke titik area kantor/site',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.error,
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(18),
+           Padding(
+             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Column(
               children: [
                 _buildFieldRow(
@@ -153,7 +135,7 @@ class StatusJarakCard extends ConsumerWidget {
                         )
                       : null,
                 ),
-                const Divider(height: 24, color: AppColors.border),
+                const Divider(height: 18, color: AppColors.border),
                 _buildFieldRow(
                   icon: LucideIcons.ruler,
                   label: 'Jarak ke Lokasi',
@@ -162,14 +144,14 @@ class StatusJarakCard extends ConsumerWidget {
                       ? AppColors.success
                       : AppColors.warning,
                 ),
-                const Divider(height: 24, color: AppColors.border),
+                const Divider(height: 18, color: AppColors.border),
                 _buildFieldRow(
                   icon: LucideIcons.radar,
                   label: 'Radius Diizinkan',
                   value: '${radius.toStringAsFixed(0)} meter',
                   valueColor: AppColors.primary,
                 ),
-                const Divider(height: 24, color: AppColors.border),
+                const Divider(height: 18, color: AppColors.border),
                 _buildFieldRow(
                   icon: LucideIcons.satellite,
                   label: 'Akurasi GPS',
@@ -196,14 +178,14 @@ class StatusJarakCard extends ConsumerWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             color: AppColors.surfaceContainer,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, size: 16, color: AppColors.primary),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 9),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

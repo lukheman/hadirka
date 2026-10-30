@@ -74,7 +74,7 @@ class FotoSelfieCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      foto != null ? 'Foto Selfie Berhasil Diambil' : 'Ambil Foto Selfie Presensi',
+                       foto != null ? 'Foto Selfie Berhasil Diambil' : 'Foto Belum Diambil',
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -170,7 +170,7 @@ class FotoSelfieCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      'Ketuk untuk Ambil Foto Selfie',
+                       'Ketuk ikon kamera untuk mengambil foto',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -184,18 +184,6 @@ class FotoSelfieCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         color: AppColors.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: onAmbilFoto,
-                      icon: const Icon(LucideIcons.camera, size: 16),
-                      label: const Text('AMBIL FOTO SELFIE', style: TextStyle(fontWeight: FontWeight.w800)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ],
