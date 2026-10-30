@@ -149,11 +149,11 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
                   InfoCheckInCard(state: state),
                   const SizedBox(height: 16),
                 ],
+                StatusJarakCard(state: state),
+                const SizedBox(height: 16),
                 MapCard(
                   state: state,
                 ),
-                const SizedBox(height: 16),
-                StatusJarakCard(state: state),
                 const SizedBox(height: 16),
                 FotoSelfieCard(
                   state: state,
