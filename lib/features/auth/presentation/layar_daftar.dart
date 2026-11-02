@@ -39,7 +39,7 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
   Future<void> _checkIdentifier() async {
     FocusScope.of(context).unfocus();
     if (_identifierController.text.trim().isEmpty) {
-      _showError('NIK karyawan / NIK KTP wajib diisi.');
+      _showError('ID Karyawan / NIK KTP wajib diisi.');
       return;
     }
 
@@ -127,7 +127,7 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                   'Masukkan NIK karyawan atau NIK KTP yang sudah didaftarkan HRD.',
+                   'Masukkan ID Karyawan atau NIK KTP yang sudah didaftarkan HRD.',
                   style: TextStyle(
                     fontSize: 14,
                     color: AppColors.onSurfaceVariant,
@@ -144,7 +144,7 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
                   const SizedBox(height: 20),
                 ],
                 const Text(
-                   'NIK Karyawan / NIK KTP',
+                   'ID Karyawan / NIK KTP',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -161,7 +161,7 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
                     icon: LucideIcons.user,
                   ),
                   validator: (value) => value == null || value.trim().isEmpty
-                       ? 'NIK karyawan atau NIK KTP wajib diisi'
+                       ? 'ID Karyawan atau NIK KTP wajib diisi'
                       : null,
                 ),
                 const SizedBox(height: 12),
@@ -187,7 +187,7 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
                 if (_identifierVerified) ...[
                   _MessageBox(
                     message: 'Data ditemukan: $_verifiedName\n'
-                        '${_verifiedNik == null ? '' : 'NIK: $_verifiedNik\n'}\n'
+                        '${_verifiedNik == null ? '' : 'ID Karyawan: $_verifiedNik\n'}\n'
                         '${_verifiedNikKtp == null ? '' : 'NIK KTP: $_verifiedNikKtp\n'}\n'
                         'Buat password untuk mengaktifkan akun.',
                     color: AppColors.success,
@@ -291,7 +291,7 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
                               _passwordController.clear();
                               _confirmationController.clear();
                             }),
-                     child: const Text('GANTI NIK'),
+                     child: const Text('GANTI ID KARYAWAN'),
                   ),
                 ],
                 const SizedBox(height: 24),
