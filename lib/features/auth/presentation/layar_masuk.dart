@@ -105,7 +105,7 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                   const SizedBox(height: 20),
                 ],
                 const Text(
-                  'ID/NIK Karyawan',
+                  'NIK Karyawan / NIK KTP',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -140,7 +140,7 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                     ),
                   ),
                   validator: (val) => val == null || val.isEmpty
-                      ? 'Masukkan ID Karyawan'
+                      ? 'Masukkan NIK Karyawan atau NIK KTP'
                       : null,
                 ),
                 const SizedBox(height: 16),

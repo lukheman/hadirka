@@ -23,6 +23,8 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
   bool _confirmationHidden = true;
   bool _identifierVerified = false;
   String? _verifiedIdentifier;
+  String? _verifiedNik;
+  String? _verifiedNikKtp;
   String _verifiedName = '';
   String _verifiedPhone = '';
 
@@ -37,7 +39,7 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
   Future<void> _checkIdentifier() async {
     FocusScope.of(context).unfocus();
     if (_identifierController.text.trim().isEmpty) {
-      _showError('NIK / ID karyawan wajib diisi.');
+      _showError('NIK karyawan / NIK KTP wajib diisi.');
       return;
     }
 
@@ -51,9 +53,14 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
         : result;
     setState(() {
       _identifierVerified = true;
-      _verifiedIdentifier = (data['nik'] ?? _identifierController.text)
-          .toString()
-          .toUpperCase();
+      final nik = (data['nik_karyawan'] ?? data['nik'] ?? '').toString();
+      _verifiedNik = nik.trim().isEmpty ? null : nik.toUpperCase();
+      final nikKtp = (data['nik_ktp'] ?? '').toString();
+      _verifiedNikKtp = nikKtp.trim().isEmpty ? null : nikKtp;
+      _verifiedIdentifier = (_verifiedNik ?? _verifiedNikKtp ??
+              _identifierController.text)
+              .toString()
+              .toUpperCase();
       _verifiedName = (data['nama'] ?? '').toString();
       _verifiedPhone = (data['noHp'] ?? '').toString();
     });
@@ -65,6 +72,7 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
 
     final success = await ref.read(authProvider.notifier).register(
           username: _verifiedIdentifier!,
+          nik: _verifiedNik,
           nama: _verifiedName,
           email: '${_verifiedIdentifier!.toLowerCase()}@ipm.local',
           noHp: _verifiedPhone,
@@ -119,7 +127,7 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Masukkan NIK atau ID karyawan yang sudah didaftarkan HRD.',
+                   'Masukkan NIK karyawan atau NIK KTP yang sudah didaftarkan HRD.',
                   style: TextStyle(
                     fontSize: 14,
                     color: AppColors.onSurfaceVariant,
@@ -136,7 +144,7 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
                   const SizedBox(height: 20),
                 ],
                 const Text(
-                  'NIK / ID Karyawan',
+                   'NIK Karyawan / NIK KTP',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -149,11 +157,11 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
                   enabled: !_identifierVerified && !authState.isLoading,
                   textCapitalization: TextCapitalization.characters,
                   decoration: _inputDecoration(
-                    hint: 'Contoh: IPM-00001 atau 123',
+                     hint: 'Contoh: IPM-00001 atau nomor KTP',
                     icon: LucideIcons.user,
                   ),
                   validator: (value) => value == null || value.trim().isEmpty
-                      ? 'NIK / ID karyawan wajib diisi'
+                       ? 'NIK karyawan atau NIK KTP wajib diisi'
                       : null,
                 ),
                 const SizedBox(height: 12),
@@ -179,7 +187,8 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
                 if (_identifierVerified) ...[
                   _MessageBox(
                     message: 'Data ditemukan: $_verifiedName\n'
-                        'NIK: $_verifiedIdentifier\n\n'
+                        '${_verifiedNik == null ? '' : 'NIK: $_verifiedNik\n'}\n'
+                        '${_verifiedNikKtp == null ? '' : 'NIK KTP: $_verifiedNikKtp\n'}\n'
                         'Buat password untuk mengaktifkan akun.',
                     color: AppColors.success,
                     background: AppColors.successBg,
@@ -209,8 +218,8 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
                           size: 18,
                           color: AppColors.secondary,
                         ),
-                        onPressed: () => setState(
-                            () => _passwordHidden = !_passwordHidden),
+                        onPressed: () =>
+                            setState(() => _passwordHidden = !_passwordHidden),
                       ),
                     ),
                     validator: (value) => value == null || value.length < 6
@@ -241,8 +250,8 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
                           size: 18,
                           color: AppColors.secondary,
                         ),
-                        onPressed: () => setState(() =>
-                            _confirmationHidden = !_confirmationHidden),
+                        onPressed: () => setState(
+                            () => _confirmationHidden = !_confirmationHidden),
                       ),
                     ),
                     validator: (value) => value != _passwordController.text
@@ -277,10 +286,12 @@ class _LayarDaftarState extends ConsumerState<LayarDaftar> {
                         : () => setState(() {
                               _identifierVerified = false;
                               _verifiedIdentifier = null;
+                              _verifiedNik = null;
+                              _verifiedNikKtp = null;
                               _passwordController.clear();
                               _confirmationController.clear();
                             }),
-                    child: const Text('GANTI NIK / ID'),
+                     child: const Text('GANTI NIK'),
                   ),
                 ],
                 const SizedBox(height: 24),

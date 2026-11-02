@@ -85,6 +85,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<bool> register({
     required String username,
+    String? nik,
     required String nama,
     required String email,
     required String noHp,
@@ -95,7 +96,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, clearError: true);
     try {
       final newUserData = {
-        'nik': username.trim().toUpperCase(),
+        'identifier': username.trim(),
+        'nik': (nik ?? username).trim().toUpperCase(),
         'email': email.trim().toLowerCase(),
         'password': password,
         'nama': nama.trim(),
