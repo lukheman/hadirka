@@ -1,11 +1,11 @@
 {
-    "name": "Indoteknik Prima Mekongga",
-    "short_name": "Indoteknik Prima",
+    "name": "HadirKa",
+    "short_name": "HadirKa",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Aplikasi absensi Indoteknik Prima Mekongga.",
+    "description": "Aplikasi absensi HadirKa.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

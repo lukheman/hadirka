@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 
@@ -31,10 +32,9 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
     final password = _passwordController.text;
 
     if (username != null || _formKey.currentState!.validate()) {
-      await ref.read(authProvider.notifier).login(
-            identifier: identifier,
-            password: password,
-          );
+      await ref
+          .read(authProvider.notifier)
+          .login(identifier: identifier, password: password);
     }
   }
 
@@ -56,7 +56,7 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Image.asset(
-                      'assets/images/logo-ipm.png',
+                      'assets/images/logo-hadirka.png',
                       height: 180,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
@@ -67,8 +67,11 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                             color: AppColors.primary.withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(LucideIcons.image,
-                              color: AppColors.primary, size: 32),
+                          child: const Icon(
+                            LucideIcons.image,
+                            color: AppColors.primary,
+                            size: 32,
+                          ),
                         );
                       },
                     ),
@@ -81,13 +84,17 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                     decoration: BoxDecoration(
                       color: AppColors.errorBg,
                       borderRadius: BorderRadius.circular(12),
-                      border:
-                          Border.all(color: AppColors.error.withOpacity(0.3)),
+                      border: Border.all(
+                        color: AppColors.error.withOpacity(0.3),
+                      ),
                     ),
                     child: Row(
                       children: [
-                        const Icon(LucideIcons.alertCircle,
-                            color: AppColors.error, size: 20),
+                        const Icon(
+                          LucideIcons.alertCircle,
+                          color: AppColors.error,
+                          size: 20,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
@@ -117,26 +124,35 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                 TextFormField(
                   controller: _usernameController,
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(LucideIcons.user,
-                        size: 18, color: AppColors.secondary),
+                    prefixIcon: const Icon(
+                      LucideIcons.user,
+                      size: 18,
+                      color: AppColors.secondary,
+                    ),
                     filled: true,
                     fillColor: AppColors.loginCard,
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 16),
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide:
-                          const BorderSide(color: AppColors.ipmOrangeLight),
+                      borderSide: const BorderSide(
+                        color: AppColors.ipmOrangeLight,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide:
-                          const BorderSide(color: AppColors.ipmOrangeLight),
+                      borderSide: const BorderSide(
+                        color: AppColors.ipmOrangeLight,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide:
-                          const BorderSide(color: AppColors.primary, width: 2),
+                      borderSide: const BorderSide(
+                        color: AppColors.primary,
+                        width: 2,
+                      ),
                     ),
                   ),
                   validator: (val) => val == null || val.isEmpty
@@ -158,8 +174,11 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                   controller: _passwordController,
                   obscureText: _sembunyikanPass,
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(LucideIcons.lock,
-                        size: 18, color: AppColors.secondary),
+                    prefixIcon: const Icon(
+                      LucideIcons.lock,
+                      size: 18,
+                      color: AppColors.secondary,
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _sembunyikanPass ? LucideIcons.eyeOff : LucideIcons.eye,
@@ -175,21 +194,27 @@ class _LayarMasukState extends ConsumerState<LayarMasuk> {
                     filled: true,
                     fillColor: AppColors.loginCard,
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 16),
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide:
-                          const BorderSide(color: AppColors.ipmOrangeLight),
+                      borderSide: const BorderSide(
+                        color: AppColors.ipmOrangeLight,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide:
-                          const BorderSide(color: AppColors.ipmOrangeLight),
+                      borderSide: const BorderSide(
+                        color: AppColors.ipmOrangeLight,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide:
-                          const BorderSide(color: AppColors.primary, width: 2),
+                      borderSide: const BorderSide(
+                        color: AppColors.primary,
+                        width: 2,
+                      ),
                     ),
                   ),
                   validator: (val) =>

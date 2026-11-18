@@ -15,10 +15,6 @@ class LayarNotifikasi extends ConsumerWidget {
         return LucideIcons.checkCircle;
       case 'leave':
         return LucideIcons.calendar;
-      case 'loan':
-        return LucideIcons.wallet;
-      case 'payslip':
-        return LucideIcons.fileText;
       case 'system':
       default:
         return LucideIcons.bell;
@@ -31,10 +27,6 @@ class LayarNotifikasi extends ConsumerWidget {
         return AppColors.success;
       case 'leave':
         return AppColors.primary;
-      case 'loan':
-        return AppColors.hrAccentPurple;
-      case 'payslip':
-        return AppColors.secondary;
       case 'system':
       default:
         return AppColors.warning;
@@ -47,10 +39,6 @@ class LayarNotifikasi extends ConsumerWidget {
         return AppColors.successBg;
       case 'leave':
         return AppColors.primaryContainer;
-      case 'loan':
-        return AppColors.hrPurpleBg;
-      case 'payslip':
-        return AppColors.surfaceContainerHigh;
       case 'system':
       default:
         return AppColors.warningBg;

@@ -15,23 +15,6 @@ class ServicesApiService {
     return response as List<dynamic>;
   }
 
-  Future<List<dynamic>> getLoans() async {
-    final response = await _apiClient.get('/loan');
-    return response as List<dynamic>;
-  }
-
-  Future<List<dynamic>> getPayslips(String username, {String? periode}) async {
-    final query = <String, dynamic>{};
-    if (periode != null && periode.trim().isNotEmpty) {
-      query['periode'] = periode.trim();
-    }
-
-    final response = await _apiClient.get(
-      '/payslip',
-      queryParameters: query,
-    );
-    return response as List<dynamic>;
-  }
 
   Future<List<dynamic>> getGeofence([String username = '']) async {
     final response = await _apiClient.get(
@@ -46,10 +29,6 @@ class ServicesApiService {
     return true;
   }
 
-  Future<bool> postLoan(Map<String, dynamic> data) async {
-    await _apiClient.post('/loan', data: data);
-    return true;
-  }
 
   Future<bool> updateProfile(Map<String, dynamic> data) async {
     await _apiClient.put('/user/profile', data: data);

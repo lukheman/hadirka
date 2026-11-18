@@ -53,27 +53,6 @@ class LayarLayanan extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 32),
-            KategoriLayanan(
-              judulKategori: 'KEUANGAN & BENEFIT',
-              itemLayanan: [
-                ItemLayananModel(
-                  judul: 'Slip Gaji',
-                  subjudul: 'Lihat riwayat slip gaji bulanan',
-                  ikon: LucideIcons.receipt,
-                  rute: '/services/payslip',
-                  warnaIkon: AppColors.success,
-                  latarIkon: AppColors.successBg,
-                ),
-                ItemLayananModel(
-                  judul: 'Pengajuan Pinjaman',
-                  subjudul: 'Pinjaman karyawan & status',
-                  ikon: LucideIcons.banknote,
-                  rute: '/services/loan',
-                  warnaIkon: AppColors.warning,
-                  latarIkon: AppColors.warningBg,
-                ),
-              ],
-            ),
           ],
         ),
       ),

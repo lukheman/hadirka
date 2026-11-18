@@ -15,16 +15,6 @@ class ServicesRepository {
     return List<Map<String, dynamic>>.from(data);
   }
 
-  Future<List<Map<String, dynamic>>> getLoans() async {
-    final data = await _apiService.getLoans();
-    return List<Map<String, dynamic>>.from(data);
-  }
-
-  Future<List<Map<String, dynamic>>> getPayslips(String username,
-      {String? periode}) async {
-    final data = await _apiService.getPayslips(username, periode: periode);
-    return List<Map<String, dynamic>>.from(data);
-  }
 
   Future<List<Map<String, dynamic>>> getGeofence([String username = '']) async {
     final data = await _apiService.getGeofence(username);
@@ -35,9 +25,6 @@ class ServicesRepository {
     return await _apiService.postLeave(data);
   }
 
-  Future<bool> postLoan(Map<String, dynamic> data) async {
-    return await _apiService.postLoan(data);
-  }
 
   Future<bool> updateProfile(Map<String, dynamic> data) async {
     return await _apiService.updateProfile(data);

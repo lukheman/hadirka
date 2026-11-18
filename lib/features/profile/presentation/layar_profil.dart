@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_notification.dart';
 import '../../../core/utils/responsive.dart';
@@ -35,18 +37,19 @@ class LayarProfil extends ConsumerWidget {
   }
 
   void _bukaDialogGantiPass(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => const DialogGantiPass(),
-    );
+    showDialog(context: context, builder: (context) => const DialogGantiPass());
   }
 
   Future<void> _prosesPilihFoto(
-      BuildContext context, WidgetRef ref, ImageSource source) async {
+    BuildContext context,
+    WidgetRef ref,
+    ImageSource source,
+  ) async {
     Navigator.pop(context);
     try {
-      final res =
-          await ref.read(profilProvider.notifier).pickFotoProfil(source);
+      final res = await ref
+          .read(profilProvider.notifier)
+          .pickFotoProfil(source);
       if (res != null) {
         final bytes = res['bytes'] as Uint8List;
         final file = res['file'] as File?;
@@ -91,36 +94,50 @@ class LayarProfil extends ConsumerWidget {
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(LucideIcons.camera, color: AppColors.primary),
-              title: const Text('Ambil Foto Kamera',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              title: const Text(
+                'Ambil Foto Kamera',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
               onTap: () => _prosesPilihFoto(context, ref, ImageSource.camera),
             ),
             ListTile(
-              leading:
-                  const Icon(LucideIcons.image, color: AppColors.secondary),
-              title: const Text('Pilih dari Galeri',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              leading: const Icon(
+                LucideIcons.image,
+                color: AppColors.secondary,
+              ),
+              title: const Text(
+                'Pilih dari Galeri',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
               onTap: () => _prosesPilihFoto(context, ref, ImageSource.gallery),
             ),
             if (profil.hasFoto) ...[
               const Divider(color: AppColors.border),
               ListTile(
                 leading: const Icon(LucideIcons.trash2, color: AppColors.error),
-                title: const Text('Hapus Foto Profil',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600, color: AppColors.error)),
+                title: const Text(
+                  'Hapus Foto Profil',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.error,
+                  ),
+                ),
                 onTap: () async {
                   Navigator.pop(context);
                   try {
                     await ref.read(profilProvider.notifier).hapusFotoProfil();
                     if (context.mounted) {
                       AppNotification.showInfo(
-                          context, 'Foto profil berhasil dihapus.');
+                        context,
+                        'Foto profil berhasil dihapus.',
+                      );
                     }
                   } catch (err) {
                     if (context.mounted) {
-                      AppNotification.showError(context,
-                          'Gagal menghapus foto profil: ${err.toString()}');
+                      AppNotification.showError(
+                        context,
+                        'Gagal menghapus foto profil: ${err.toString()}',
+                      );
                     }
                   }
                 },
@@ -141,19 +158,23 @@ class LayarProfil extends ConsumerWidget {
           children: [
             Icon(LucideIcons.logOut, color: AppColors.error, size: 22),
             SizedBox(width: 10),
-            Text('Konfirmasi Keluar',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+            Text(
+              'Konfirmasi Keluar',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            ),
           ],
         ),
         content: const Text(
-          'Apakah Anda yakin ingin keluar dari aplikasi Absensi Indoteknik Prima Mekongga?',
+          'Apakah Anda yakin ingin keluar dari aplikasi HadirKa?',
           style: TextStyle(fontSize: 14, color: AppColors.onSurfaceVariant),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('BATAL',
-                style: TextStyle(color: AppColors.secondary)),
+            child: const Text(
+              'BATAL',
+              style: TextStyle(color: AppColors.secondary),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -168,10 +189,13 @@ class LayarProfil extends ConsumerWidget {
               backgroundColor: AppColors.error,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text('KELUAR',
-                style: TextStyle(fontWeight: FontWeight.w800)),
+            child: const Text(
+              'KELUAR',
+              style: TextStyle(fontWeight: FontWeight.w800),
+            ),
           ),
         ],
       ),
@@ -210,7 +234,7 @@ class LayarProfil extends ConsumerWidget {
             icon: const Icon(LucideIcons.userPen, color: AppColors.primary),
             tooltip: 'Edit Profil',
             onPressed: () => _bukaModalEditProfil(context, profil),
-          )
+          ),
         ],
       ),
       body: ResponsiveContainer(
@@ -218,7 +242,11 @@ class LayarProfil extends ConsumerWidget {
         child: isMobile
             ? ListView(
                 padding: const EdgeInsets.only(
-                    top: 100, left: 20, right: 20, bottom: 100),
+                  top: 100,
+                  left: 20,
+                  right: 20,
+                  bottom: 100,
+                ),
                 children: [
                   HeaderProfil(
                     profil: profil,
@@ -241,10 +269,14 @@ class LayarProfil extends ConsumerWidget {
                       BarisInformasi(label: 'NIK', nilai: profil.nik),
                       const Divider(height: 1, color: AppColors.border),
                       BarisInformasi(
-                          label: 'Jenis Kelamin', nilai: profil.jenisKelamin),
+                        label: 'Jenis Kelamin',
+                        nilai: profil.jenisKelamin,
+                      ),
                       const Divider(height: 1, color: AppColors.border),
                       BarisInformasi(
-                          label: 'No. WhatsApp/HP', nilai: profil.noHp),
+                        label: 'No. WhatsApp/HP',
+                        nilai: profil.noHp,
+                      ),
                       const Divider(height: 1, color: AppColors.border),
                       BarisInformasi(label: 'Alamat', nilai: profil.alamat),
                     ],
@@ -257,14 +289,19 @@ class LayarProfil extends ConsumerWidget {
                       BarisInformasi(label: 'Jabatan', nilai: profil.jabatan),
                       const Divider(height: 1, color: AppColors.border),
                       BarisInformasi(
-                          label: 'Departemen', nilai: profil.departemen),
+                        label: 'Departemen',
+                        nilai: profil.departemen,
+                      ),
                       const Divider(height: 1, color: AppColors.border),
                       BarisInformasi(
-                          label: 'Tanggal Masuk', nilai: profil.tanggalMasuk),
+                        label: 'Tanggal Masuk',
+                        nilai: profil.tanggalMasuk,
+                      ),
                       const Divider(height: 1, color: AppColors.border),
                       BarisStatus(
-                          label: 'Status Kepegawaian',
-                          nilai: profil.statusKepegawaian),
+                        label: 'Status Kepegawaian',
+                        nilai: profil.statusKepegawaian,
+                      ),
                       if (profil.tipeKaryawan != null) ...[
                         const Divider(height: 1, color: AppColors.border),
                         BarisInformasi(
@@ -290,14 +327,17 @@ class LayarProfil extends ConsumerWidget {
                     label: const Text(
                       'KELUAR DARI AKUN',
                       style: TextStyle(
-                          fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.errorBg,
                       foregroundColor: AppColors.error,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       elevation: 0,
                     ),
                   ),
@@ -306,7 +346,11 @@ class LayarProfil extends ConsumerWidget {
               )
             : SingleChildScrollView(
                 padding: const EdgeInsets.only(
-                    top: 100, left: 24, right: 24, bottom: 60),
+                  top: 100,
+                  left: 24,
+                  right: 24,
+                  bottom: 60,
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -339,16 +383,19 @@ class LayarProfil extends ConsumerWidget {
                               label: const Text(
                                 'KELUAR DARI AKUN',
                                 style: TextStyle(
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0.5),
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.5,
+                                ),
                               ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.errorBg,
                                 foregroundColor: AppColors.error,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16)),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
                                 elevation: 0,
                               ),
                             ),
@@ -368,14 +415,19 @@ class LayarProfil extends ConsumerWidget {
                               BarisInformasi(label: 'NIK', nilai: profil.nik),
                               const Divider(height: 1, color: AppColors.border),
                               BarisInformasi(
-                                  label: 'Jenis Kelamin',
-                                  nilai: profil.jenisKelamin),
+                                label: 'Jenis Kelamin',
+                                nilai: profil.jenisKelamin,
+                              ),
                               const Divider(height: 1, color: AppColors.border),
                               BarisInformasi(
-                                  label: 'No. WhatsApp/HP', nilai: profil.noHp),
+                                label: 'No. WhatsApp/HP',
+                                nilai: profil.noHp,
+                              ),
                               const Divider(height: 1, color: AppColors.border),
                               BarisInformasi(
-                                  label: 'Alamat', nilai: profil.alamat),
+                                label: 'Alamat',
+                                nilai: profil.alamat,
+                              ),
                             ],
                           ),
                           const SizedBox(height: 24),
@@ -384,19 +436,24 @@ class LayarProfil extends ConsumerWidget {
                             ikon: LucideIcons.briefcase,
                             anak: [
                               BarisInformasi(
-                                  label: 'Jabatan', nilai: profil.jabatan),
+                                label: 'Jabatan',
+                                nilai: profil.jabatan,
+                              ),
                               const Divider(height: 1, color: AppColors.border),
                               BarisInformasi(
-                                  label: 'Departemen',
-                                  nilai: profil.departemen),
+                                label: 'Departemen',
+                                nilai: profil.departemen,
+                              ),
                               const Divider(height: 1, color: AppColors.border),
                               BarisInformasi(
-                                  label: 'Tanggal Masuk',
-                                  nilai: profil.tanggalMasuk),
+                                label: 'Tanggal Masuk',
+                                nilai: profil.tanggalMasuk,
+                              ),
                               const Divider(height: 1, color: AppColors.border),
                               BarisStatus(
-                                  label: 'Status Kepegawaian',
-                                  nilai: profil.statusKepegawaian),
+                                label: 'Status Kepegawaian',
+                                nilai: profil.statusKepegawaian,
+                              ),
                             ],
                           ),
                         ],
@@ -512,9 +569,7 @@ class HeaderProfil extends ConsumerWidget {
                   ),
                 ],
               ),
-              child: ClipOval(
-                child: _buildAvatarImage(profil, authUser),
-              ),
+              child: ClipOval(child: _buildAvatarImage(profil, authUser)),
             ),
             GestureDetector(
               onTap: onUbahFoto,
@@ -634,16 +689,28 @@ class KartuAksiProfil extends StatelessWidget {
                   color: AppColors.primaryFixed,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(LucideIcons.userPen,
-                    size: 18, color: AppColors.primary),
+                child: const Icon(
+                  LucideIcons.userPen,
+                  size: 18,
+                  color: AppColors.primary,
+                ),
               ),
-              title: const Text('Edit Data Pribadi',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-              subtitle: const Text('Ubah Nama, No. HP, & Alamat',
-                  style: TextStyle(
-                      fontSize: 12, color: AppColors.onSurfaceVariant)),
-              trailing: const Icon(LucideIcons.chevronRight,
-                  size: 18, color: AppColors.secondary),
+              title: const Text(
+                'Edit Data Pribadi',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+              ),
+              subtitle: const Text(
+                'Ubah Nama, No. HP, & Alamat',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
+              trailing: const Icon(
+                LucideIcons.chevronRight,
+                size: 18,
+                color: AppColors.secondary,
+              ),
               onTap: onEditProfil,
             ),
             const Divider(height: 1, color: AppColors.border),
@@ -654,16 +721,28 @@ class KartuAksiProfil extends StatelessWidget {
                   color: AppColors.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(LucideIcons.keyRound,
-                    size: 18, color: AppColors.secondary),
+                child: const Icon(
+                  LucideIcons.keyRound,
+                  size: 18,
+                  color: AppColors.secondary,
+                ),
               ),
-              title: const Text('Ganti Kata Kunci',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-              subtitle: const Text('Pengaturan keamanan & password akun',
-                  style: TextStyle(
-                      fontSize: 12, color: AppColors.onSurfaceVariant)),
-              trailing: const Icon(LucideIcons.chevronRight,
-                  size: 18, color: AppColors.secondary),
+              title: const Text(
+                'Ganti Kata Kunci',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+              ),
+              subtitle: const Text(
+                'Pengaturan keamanan & password akun',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
+              trailing: const Icon(
+                LucideIcons.chevronRight,
+                size: 18,
+                color: AppColors.secondary,
+              ),
               onTap: onGantiPass,
             ),
             const Divider(height: 1, color: AppColors.border),
@@ -674,14 +753,23 @@ class KartuAksiProfil extends StatelessWidget {
                   color: AppColors.successBg,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(LucideIcons.bellRing,
-                    size: 18, color: AppColors.success),
+                child: const Icon(
+                  LucideIcons.bellRing,
+                  size: 18,
+                  color: AppColors.success,
+                ),
               ),
-              title: const Text('Notifikasi Presensi',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-              subtitle: const Text('Ingatkan pengingat jam masuk & keluar',
-                  style: TextStyle(
-                      fontSize: 12, color: AppColors.onSurfaceVariant)),
+              title: const Text(
+                'Notifikasi Presensi',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+              ),
+              subtitle: const Text(
+                'Ingatkan pengingat jam masuk & keluar',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
               value: profil.notifikasiAktif,
               activeColor: AppColors.primary,
               onChanged: onToggleNotifikasi,
@@ -700,15 +788,23 @@ class KartuAksiProfil extends StatelessWidget {
                       color: AppColors.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(LucideIcons.info,
-                        size: 18, color: AppColors.secondary),
+                    child: const Icon(
+                      LucideIcons.info,
+                      size: 18,
+                      color: AppColors.secondary,
+                    ),
                   ),
-                  title: const Text('Versi Aplikasi',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-                  subtitle: Text(version,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.onSurfaceVariant)),
+                  title: const Text(
+                    'Versi Aplikasi',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                  ),
+                  subtitle: Text(
+                    version,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
                 );
               },
             ),
@@ -765,9 +861,7 @@ class KartuInformasi extends StatelessWidget {
               ),
             ],
           ),
-          child: Column(
-            children: anak,
-          ),
+          child: Column(children: anak),
         ),
       ],
     );
@@ -778,11 +872,7 @@ class BarisInformasi extends StatelessWidget {
   final String label;
   final String nilai;
 
-  const BarisInformasi({
-    super.key,
-    required this.label,
-    required this.nilai,
-  });
+  const BarisInformasi({super.key, required this.label, required this.nilai});
 
   @override
   Widget build(BuildContext context) {
@@ -792,9 +882,13 @@ class BarisInformasi extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 13, color: AppColors.onSurfaceVariant)),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
@@ -817,11 +911,7 @@ class BarisStatus extends StatelessWidget {
   final String label;
   final String nilai;
 
-  const BarisStatus({
-    super.key,
-    required this.label,
-    required this.nilai,
-  });
+  const BarisStatus({super.key, required this.label, required this.nilai});
 
   @override
   Widget build(BuildContext context) {
@@ -830,9 +920,13 @@ class BarisStatus extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 13, color: AppColors.onSurfaceVariant)),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(

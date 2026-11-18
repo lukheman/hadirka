@@ -1,17 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'model_lokasi_absensi.dart';
 
 final lokasiAbsensiProvider = Provider<List<LokasiAbsensi>>((ref) {
   return const [
     LokasiAbsensi(
       id: 'kantor',
-      nama: 'Kantor Indoteknik Prima Mekongga Dawi-Dawi',
+      nama: 'Kantor HadirKa Dawi-Dawi',
       alamat: 'Jl. Poros Dawi-Dawi, Kec. Pomalaa, Sulawesi Tenggara',
       latitude: -4.178249,
       longitude: 121.610741,
       radius: 80,
       tipe: 'kantor',
-      deskripsi: 'Kantor Pusat Indoteknik Prima Mekongga Dawi-Dawi',
+      deskripsi: 'Kantor Pusat HadirKa Dawi-Dawi',
     ),
     LokasiAbsensi(
       id: 'site_antam',

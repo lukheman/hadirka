@@ -1,9 +1,11 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/app_notification.dart';
 import '../../../core/utils/responsive.dart';
@@ -12,10 +14,7 @@ import '../../attendance/providers/absensi_provider.dart';
 import '../../notifications/providers/notifications_provider.dart';
 
 class LayarUtama extends ConsumerStatefulWidget {
-  const LayarUtama({
-    super.key,
-    required this.navigationShell,
-  });
+  const LayarUtama({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
@@ -64,9 +63,9 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
 
     try {
       final allNotifs = ref.watch(notificationsProvider);
-      hasLayananNotif = allNotifs.any((n) =>
-          !n.isRead &&
-          (n.type == 'leave' || n.type == 'loan' || n.type == 'payslip'));
+      hasLayananNotif = allNotifs.any(
+        (n) => !n.isRead && (n.type == 'leave'),
+      );
     } catch (_) {}
 
     Widget content;
@@ -90,7 +89,7 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Image.asset(
-                      'assets/images/logo-ipm.png',
+                      'assets/images/logo-hadirka.png',
                       width: 32,
                       height: 32,
                       fit: BoxFit.contain,
@@ -103,7 +102,7 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
                     if (isDesktop) ...[
                       const SizedBox(width: 10),
                       const Text(
-                        'Absen Indoteknik Prima Mekongga',
+                        'HadirKa',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -114,10 +113,14 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
                   ],
                 ),
               ),
-              selectedIconTheme:
-                  const IconThemeData(color: AppColors.primary, size: 24),
+              selectedIconTheme: const IconThemeData(
+                color: AppColors.primary,
+                size: 24,
+              ),
               unselectedIconTheme: const IconThemeData(
-                  color: AppColors.onSurfaceVariant, size: 22),
+                color: AppColors.onSurfaceVariant,
+                size: 22,
+              ),
               selectedLabelTextStyle: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 13,
@@ -130,43 +133,62 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
               ),
               destinations: [
                 NavigationRailDestination(
-                  icon: _buildBadgeIcon(LucideIcons.layoutDashboard,
-                      badgeCount: unreadHomeCount, badgeColor: AppColors.error),
-                  selectedIcon: _buildBadgeIcon(LucideIcons.layoutDashboard,
-                      isSelected: true,
-                      badgeCount: unreadHomeCount,
-                      badgeColor: AppColors.error),
+                  icon: _buildBadgeIcon(
+                    LucideIcons.layoutDashboard,
+                    badgeCount: unreadHomeCount,
+                    badgeColor: AppColors.error,
+                  ),
+                  selectedIcon: _buildBadgeIcon(
+                    LucideIcons.layoutDashboard,
+                    isSelected: true,
+                    badgeCount: unreadHomeCount,
+                    badgeColor: AppColors.error,
+                  ),
                   label: const Text('Home'),
                 ),
                 NavigationRailDestination(
-                  icon: _buildBadgeIcon(LucideIcons.scanFace,
-                      showDot: needsCheckIn, badgeColor: AppColors.warning),
-                  selectedIcon: _buildBadgeIcon(LucideIcons.scanFace,
-                      isSelected: true,
-                      showDot: needsCheckIn,
-                      badgeColor: AppColors.warning),
+                  icon: _buildBadgeIcon(
+                    LucideIcons.scanFace,
+                    showDot: needsCheckIn,
+                    badgeColor: AppColors.warning,
+                  ),
+                  selectedIcon: _buildBadgeIcon(
+                    LucideIcons.scanFace,
+                    isSelected: true,
+                    showDot: needsCheckIn,
+                    badgeColor: AppColors.warning,
+                  ),
                   label: const Text('Absensi'),
                 ),
                 NavigationRailDestination(
-                  icon: _buildBadgeIcon(LucideIcons.layoutGrid,
-                      showDot: hasLayananNotif,
-                      badgeColor: AppColors.hrAccentPurple),
-                  selectedIcon: _buildBadgeIcon(LucideIcons.layoutGrid,
-                      isSelected: true,
-                      showDot: hasLayananNotif,
-                      badgeColor: AppColors.hrAccentPurple),
+                  icon: _buildBadgeIcon(
+                    LucideIcons.layoutGrid,
+                    showDot: hasLayananNotif,
+                    badgeColor: AppColors.hrAccentPurple,
+                  ),
+                  selectedIcon: _buildBadgeIcon(
+                    LucideIcons.layoutGrid,
+                    isSelected: true,
+                    showDot: hasLayananNotif,
+                    badgeColor: AppColors.hrAccentPurple,
+                  ),
                   label: const Text('Layanan'),
                 ),
                 NavigationRailDestination(
                   icon: const Icon(LucideIcons.user),
-                  selectedIcon:
-                      const Icon(LucideIcons.user, color: AppColors.primary),
+                  selectedIcon: const Icon(
+                    LucideIcons.user,
+                    color: AppColors.primary,
+                  ),
                   label: const Text('Profil'),
                 ),
               ],
             ),
             const VerticalDivider(
-                thickness: 1, width: 1, color: AppColors.border),
+              thickness: 1,
+              width: 1,
+              color: AppColors.border,
+            ),
             Expanded(child: widget.navigationShell),
           ],
         ),
@@ -200,7 +222,9 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
             now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
           _lastPressedAt = now;
           AppNotification.showInfo(
-              context, 'Tekan sekali lagi untuk keluar dari aplikasi');
+            context,
+            'Tekan sekali lagi untuk keluar dari aplikasi',
+          );
         } else {
           SystemNavigator.pop();
         }
@@ -209,11 +233,13 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
     );
   }
 
-  Widget _buildBadgeIcon(IconData iconData,
-      {bool isSelected = false,
-      int badgeCount = 0,
-      bool showDot = false,
-      Color badgeColor = AppColors.primary}) {
+  Widget _buildBadgeIcon(
+    IconData iconData, {
+    bool isSelected = false,
+    int badgeCount = 0,
+    bool showDot = false,
+    Color badgeColor = AppColors.primary,
+  }) {
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -234,9 +260,10 @@ class _LayarUtamaState extends ConsumerState<LayarUtama> {
               child: Text(
                 badgeCount > 9 ? '9+' : '$badgeCount',
                 style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 9,
-                    fontWeight: FontWeight.bold),
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           )
@@ -293,10 +320,7 @@ class CustomFloatingNavBar extends StatelessWidget {
             offset: const Offset(0, 2),
           ),
         ],
-        border: Border.all(
-          color: Colors.white.withOpacity(0.8),
-          width: 1.5,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.8), width: 1.5),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(28),
@@ -396,7 +420,9 @@ class CustomFloatingNavBar extends StatelessWidget {
                     right: -7,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 5, vertical: 1.5),
+                        horizontal: 5,
+                        vertical: 1.5,
+                      ),
                       decoration: BoxDecoration(
                         color: badgeColor,
                         borderRadius: BorderRadius.circular(10),

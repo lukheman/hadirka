@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1D5C96"/>
+      <stop offset="1" stop-color="#123F68"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#F5F5F5"/>
+  <path d="M256 52c-104 0-188 84-188 188 0 139 188 220 188 220s188-81 188-220C444 136 360 52 256 52Z" fill="url(#g)"/>
+  <path d="m150 244 67 67 145-145" fill="none" stroke="#F7A94A" stroke-linecap="round" stroke-linejoin="round" stroke-width="42"/>
+  <text x="256" y="438" fill="#123F68" font-family="Arial,sans-serif" font-size="42" font-weight="700" text-anchor="middle">HadirKa</text>
+</svg>

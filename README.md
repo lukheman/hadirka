@@ -1,6 +1,6 @@
-# Indoteknik Prima Mekongga Absensi App
+# HadirKa
 
-Aplikasi absensi karyawan Indoteknik Prima Mekongga (Flutter) + API website IPM HRIS (PHP + MySQL).
+Aplikasi absensi karyawan HadirKa (Flutter) + API website HRIS (PHP + MySQL).
 
 ## Konfigurasi Aplikasi Flutter (`.env`)
 

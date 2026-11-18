@@ -46,11 +46,6 @@ final geofenceLocationsProvider =
   return await ref.read(servicesRepositoryProvider).getGeofence();
 });
 
-final loanApplicationsProvider =
-    FutureProvider<List<Map<String, dynamic>>>((ref) async {
-  ref.watch(backendDataTriggerProvider);
-  return await ref.read(servicesRepositoryProvider).getLoans();
-});
 
 final employeeListProvider =
     FutureProvider<List<Map<String, dynamic>>>((ref) async {
@@ -58,14 +53,3 @@ final employeeListProvider =
   return await ref.read(servicesRepositoryProvider).getUsers();
 });
 
-final payslipListProvider =
-    FutureProvider<List<Map<String, dynamic>>>((ref) async {
-  ref.watch(backendDataTriggerProvider);
-  final user = ref.watch(authProvider).user;
-  final username = user == null
-      ? ''
-      : (user.nik.trim().isNotEmpty
-          ? user.nik.trim()
-          : (user.username.trim().isNotEmpty ? user.username.trim() : user.id));
-  return await ref.read(servicesRepositoryProvider).getPayslips(username);
-});

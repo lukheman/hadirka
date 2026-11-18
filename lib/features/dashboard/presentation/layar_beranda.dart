@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/responsive.dart';
 import '../../attendance/providers/absensi_provider.dart';
@@ -40,7 +42,7 @@ class LayarBeranda extends ConsumerWidget {
         title: Row(
           children: [
             Image.asset(
-              'assets/images/logo-ipm.png',
+              'assets/images/logo-hadirka.png',
               width: 32,
               height: 32,
               fit: BoxFit.contain,
@@ -70,7 +72,11 @@ class LayarBeranda extends ConsumerWidget {
                 alignment: Alignment.center,
                 children: [
                   IconButton(
-                    icon: const Icon(LucideIcons.bell, color: AppColors.onSurface, size: 22),
+                    icon: const Icon(
+                      LucideIcons.bell,
+                      color: AppColors.onSurface,
+                      size: 22,
+                    ),
                     onPressed: () => context.push('/notifications'),
                   ),
                   if (unreadCount > 0)
@@ -83,7 +89,10 @@ class LayarBeranda extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: AppColors.error,
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.surface, width: 1.5),
+                          border: Border.all(
+                            color: AppColors.surface,
+                            width: 1.5,
+                          ),
                         ),
                       ),
                     ),
@@ -95,11 +104,14 @@ class LayarBeranda extends ConsumerWidget {
             builder: (context, ref, _) {
               final authUser = ref.watch(authProvider).user;
               ImageProvider? bgImage;
-              if (profil.fotoProfilBytes != null && profil.fotoProfilBytes!.isNotEmpty) {
+              if (profil.fotoProfilBytes != null &&
+                  profil.fotoProfilBytes!.isNotEmpty) {
                 bgImage = MemoryImage(profil.fotoProfilBytes!);
-              } else if (profil.fotoProfil != null && profil.fotoProfil!.existsSync()) {
+              } else if (profil.fotoProfil != null &&
+                  profil.fotoProfil!.existsSync()) {
                 bgImage = FileImage(profil.fotoProfil!);
-              } else if (authUser?.fotoProfil != null && authUser!.fotoProfil!.isNotEmpty) {
+              } else if (authUser?.fotoProfil != null &&
+                  authUser!.fotoProfil!.isNotEmpty) {
                 try {
                   final bytes = base64Decode(authUser.fotoProfil!);
                   if (bytes.isNotEmpty) bgImage = MemoryImage(bytes);
@@ -117,7 +129,9 @@ class LayarBeranda extends ConsumerWidget {
                     backgroundImage: bgImage,
                     child: bgImage == null
                         ? Text(
-                            profil.nama.isNotEmpty ? profil.nama.trim()[0].toUpperCase() : 'K',
+                            profil.nama.isNotEmpty
+                                ? profil.nama.trim()[0].toUpperCase()
+                                : 'K',
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w800,
@@ -142,7 +156,9 @@ class LayarBeranda extends ConsumerWidget {
             padding: const EdgeInsets.all(20),
             child: isMobile
                 ? ListView(
-                    physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
                     children: [
                       const BerandaGreeting(),
                       const SizedBox(height: 24),
@@ -158,7 +174,9 @@ class LayarBeranda extends ConsumerWidget {
                     ],
                   )
                 : SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
                     child: Column(
                       children: [
                         const BerandaGreeting(),
@@ -166,7 +184,6 @@ class LayarBeranda extends ConsumerWidget {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            
                             Expanded(
                               flex: 6,
                               child: Column(
@@ -178,7 +195,7 @@ class LayarBeranda extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(width: 24),
-                            
+
                             Expanded(
                               flex: 5,
                               child: Column(

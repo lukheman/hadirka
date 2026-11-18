@@ -11,8 +11,6 @@ import '../../features/dashboard/presentation/layar_beranda.dart';
 import '../../features/attendance/presentation/layar_absensi.dart';
 import '../../features/services/presentation/layar_layanan.dart';
 import '../../features/services/presentation/layar_pengajuan_ketidakhadiran.dart';
-import '../../features/services/presentation/layar_slip_gaji.dart';
-import '../../features/services/presentation/layar_pengajuan_pinjaman.dart';
 import '../../features/notifications/presentation/layar_notifikasi.dart';
 import '../../features/profile/presentation/layar_profil.dart';
 
@@ -100,14 +98,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/services/leave',
         builder: (context, state) => const LayarPengajuanKetidakhadiran(),
-      ),
-      GoRoute(
-        path: '/services/payslip',
-        builder: (context, state) => const LayarSlipGaji(),
-      ),
-      GoRoute(
-        path: '/services/loan',
-        builder: (context, state) => const LayarPengajuanPinjaman(),
       ),
     ],
   );

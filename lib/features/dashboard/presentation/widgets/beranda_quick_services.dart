@@ -24,8 +24,6 @@ class BerandaQuickServices extends StatelessWidget {
           children: [
             Expanded(child: _buildServiceItem(context, Icons.fingerprint, 'Presensi', '/attendance')),
             Expanded(child: _buildServiceItem(context, Icons.assignment, 'Pengajuan', '/services/leave')),
-            Expanded(child: _buildServiceItem(context, Icons.receipt_long, 'Slip Gaji', '/services/payslip')),
-            Expanded(child: _buildServiceItem(context, Icons.account_balance_wallet, 'Pinjaman', '/services/loan')),
           ],
         ),
       ],

@@ -1,4 +1,4 @@
-# Integrasi Aplikasi Absen Mobile Indoteknik Prima Mekongga ke Website IPM HRIS
+# Integrasi Aplikasi HadirKa ke Website HRIS
 
 Dokumen ini menjelaskan integrasi **aplikasi absen mobile (Flutter, repo `ipm-hris-karyawan`)**
 ke dalam **website IPM HRIS** menjadi satu sistem penuh: satu database, satu server (PHP),

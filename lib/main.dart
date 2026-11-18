@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'core/network/api_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routing/app_router.dart';
@@ -24,11 +25,7 @@ void main() async {
 
   debugPrint('Server API aktif: ${ApiConfig.baseUrl}');
 
-  runApp(
-    const ProviderScope(
-      child: MainApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: MainApp()));
 }
 
 class MainApp extends ConsumerStatefulWidget {
@@ -75,7 +72,7 @@ class _MainAppState extends ConsumerState<MainApp> {
 
     if (izinAwalSelesai == null) {
       return MaterialApp(
-        title: 'Absensi Indoteknik Prima Mekongga',
+        title: 'HadirKa',
         theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
         home: const _HalamanMemuatIzin(),
@@ -84,7 +81,7 @@ class _MainAppState extends ConsumerState<MainApp> {
 
     if (!izinAwalSelesai) {
       return MaterialApp(
-        title: 'Absensi Indoteknik Prima Mekongga',
+        title: 'HadirKa',
         theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
         home: HalamanIzinAwal(onSelesai: _selesaikanIzinAwal),
@@ -94,7 +91,7 @@ class _MainAppState extends ConsumerState<MainApp> {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'Absensi Indoteknik Prima Mekongga',
+      title: 'HadirKa',
       theme: AppTheme.lightTheme,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
@@ -110,8 +107,6 @@ class _HalamanMemuatIzin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

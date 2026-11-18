@@ -80,20 +80,10 @@ class NotificationsNotifier extends StateNotifier<List<AppNotifItem>> {
       final results = await Future.wait([
         ref.read(attendanceApiServiceProvider).getHistory(''),
         ref.read(servicesRepositoryProvider).getLeave(),
-        ref.read(servicesRepositoryProvider).getLoans(),
-        ref.read(servicesRepositoryProvider).getPayslips(
-              user.nik.trim().isNotEmpty
-                  ? user.nik.trim()
-                  : (user.username.trim().isNotEmpty
-                      ? user.username.trim()
-                      : user.id),
-            ),
       ]);
 
       final attendanceLogs = results[0];
       final leaveApps = results[1];
-      final loanApps = results[2];
-      final payslips = results[3];
 
       final userLogs =
           attendanceLogs.where((log) => isUserAccount(log)).toList();
@@ -154,43 +144,6 @@ class NotificationsNotifier extends StateNotifier<List<AppNotifItem>> {
         ));
       }
 
-      final userLoans = loanApps.where((loan) => isUserAccount(loan)).toList();
-
-      for (var loan in userLoans) {
-        final st = (loan['status'] ?? loan['status_approval'] ?? 'MENUNGGU')
-            .toString()
-            .toUpperCase();
-        final createdAt = loan['createdAt'] ?? loan['dibuat_pada'] ?? '';
-
-        list.add(AppNotifItem(
-          id: 'loan_${loan['id'] ?? createdAt}',
-          title: 'Pengajuan Pinjaman: $st',
-          message: st == 'DISETUJUI'
-              ? 'Pengajuan pinjaman Anda (${user.nama}) telah disetujui HRD.'
-              : st == 'DITOLAK'
-                  ? 'Pengajuan pinjaman Anda (${user.nama}) ditolak oleh HRD.'
-                  : 'Pengajuan pinjaman Anda sedang diproses oleh HRD.',
-          time: createdAt.toString().split('T').first,
-          timestamp: DateTime.tryParse(createdAt.toString()) ?? DateTime.now(),
-          type: 'loan',
-        ));
-      }
-
-      final userPayslips =
-          payslips.where((slip) => isUserAccount(slip)).toList();
-
-      for (var slip in userPayslips) {
-        final periode = slip['periode'] ?? 'Terbaru';
-        list.add(AppNotifItem(
-          id: 'slip_${slip['id'] ?? periode}',
-          title: 'Slip Gaji Diterbitkan',
-          message:
-              'Slip gaji resmi periode $periode untuk ${user.nama} telah tersedia.',
-          time: periode.toString(),
-          timestamp: DateTime.now(),
-          type: 'payslip',
-        ));
-      }
 
       list.add(AppNotifItem(
         id: 'sys_reminder_in',

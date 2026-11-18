@@ -16,15 +16,13 @@ final recentActivityProvider =
     final results = await Future.wait([
       ref.read(attendanceApiServiceProvider).getHistory(''),
       ref.read(servicesRepositoryProvider).getLeave(),
-      ref.read(servicesRepositoryProvider).getLoans(),
     ]);
 
     final attendanceLogs = results[0];
     final leaveApps = results[1];
-    final loanApps = results[2];
-
     final cleanUser = user.username.trim().toUpperCase();
     final cleanNama = user.nama.trim().toUpperCase();
+
 
     final userLogs = attendanceLogs.where((log) {
       final logU = (log['username'] ?? log['username_karyawan'] ?? '')
@@ -137,47 +135,6 @@ final recentActivityProvider =
       });
     }
 
-    final userLoans = loanApps.where((loan) {
-      final logU = (loan['username'] ?? loan['username_karyawan'] ?? '')
-          .toString()
-          .trim()
-          .toUpperCase();
-      final logNik = (loan['id_karyawan'] ?? loan['id'] ?? '')
-          .toString()
-          .trim()
-          .toUpperCase();
-      final logNama = (loan['nama'] ?? loan['nama_karyawan'] ?? '')
-          .toString()
-          .trim()
-          .toUpperCase();
-      return logU == cleanUser ||
-          logNik == cleanUser ||
-          (cleanNama.isNotEmpty && logNama == cleanNama);
-    }).toList();
-
-    for (var loan in userLoans) {
-      final createdAt = loan['createdAt'] ?? loan['dibuat_pada'] ?? '';
-      final st = loan['status'] ?? loan['status_approval'] ?? 'MENUNGGU';
-      final rawNominal = loan['nominal'] ?? loan['nominal_pinjaman'] ?? 0;
-      final num val = num.tryParse(rawNominal.toString()) ?? 0;
-      final strNominal = val
-          .toInt()
-          .toString()
-          .replaceAll(RegExp(r'\B(?=(\d{3})+(?!\d))'), '.');
-      final tenor = loan['tenor'] ?? loan['tenor_bulan'] ?? 1;
-
-      activities.add({
-        'title': 'Pengajuan Pinjaman',
-        'description': 'Status: $st • Rp $strNominal ($tenor bln)',
-        'time': createdAt.toString().isNotEmpty
-            ? createdAt.toString().split('T').first
-            : 'Terbaru',
-        'timestamp': DateTime.tryParse(createdAt.toString()) ?? DateTime.now(),
-        'icon': Icons.account_balance_wallet_outlined,
-        'iconBg': AppColors.hrPurpleBg,
-        'iconColor': AppColors.hrAccentPurple,
-      });
-    }
   } catch (_) {}
 
   activities.sort((a, b) =>
