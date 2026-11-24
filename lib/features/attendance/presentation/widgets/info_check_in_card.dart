@@ -4,7 +4,6 @@ import '../../../../core/constants/absensi_config.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../providers/absensi_provider.dart';
 
-
 class InfoCheckInCard extends StatelessWidget {
   final AbsensiState state;
 
@@ -15,9 +14,9 @@ class InfoCheckInCard extends StatelessWidget {
     final dataIn = state.dataCheckIn!;
     final waktuIn = dataIn.waktu;
     final jamIn = AbsensiConfig.formatJamMenit(waktuIn);
-
-    const statusLabel = 'Hadir';
-    const statusColor = AppColors.success;
+    final terlambat = state.keterlambatanMenit > 0;
+    final statusColor = terlambat ? AppColors.error : AppColors.success;
+    final statusBg = terlambat ? AppColors.errorBg : AppColors.successBg;
 
     return Container(
       decoration: BoxDecoration(
@@ -35,17 +34,17 @@ class InfoCheckInCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.successBg,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+              color: statusBg,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(18)),
             ),
             child: Row(
               children: [
                 Icon(
-                  LucideIcons.checkCircle2,
+                  terlambat ? LucideIcons.clockAlert : LucideIcons.checkCircle2,
                   size: 22,
                   color: statusColor,
                 ),
@@ -65,7 +64,7 @@ class InfoCheckInCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                         'Absen Masuk Berhasil',
+                        'Absen Masuk: ${AbsensiConfig.labelKetepatan(state.keterlambatanMenit)}',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
@@ -78,8 +77,6 @@ class InfoCheckInCard extends StatelessWidget {
               ],
             ),
           ),
-
-          
           Padding(
             padding: const EdgeInsets.all(18),
             child: Column(
@@ -102,27 +99,40 @@ class InfoCheckInCard extends StatelessWidget {
                         value: state.sudahCheckOut && state.dataCheckOut != null
                             ? '${AbsensiConfig.formatJamMenit(state.dataCheckOut!.waktu)} WITA'
                             : 'Belum Out',
-                        color: state.sudahCheckOut ? AppColors.success : AppColors.secondary,
+                        color: state.sudahCheckOut
+                            ? AppColors.success
+                            : AppColors.secondary,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                     if (state.sudahCheckOut) ...[
-                      Expanded(
-                        child: _buildInfoItem(
-                          icon: LucideIcons.clock,
-                          label: 'Total Jam Kerja',
-                          value: state.durasiKerjaTeks,
-                          color: AppColors.primary,
+                if (terlambat || state.sudahCheckOut) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      if (terlambat)
+                        Expanded(
+                          child: _buildInfoItem(
+                            icon: LucideIcons.clockAlert,
+                            label: 'Keterlambatan',
+                            value: state.keterlambatanTeks,
+                            color: AppColors.error,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
+                      if (terlambat && state.sudahCheckOut)
+                        const SizedBox(width: 12),
+                      if (state.sudahCheckOut)
+                        Expanded(
+                          child: _buildInfoItem(
+                            icon: LucideIcons.clock,
+                            label: 'Total Jam Kerja',
+                            value: state.durasiKerjaTeks,
+                            color: AppColors.primary,
+                          ),
+                        ),
                     ],
-                  ],
-                ),
+                  ),
+                ],
                 const Divider(height: 24, color: AppColors.border),
                 Row(
                   children: [
@@ -132,7 +142,8 @@ class InfoCheckInCard extends StatelessWidget {
                         color: AppColors.surfaceContainer,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(LucideIcons.mapPin, size: 16, color: AppColors.primary),
+                      child: const Icon(LucideIcons.mapPin,
+                          size: 16, color: AppColors.primary),
                     ),
                     const SizedBox(width: 12),
                     Expanded(

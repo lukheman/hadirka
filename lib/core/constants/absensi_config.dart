@@ -1,12 +1,9 @@
-
 class AbsensiConfig {
-  
   static const String officeStartTimeStr = '07:30';
   static const String onTimeLimitStr = '08:00';
   static const String officeEndTimeStr = '16:00';
   static const String timezoneName = 'WITA (Asia/Makassar / UTC+8)';
 
-  
   static const int startHour = 7;
   static const int startMinute = 30;
 
@@ -16,24 +13,20 @@ class AbsensiConfig {
   static const int endHour = 16;
   static const int endMinute = 0;
 
-  static const int utcOffsetHours = 8; 
+  static const int utcOffsetHours = 8;
 
-  
   static DateTime get witaNow {
     return DateTime.now().toUtc().add(const Duration(hours: utcOffsetHours));
   }
 
-  
   static int keTotalMenit(int hour, int minute) {
     return hour * 60 + minute;
   }
 
-  static int get startTotalMinutes => keTotalMenit(startHour, startMinute); 
-  static int get limitTotalMinutes => keTotalMenit(limitHour, limitMinute); 
-  static int get endTotalMinutes => keTotalMenit(endHour, endMinute);     
+  static int get startTotalMinutes => keTotalMenit(startHour, startMinute);
+  static int get limitTotalMinutes => keTotalMenit(limitHour, limitMinute);
+  static int get endTotalMinutes => keTotalMenit(endHour, endMinute);
 
-  
-  
   static int hitungKeterlambatanMenit(DateTime jamMasukWita) {
     final menitMasuk = keTotalMenit(jamMasukWita.hour, jamMasukWita.minute);
     if (menitMasuk <= limitTotalMinutes) {
@@ -42,8 +35,21 @@ class AbsensiConfig {
     return menitMasuk - limitTotalMinutes;
   }
 
-  
-  
+  /// Keterlambatan dihitung dari jam masuk aktual, dengan fallback ke waktu
+  /// presensi bila jam masuk tidak tersedia dari server.
+  static int hitungKeterlambatanAbsensi({
+    DateTime? jamMasuk,
+    required DateTime waktuPresensi,
+  }) {
+    return hitungKeterlambatanMenit(jamMasuk ?? waktuPresensi);
+  }
+
+  /// Label status ketepatan: "Tepat Waktu" atau "Terlambat 15 menit".
+  static String labelKetepatan(int keterlambatanMenit) {
+    if (keterlambatanMenit <= 0) return 'Tepat Waktu';
+    return 'Terlambat ${formatDurasiMenit(keterlambatanMenit)}';
+  }
+
   static String formatDurasiMenit(int totalMenit) {
     if (totalMenit <= 0) return '0 menit';
     final jam = totalMenit ~/ 60;
@@ -58,7 +64,6 @@ class AbsensiConfig {
     }
   }
 
-  
   static String formatDurasiRealtime(int totalDetik) {
     if (totalDetik <= 0) return '0 jam 0m 0s';
     final jam = totalDetik ~/ 3600;
@@ -73,8 +78,6 @@ class AbsensiConfig {
     }
   }
 
-  
-  
   static String evaluasiStatusWaktuMasuk(DateTime witaTime) {
     final totalMenit = keTotalMenit(witaTime.hour, witaTime.minute);
 
@@ -89,14 +92,12 @@ class AbsensiConfig {
     }
   }
 
-  
   static String formatJamMenit(DateTime dt) {
     final jam = dt.hour.toString().padLeft(2, '0');
     final menit = dt.minute.toString().padLeft(2, '0');
     return '$jam:$menit';
   }
 
-  
   static String formatJamMenitDetik(DateTime dt) {
     final jam = dt.hour.toString().padLeft(2, '0');
     final menit = dt.minute.toString().padLeft(2, '0');

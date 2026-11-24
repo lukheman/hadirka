@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/constants/absensi_config.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/backend/backend_provider.dart';
 import '../../../auth/providers/auth_provider.dart';
+
+DateTime? _parseJamMasuk(String raw) {
+  final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(raw);
+  if (match == null) return null;
+  final now = AbsensiConfig.witaNow;
+  return DateTime(
+    now.year,
+    now.month,
+    now.day,
+    int.parse(match.group(1)!),
+    int.parse(match.group(2)!),
+  );
+}
 
 final recentActivityProvider =
     FutureProvider<List<Map<String, dynamic>>>((ref) async {
@@ -22,7 +36,6 @@ final recentActivityProvider =
     final leaveApps = results[1];
     final cleanUser = user.username.trim().toUpperCase();
     final cleanNama = user.nama.trim().toUpperCase();
-
 
     final userLogs = attendanceLogs.where((log) {
       final logU = (log['username'] ?? log['username_karyawan'] ?? '')
@@ -62,14 +75,23 @@ final recentActivityProvider =
           }
         } catch (_) {}
 
+        final jamMasuk = _parseJamMasuk(rawIn);
+        final lateMenit = jamMasuk != null
+            ? AbsensiConfig.hitungKeterlambatanMenit(jamMasuk)
+            : 0;
+        final terlambat = lateMenit > 0;
+
         activities.add({
-          'title': 'Presensi Masuk',
-          'description': 'Berhasil presensi masuk di $lokasiNama',
+          'title': terlambat ? 'Presensi Masuk (Terlambat)' : 'Presensi Masuk',
+          'description': terlambat
+              ? 'Terlambat ${AbsensiConfig.formatDurasiMenit(lateMenit)} • $lokasiNama'
+              : 'Tepat waktu • $lokasiNama',
           'time': tgl.isNotEmpty ? '$tgl • $rawIn' : rawIn,
           'timestamp': tsIn ?? DateTime.now(),
           'icon': Icons.login,
-          'iconBg': AppColors.surfaceContainerHigh,
-          'iconColor': AppColors.primary,
+          'iconBg':
+              terlambat ? AppColors.errorBg : AppColors.surfaceContainerHigh,
+          'iconColor': terlambat ? AppColors.error : AppColors.primary,
         });
       }
 
@@ -134,7 +156,6 @@ final recentActivityProvider =
         'iconColor': AppColors.ipmOrangeDark,
       });
     }
-
   } catch (_) {}
 
   activities.sort((a, b) =>

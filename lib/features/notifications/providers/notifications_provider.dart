@@ -1,6 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/backend/backend_provider.dart';
+import '../../../core/constants/absensi_config.dart';
 import '../../auth/providers/auth_provider.dart';
+
+DateTime? _parseJamMasuk(String raw) {
+  final match = RegExp(r'(\d{1,2}):(\d{2})').firstMatch(raw);
+  if (match == null) return null;
+  final now = AbsensiConfig.witaNow;
+  return DateTime(
+    now.year,
+    now.month,
+    now.day,
+    int.parse(match.group(1)!),
+    int.parse(match.group(2)!),
+  );
+}
 
 class AppNotifItem {
   final String id;
@@ -94,15 +108,27 @@ class NotificationsNotifier extends StateNotifier<List<AppNotifItem>> {
         final rawOut = log['waktuOut']?.toString();
 
         if (rawIn != null && rawIn.isNotEmpty) {
+          final jamMasuk = _parseJamMasuk(rawIn);
+          final lateMenit = jamMasuk != null
+              ? AbsensiConfig.hitungKeterlambatanMenit(jamMasuk)
+              : 0;
+          final terlambat = lateMenit > 0;
+
           list.add(AppNotifItem(
             id: 'in_${log['id_presensi'] ?? tgl}',
-            title: 'Presensi Masuk Berhasil',
-            message:
-                'Presensi masuk tercatat pada jam $rawIn untuk akun ${user.nama}.',
+            title: terlambat
+                ? 'Presensi Masuk: Terlambat'
+                : 'Presensi Masuk: Tepat Waktu',
+            message: terlambat
+                ? 'Presensi masuk pukul $rawIn untuk akun ${user.nama}. '
+                    'Anda terlambat ${AbsensiConfig.formatDurasiMenit(lateMenit)} '
+                    'dari batas tepat waktu 08:00 WITA.'
+                : 'Presensi masuk pukul $rawIn untuk akun ${user.nama}. '
+                    'Anda tidak terlambat.',
             time: tgl.isNotEmpty ? '$tgl â€¢ $rawIn' : rawIn,
             timestamp: DateTime.tryParse(log['waktu']?.toString() ?? '') ??
                 DateTime.now(),
-            type: 'attendance',
+            type: terlambat ? 'attendance_late' : 'attendance',
           ));
         }
 
@@ -143,7 +169,6 @@ class NotificationsNotifier extends StateNotifier<List<AppNotifItem>> {
           type: 'leave',
         ));
       }
-
 
       list.add(AppNotifItem(
         id: 'sys_reminder_in',

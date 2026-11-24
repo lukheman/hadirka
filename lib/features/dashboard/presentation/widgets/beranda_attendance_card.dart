@@ -26,10 +26,13 @@ class BerandaAttendanceCard extends ConsumerWidget {
       statusBadgeBg = const Color(0x3310B981);
       statusTextColor = const Color(0xFF34D399);
     } else if (state.sudahCheckIn && state.dataCheckIn != null) {
+      final terlambat = state.keterlambatanMenit > 0;
       statusJudul = 'Sudah Absen Masuk';
-      statusBadgeLabel = 'HADIR';
-      statusBadgeBg = const Color(0x3310B981);
-      statusTextColor = const Color(0xFF34D399);
+      statusBadgeLabel = terlambat ? 'TERLAMBAT' : 'TEPAT WAKTU';
+      statusBadgeBg =
+          terlambat ? const Color(0x33EF4444) : const Color(0x3310B981);
+      statusTextColor =
+          terlambat ? const Color(0xFFF87171) : const Color(0xFF34D399);
     } else {
       statusJudul = 'Belum Presensi';
       switch (state.statusAbsensiKode) {
@@ -37,6 +40,11 @@ class BerandaAttendanceCard extends ConsumerWidget {
           statusBadgeLabel = 'SIAP PRESENSI';
           statusBadgeBg = const Color(0x3310B981);
           statusTextColor = const Color(0xFF34D399);
+          break;
+        case 'terlambat':
+          statusBadgeLabel = 'TERLAMBAT';
+          statusBadgeBg = const Color(0x33EF4444);
+          statusTextColor = const Color(0xFFF87171);
           break;
         default:
           statusBadgeLabel = 'SIAP ABSEN';
@@ -220,7 +228,13 @@ class BerandaAttendanceCard extends ConsumerWidget {
                     Expanded(
                       child: _buildInfoGlassTile(
                         'Status',
-                        state.sudahCheckIn ? 'Hadir' : 'Belum Absen',
+                        state.sudahCheckIn
+                            ? (state.keterlambatanMenit > 0
+                                ? 'Terlambat ${state.keterlambatanTeks}'
+                                : 'Tepat Waktu')
+                            : (state.statusAbsensiKode == 'terlambat'
+                                ? 'Terlambat ${state.keterlambatanTeks}'
+                                : 'Belum Absen'),
                         LucideIcons.badgeCheck,
                       ),
                     ),

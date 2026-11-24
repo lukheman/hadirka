@@ -5,7 +5,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/theme/app_colors.dart';
 import '../providers/notifications_provider.dart';
 
-
 class LayarNotifikasi extends ConsumerWidget {
   const LayarNotifikasi({super.key});
 
@@ -13,6 +12,8 @@ class LayarNotifikasi extends ConsumerWidget {
     switch (type) {
       case 'attendance':
         return LucideIcons.checkCircle;
+      case 'attendance_late':
+        return LucideIcons.clockAlert;
       case 'leave':
         return LucideIcons.calendar;
       case 'system':
@@ -25,6 +26,8 @@ class LayarNotifikasi extends ConsumerWidget {
     switch (type) {
       case 'attendance':
         return AppColors.success;
+      case 'attendance_late':
+        return AppColors.error;
       case 'leave':
         return AppColors.primary;
       case 'system':
@@ -37,6 +40,8 @@ class LayarNotifikasi extends ConsumerWidget {
     switch (type) {
       case 'attendance':
         return AppColors.successBg;
+      case 'attendance_late':
+        return AppColors.errorBg;
       case 'leave':
         return AppColors.primaryContainer;
       case 'system':
@@ -104,7 +109,8 @@ class LayarNotifikasi extends ConsumerWidget {
               onPressed: () {
                 ref.read(notificationsProvider.notifier).markAllAsRead();
               },
-              icon: const Icon(LucideIcons.checkCheck, size: 20, color: AppColors.primary),
+              icon: const Icon(LucideIcons.checkCheck,
+                  size: 20, color: AppColors.primary),
             ),
           const SizedBox(width: 8),
         ],
@@ -152,7 +158,9 @@ class LayarNotifikasi extends ConsumerWidget {
             )
           : RefreshIndicator(
               onRefresh: () async {
-                await ref.read(notificationsProvider.notifier).refreshNotifications();
+                await ref
+                    .read(notificationsProvider.notifier)
+                    .refreshNotifications();
               },
               child: ListView.separated(
                 padding: const EdgeInsets.only(top: 100, bottom: 40),
@@ -173,7 +181,9 @@ class LayarNotifikasi extends ConsumerWidget {
                     warnaIkon: _getIconColor(notif.type),
                     latarIkon: _getIconBg(notif.type),
                     onTap: () {
-                      ref.read(notificationsProvider.notifier).markAsRead(notif.id);
+                      ref
+                          .read(notificationsProvider.notifier)
+                          .markAsRead(notif.id);
                     },
                   );
                 },
@@ -182,7 +192,6 @@ class LayarNotifikasi extends ConsumerWidget {
     );
   }
 }
-
 
 class ItemNotifikasi extends StatelessWidget {
   final IconData ikon;
@@ -211,7 +220,9 @@ class ItemNotifikasi extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        color: sudahDibaca ? AppColors.surface : AppColors.surfaceContainerHigh.withOpacity(0.5),
+        color: sudahDibaca
+            ? AppColors.surface
+            : AppColors.surfaceContainerHigh.withOpacity(0.5),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,7 +247,8 @@ class ItemNotifikasi extends StatelessWidget {
                           judul,
                           style: TextStyle(
                             fontSize: 13.5,
-                            fontWeight: sudahDibaca ? FontWeight.w600 : FontWeight.w800,
+                            fontWeight:
+                                sudahDibaca ? FontWeight.w600 : FontWeight.w800,
                             color: AppColors.onSurface,
                           ),
                         ),

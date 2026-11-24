@@ -44,10 +44,22 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
         await ref.read(absensiProvider.notifier).lakukanAbsensi(tipe);
 
     if (berhasil && mounted) {
-      AppNotification.showSuccess(
-        context,
-        tipe == 'check_in' ? 'Absen masuk berhasil!' : 'Absen keluar berhasil!',
-      );
+      if (tipe == 'check_in') {
+        final state = ref.read(absensiProvider);
+        if (state.keterlambatanMenit > 0) {
+          AppNotification.showWarning(
+            context,
+            'Absen masuk tercatat, tetapi Anda terlambat ${state.keterlambatanTeks}.',
+          );
+        } else {
+          AppNotification.showSuccess(
+            context,
+            'Absen masuk berhasil! Anda tepat waktu.',
+          );
+        }
+      } else {
+        AppNotification.showSuccess(context, 'Absen keluar berhasil!');
+      }
     }
   }
 
@@ -174,5 +186,4 @@ class _LayarAbsensiState extends ConsumerState<LayarAbsensi> {
       ),
     );
   }
-
 }

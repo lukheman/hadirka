@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import '../../../core/constants/absensi_config.dart';
+
 class DataAbsensi {
   final String? id;
   final String tipe;
@@ -79,6 +81,46 @@ class DataAbsensi {
   }
 
   factory DataAbsensi.fromJson(Map<String, dynamic> json) {
+    final waktu = json['waktu'] != null
+        ? DateTime.parse(json['waktu'].toString()).toLocal()
+        : DateTime.now();
+    final jamMasuk =
+        json['waktuIn'] != null ? _parseTime(json['waktuIn'].toString()) : null;
+    final jamKeluar = json['waktuOut'] != null
+        ? _parseTime(json['waktuOut'].toString())
+        : null;
+
+    // Server dapat mengirim keterlambatan eksplisit; bila tidak ada, hitung
+    // dari jam masuk agar status "Terlambat"/"Tepat Waktu" tetap akurat.
+    final lateRaw = json['keterlambatanMenit'] ?? json['keterlambatan_menit'];
+    var keterlambatanMenit = (lateRaw as num?)?.toInt();
+    if (keterlambatanMenit == null || keterlambatanMenit < 0) {
+      keterlambatanMenit = AbsensiConfig.hitungKeterlambatanAbsensi(
+        jamMasuk: jamMasuk,
+        waktuPresensi: waktu,
+      );
+    }
+
+    final statusRaw = (json['statusKehadiran'] ??
+            json['status_kehadiran'] ??
+            json['statusKetepatan'] ??
+            json['status_ketepatan'])
+        ?.toString()
+        .toLowerCase();
+    final tepatWaktuRaw = json['isTepatWaktu'] ?? json['is_tepat_waktu'];
+
+    var statusKetepatan = keterlambatanMenit > 0 ? 'terlambat' : 'tepat_waktu';
+    if (statusRaw != null && statusRaw.isNotEmpty) {
+      if (statusRaw.contains('terlambat')) {
+        statusKetepatan = 'terlambat';
+      } else if (statusRaw.contains('tepat') || statusRaw.contains('hadir')) {
+        statusKetepatan = keterlambatanMenit > 0 ? 'terlambat' : 'tepat_waktu';
+      }
+    }
+    if (tepatWaktuRaw is bool && !tepatWaktuRaw) {
+      statusKetepatan = 'terlambat';
+    }
+
     return DataAbsensi(
       id: json['id']?.toString(),
       tipe: json['tipe']?.toString() ?? 'check_in',
@@ -91,17 +133,11 @@ class DataAbsensi {
       jarak: (json['jarakMeter'] as num?)?.toDouble() ??
           (json['jarak'] as num?)?.toDouble() ??
           0.0,
-      waktu: json['waktu'] != null
-          ? DateTime.parse(json['waktu'].toString()).toLocal()
-          : DateTime.now(),
-      jamMasuk: json['waktuIn'] != null
-          ? _parseTime(json['waktuIn'].toString())
-          : null,
-      jamKeluar: json['waktuOut'] != null
-          ? _parseTime(json['waktuOut'].toString())
-          : null,
-      statusKetepatan: 'hadir',
-      keterlambatanMenit: 0,
+      waktu: waktu,
+      jamMasuk: jamMasuk,
+      jamKeluar: jamKeluar,
+      statusKetepatan: statusKetepatan,
+      keterlambatanMenit: keterlambatanMenit,
       durasiKerjaMenit: (json['durasiKerjaMenit'] as num?)?.toInt() ?? 0,
       metodeCheckout: json['metode_checkout']?.toString() ??
           json['metodeCheckout']?.toString(),
